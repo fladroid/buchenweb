@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reader — Buchenberg</title>
+<link rel="stylesheet" href="buchenberg.css">
+<script src="nav.js"></script>
+<style>
+  #reader-controls {
+    display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center;
+  }
+
+  .bb-select-wrap {
+    display: flex; flex-direction: column; gap: 4px; min-width: 200px; flex: 1;
+  }
+
+  .bb-select-label {
+    font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.05em;
+  }
+
+  .bb-select {
+    padding: 7px 10px; border: 1px solid var(--border); border-radius: 2px;
+    background: var(--surface); color: var(--text); font-size: 14px;
+    font-family: var(--font-sans); cursor: pointer; width: 100%;
+    transition: border-color .15s;
+  }
+  .bb-select:focus { outline: none; border-color: var(--accent); }
+  .bb-select:disabled { opacity: 0.45; cursor: default; }
+
+  #reader-main {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 24px 32px;
+    transition: background .2s, border-color .2s;
+  }
+
+  #book-header { margin-bottom: 20px; border-bottom: 1px solid var(--border-light); padding-bottom: 16px; }
+  #book-title { font-family: var(--font-serif); font-size: 28px; font-weight: normal; color: var(--text); margin-bottom: 4px; }
+  #book-author { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
+  #book-meta { font-size: 12px; color: var(--text-light); }
+
+  #reader-toolbar {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+    padding: 8px 12px; background: var(--toc-bg); border: 1px solid var(--border-light);
+    border-radius: 2px; flex-wrap: wrap;
+    transition: background .2s;
+  }
+
+  .score-info { font-size: 11px; color: var(--text-light); margin-left: auto; }
+
+  #reader { font-family: var(--font-serif); font-size: 16px; line-height: 1.8; }
+
+  .sentence-row {
+    display: grid; grid-template-columns: 1fr;
+    padding: 3px 0; border-bottom: 1px solid transparent; transition: background .1s;
+  }
+  .sentence-row:hover { background: var(--border-light); border-radius: 2px; }
+  .sentence-row.with-original {
+    grid-template-columns: 1fr 1fr; gap: 16px;
+    padding: 6px 0; border-bottom: 1px solid var(--border-light);
+  }
+  .sentence-original {
+    color: var(--text-muted); font-style: italic; font-size: 14px;
+    padding-right: 16px; border-right: 2px solid var(--border-light);
+  }
+  .sentence-translation { color: var(--text); }
+  .sentence-only-original { color: var(--text); }
+
+  .sentence-num {
+    font-size: 10px; color: var(--text-light); font-family: var(--font-mono);
+    vertical-align: super; margin-right: 3px; user-select: none;
+  }
+  .xray-panel {
+    display: none; margin: 4px 0 8px 0;
+    border: 1px solid var(--border-light); border-radius: 2px;
+    font-size: 11px; font-family: var(--font-mono); color: var(--text-muted);
+    background: var(--toc-bg); overflow: hidden;
+  }
+  .xray-panel.visible { display: block; }
+  .xray-backt {
+    padding: 5px 10px; border-bottom: 1px solid var(--border-light);
+    color: var(--text-muted); font-style: italic; font-size: 12px; font-family: var(--font-serif);
+  }
+  .xray-backt-label {
+    font-family: var(--font-mono); font-style: normal; font-size: 10px;
+    color: var(--text-light); margin-right: 6px;
+  }
+  .xray-scores {
+    display: flex; gap: 0; flex-wrap: wrap;
+  }
+  .xray-score-group {
+    padding: 5px 12px; border-right: 1px solid var(--border-light); flex: 1; min-width: 140px;
+  }
+  .xray-score-group:last-child { border-right: none; }
+  .xray-score-row {
+    display: flex; justify-content: space-between; gap: 12px; line-height: 1.8;
+  }
+  .xray-score-key { color: var(--text-light); }
+  .xray-score-val { color: var(--text); font-weight: 500; }
+  .xray-model {
+    padding: 3px 10px; border-top: 1px solid var(--border-light);
+    color: var(--text-light); font-size: 10px;
+  }
+
+  #xray-legend {
+    display: none; margin-bottom: 20px;
+    border: 1px solid var(--border); border-radius: 2px;
+    background: var(--toc-bg); overflow: hidden; font-size: 12px;
+  }
+  #xray-legend.visible { display: block; }
+  #xray-legend-title {
+    background: var(--infobox-head);
+    text-align: center; font-weight: bold;
+    padding: 4px 8px; font-size: 13px;
+  }
+  #xray-legend-body {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  }
+  .xray-legend-row {
+    display: flex; gap: 0; border-bottom: 1px solid var(--border-light);
+    border-right: 1px solid var(--border-light);
+  }
+  .xray-legend-row:nth-child(even) { border-right: none; }
+  .xray-legend-key {
+    font-family: var(--font-mono); font-weight: bold; font-size: 11px;
+    color: var(--text-muted); padding: 5px 10px; min-width: 140px;
+    border-right: 1px solid var(--border-light); white-space: nowrap;
+  }
+  .xray-legend-val {
+    padding: 5px 10px; color: var(--text-muted); line-height: 1.5; font-size: 11px;
+  }
+
+  @media (max-width: 700px) {
+    #reader-controls { flex-direction: column; }
+    .bb-select-wrap { min-width: 0; width: 100%; }
+    #reader-main { padding: 16px; }
+    .sentence-row.with-original { grid-template-columns: 1fr; }
+    .sentence-original {
+      border-right: none; border-bottom: 1px solid var(--border-light);
+      padding-bottom: 4px; margin-bottom: 4px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER ubacen via nav.js -->
+
+<!-- PAGE -->
+<div id="bb-page">
+
+  <!-- DROPDOWNS -->
+  <div id="reader-controls">
+    <div class="bb-select-wrap">
+      <span class="bb-select-label" id="lbl-books">Books</span>
+      <select class="bb-select" id="book-select">
+        <option value="">—</option>
+      </select>
+    </div>
+    <div class="bb-select-wrap">
+      <span class="bb-select-label" id="lbl-translations">Translations</span>
+      <select class="bb-select" id="lang-select" disabled>
+        <option value="">—</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- X-RAY LEGENDA -->
+  <div id="xray-legend">
+    <div id="xray-legend-title">X-Ray — Score Guide</div>
+    <div id="xray-legend-body">
+      <div class="xray-legend-row">
+        <div class="xray-legend-key">BT</div>
+        <div class="xray-legend-val">Back Translation — the winning translation translated back to English. Shows how much meaning survives the round trip.</div>
+      </div>
+      <div class="xray-legend-row">
+        <div class="xray-legend-key">Translation Score</div>
+        <div class="xray-legend-val">Cosine similarity between the translation and the original in the multilingual embedding space (e5-large). Measures semantic closeness across languages.</div>
+      </div>
+      <div class="xray-legend-row">
+        <div class="xray-legend-key">Back Score</div>
+        <div class="xray-legend-val">Cosine similarity between the back translation and the original English. A high score means the meaning survived the round trip intact.</div>
+      </div>
+      <div class="xray-legend-row">
+        <div class="xray-legend-key">Judge Average</div>
+        <div class="xray-legend-val">Average of the three judge scores below, assigned by the LLM judge (gemma4:31b). The primary quality signal from the judge.</div>
+      </div>
+      <div class="xray-legend-row">
+        <div class="xray-legend-key">Grammar</div>
+        <div class="xray-legend-val">Judge score for grammatical correctness and syntactic quality of the translation (0–1).</div>
+      </div>
+      <div class="xray-legend-row">
+        <div class="xray-legend-key">Naturalness</div>
+        <div class="xray-legend-val">Judge score for how natural and fluent the translation reads to a native speaker of the target language (0–1).</div>
+      </div>
+      <div class="xray-legend-row">
+        <div class="xray-legend-key">Fidelity</div>
+        <div class="xray-legend-val">Judge score for how faithfully the translation conveys the full meaning of the original sentence (0–1).</div>
+      </div>
+      <div class="xray-legend-row">
+        <div class="xray-legend-key">Model</div>
+        <div class="xray-legend-val">The winning translation model: gemma3 (Google), ministral (Mistral AI), or nllb-600M (Meta NLLB — local CPU model).</div>
+      </div>
+      <div class="xray-legend-row" style="border-right:none;">
+        <div class="xray-legend-key">t=</div>
+        <div class="xray-legend-val">Temperature at which the model was run. Lower values (0.1) produce more deterministic output; higher values (0.8) introduce more variation and creativity.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="reader-main">
+    <div id="reader-loading" class="bb-loading">Select a book and translation</div>
+    <div id="content" style="display:none">
+
+      <div id="book-header" style="display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:260px;">
+          <div id="book-title"></div>
+          <div id="book-author"></div>
+          <div id="book-meta"></div>
+        </div>
+        <div class="bb-infobox" id="infobox" style="margin:0;">
+          <div class="bb-infobox-title" id="infobox-title">Novel</div>
+          <table id="infobox-table"></table>
+        </div>
+      </div>
+
+      <div id="reader-toolbar">
+        <span class="bb-toggle-wrap">
+          <label id="lbl-show-original">Show original:</label>
+          <label class="bb-toggle">
+            <input type="checkbox" id="toggle-original">
+            <span class="bb-toggle-slider"></span>
+          </label>
+        </span>
+        <span class="bb-toggle-wrap" style="margin-left:12px">
+          <label class="bb-toggle">
+            <input type="checkbox" id="toggle-xray">
+            <span class="bb-toggle-slider"></span>
+          </label>
+          <label id="lbl-xray" style="color:var(--text-muted)">X-Ray</label>
+        </span>
+        <span class="score-info" id="score-info" style="display:none"></span>
+      </div>
+
+      <div id="reader"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div id="bb-footer">
+  <div style="max-width:1200px; margin:0 auto; padding:0 16px;">
+    Buchenberg · Open-source MT pipeline ·
+    <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a> ·
+    <a href="https://github.com/fladroid" target="_blank">GitHub</a>
+  </div>
+</div>
+
+<script>
+const I18N = {
+  en: { books:"Books", translations:"Translations", select:"Select a book and translation", show_original:"Show original:", sentences:"sentences", author:"Author", language:"Language", sentences_lbl:"Sentences", pipeline:"Pipeline", source:"Source", infobox_title:"Novel", gutenberg:"Project Gutenberg", ui_lang:"UI:", original:"Original", untranslated:"untranslated", nav_home:"Home", nav_about:"About", nav_stats:"X-Ray Stats", nav_books:"Library", nav_nlp:"NLP", nav_reader:"Reader" },
+  de: { books:"Bücher", translations:"Übersetzungen", select:"Buch und Übersetzung auswählen", show_original:"Original anzeigen:", sentences:"Sätze", author:"Autor", language:"Sprache", sentences_lbl:"Sätze", pipeline:"Pipeline", source:"Quelle", infobox_title:"Roman", gutenberg:"Project Gutenberg", ui_lang:"Sprache:", original:"Original", untranslated:"unübersetzt", nav_home:"Startseite", nav_about:"Über", nav_stats:"X-Ray Statistik", nav_books:"Bibliothek", nav_nlp:"NLP", nav_reader:"Leser" },
+  it: { books:"Libri", translations:"Traduzioni", select:"Seleziona un libro e una traduzione", show_original:"Mostra originale:", sentences:"frasi", author:"Autore", language:"Lingua", sentences_lbl:"Frasi", pipeline:"Pipeline", source:"Fonte", infobox_title:"Romanzo", gutenberg:"Project Gutenberg", ui_lang:"Lingua:", original:"Originale", untranslated:"non tradotto", nav_home:"Home", nav_about:"Informazioni", nav_stats:"Statistiche X-Ray", nav_books:"Biblioteca", nav_nlp:"NLP", nav_reader:"Lettore" },
+  hr: { books:"Knjige", translations:"Prijevodi", select:"Odaberi knjigu i prijevod", show_original:"Prikaži original:", sentences:"rečenica", author:"Autor", language:"Jezik", sentences_lbl:"Rečenica", pipeline:"Pipeline", source:"Izvor", infobox_title:"Roman", gutenberg:"Project Gutenberg", ui_lang:"Jezik:", original:"Original", untranslated:"neprevedeno", nav_home:"Početna", nav_about:"O projektu", nav_stats:"X-Ray Statistike", nav_books:"Knjižnica", nav_nlp:"NLP", nav_reader:"Čitač" },
+  sr: { books:"Књиге", translations:"Преводи", select:"Одабери књигу и превод", show_original:"Прикажи оригинал:", sentences:"реченица", author:"Autor", language:"Jezik", sentences_lbl:"Реченица", pipeline:"Pipeline", source:"Извор", infobox_title:"Роман", gutenberg:"Project Gutenberg", ui_lang:"Језик:", original:"Оригинал", untranslated:"непреведено", nav_home:"Почетна", nav_about:"О пројекту", nav_stats:"X-Ray Статистике", nav_books:"Библиотека", nav_nlp:"NLP", nav_reader:"Читач" },
+};
+
+const LANG_NAMES_NATIVE = {
+  hr:"Hrvatski", bs:"Bosanski", sr:"Српски", sl:"Slovenščina",
+  de:"Deutsch", nl:"Nederlands", af:"Afrikaans",
+  fr:"Français", it:"Italiano", es:"Español", pt:"Português", ro:"Română",
+  mk:"Македонски", bg:"Български"
+};
+
+let state = {
+  uiLang: localStorage.getItem('bb-ui-lang') || 'en',
+  books:[], activeBook:null, activeLang:null,
+  showOriginal:false, xray:false,
+  translation:null, originalOnly:false
+};
+
+const t = key => (I18N[state.uiLang] || I18N.en)[key] || key;
+const $ = id => document.getElementById(id);
+
+const savedTheme = localStorage.getItem('bb-theme') || 'light';
+document.documentElement.setAttribute('data-theme', savedTheme);
+function updateThemeBtn() {
+  $('bb-theme-toggle').textContent =
+    document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+}
+updateThemeBtn();
+
+function applyI18n() {
+  const navLinks = document.querySelectorAll('.bb-nav-link');
+  navLinks[0].textContent = t('nav_home');
+  navLinks[1].textContent = t('nav_about');
+  navLinks[2].textContent = t('nav_stats');
+  navLinks[3].textContent = t('nav_books');
+  navLinks[4].textContent = t('nav_nlp');
+  navLinks[5].textContent = t('nav_reader');
+  $('lbl-books').textContent = t('books');
+  $('lbl-translations').textContent = t('translations');
+  $('lbl-show-original').textContent = t('show_original');
+  if (!state.activeLang) $('reader-loading').textContent = t('select');
+  if (state.activeBook) renderLangSelect();
+  if (state.translation) { renderInfobox(); renderScoreInfo(); }
+  document.querySelectorAll('.bb-lang-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.lang === state.uiLang));
+}
+
+document.querySelectorAll('.bb-lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.uiLang = btn.dataset.lang;
+    localStorage.setItem('bb-ui-lang', state.uiLang);
+    applyI18n();
+  });
+});
+
+async function loadBooks() {
+  const __ver = await fetch(`data/version.json?t=${Date.now()}`).then(r => r.json()).catch(() => ({v: Date.now()}));
+  window.__v = __ver.v;
+  const __v = window.__v;
+  state.books = await fetch(`data/books.json?v=${__v}`).then(r => r.json());
+  renderBookSelect();
+
+  const params = new URLSearchParams(window.location.search);
+  const bookId = params.get('book');
+  if (bookId) {
+    const book = state.books.find(b => String(b.id) === String(bookId));
+    if (book) selectBook(book);
+  }
+}
+
+function renderBookSelect() {
+  const sel = $('book-select');
+  sel.innerHTML = '<option value="">—</option>';
+  state.books.forEach(book => {
+    const opt = document.createElement('option');
+    opt.value = book.id;
+    opt.textContent = book.title;
+    if (state.activeBook && state.activeBook.id === book.id) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function renderLangSelect() {
+  const sel = $('lang-select');
+  sel.innerHTML = '<option value="">—</option>';
+  sel.disabled = false;
+
+  const optOrig = document.createElement('option');
+  optOrig.value = '__original__';
+  optOrig.textContent = 'EN — ' + t('original') + ' (' + state.activeBook.total_sentences + ' ' + t('sentences') + ')';
+  if (state.activeLang === '__original__') optOrig.selected = true;
+  sel.appendChild(optOrig);
+
+  const langs = [...(state.activeBook.languages || [])];
+  langs.sort((a, b) => {
+    const na = LANG_NAMES_NATIVE[a.code] || a.name;
+    const nb = LANG_NAMES_NATIVE[b.code] || b.name;
+    return na.localeCompare(nb);
+  });
+
+  langs.forEach(lang => {
+    const opt = document.createElement('option');
+    opt.value = lang.code;
+    opt.textContent = lang.code.toUpperCase() + ' — ' + (LANG_NAMES_NATIVE[lang.code] || lang.name) + ' (' + lang.sentences + ' ' + t('sentences') + ')';
+    if (state.activeLang === lang.code) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function selectBook(book) {
+  state.activeBook = book;
+  state.activeLang = null;
+  state.translation = null;
+  state.originalOnly = false;
+  $('book-select').value = book.id;
+  renderLangSelect();
+  $('content').style.display = 'none';
+  $('reader-loading').style.display = '';
+  $('reader-loading').textContent = t('select');
+}
+
+async function selectOriginal() {
+  state.activeLang = '__original__';
+  state.originalOnly = true;
+  $('reader-loading').style.display = '';
+  $('reader-loading').textContent = '⌛';
+  $('content').style.display = 'none';
+  const data = await fetch('data/orig_' + state.activeBook.id + '.json?v=' + (window.__v || Date.now())).then(r => r.json());
+  state.translation = {
+    title: data.title, author: data.author, lang_name: 'English',
+    sentences: data.sentences.map(s => ({ pos: s.pos, original: s.text, translated: false }))
+  };
+  renderContent();
+}
+
+async function selectLang(code) {
+  state.activeLang = code;
+  state.originalOnly = false;
+  $('reader-loading').style.display = '';
+  $('reader-loading').textContent = '⌛';
+  $('content').style.display = 'none';
+  state.translation = await fetch('data/tr_' + state.activeBook.id + '_' + code + '.json?v=' + (window.__v || Date.now())).then(r => r.json());
+  renderContent();
+}
+
+function renderContent() {
+  const tr = state.translation;
+  if (!tr) return;
+  $('book-title').textContent = tr.title;
+  $('book-author').textContent = tr.author;
+
+  if (state.originalOnly) {
+    $('book-meta').textContent = 'English · ' + tr.sentences.length + ' ' + t('sentences');
+    $('reader-toolbar').style.display = 'none';
+  } else {
+    const translated = tr.sentences.filter(s => s.translated !== false).length;
+    const langName = LANG_NAMES_NATIVE[state.activeLang] || tr.lang_name;
+    $('book-meta').textContent = langName + ' · ' + translated + ' ' + t('sentences');
+    $('reader-toolbar').style.display = '';
+  }
+
+  renderInfobox();
+  renderScoreInfo();
+  renderReader();
+  $('reader-loading').style.display = 'none';
+  $('content').style.display = '';
+}
+
+function renderInfobox() {
+  if (!state.activeBook) return;
+  $('infobox-title').textContent = t('infobox_title');
+  const langDisplay = state.originalOnly
+    ? 'English'
+    : (LANG_NAMES_NATIVE[state.activeLang] || state.activeLang);
+  const sentCount = state.originalOnly
+    ? state.activeBook.total_sentences
+    : (state.translation && state.translation.sentences ? state.translation.sentences.filter(s => s.translated !== false).length : '');
+  $('infobox-table').innerHTML =
+    '<tr><td>' + t('author') + '</td><td>' + escHtml(state.activeBook.author) + '</td></tr>' +
+    '<tr><td>' + t('language') + '</td><td>' + langDisplay + '</td></tr>' +
+    '<tr><td>' + t('sentences_lbl') + '</td><td>' + sentCount + '</td></tr>' +
+    '<tr><td>' + t('pipeline') + '</td><td>bb pipeline v2</td></tr>' +
+    '<tr><td>' + t('source') + '</td><td><a href="https://www.gutenberg.org/ebooks/' + state.activeBook.gutenberg_id + '" target="_blank">' + t('gutenberg') + '</a></td></tr>';
+}
+
+function renderScoreInfo() {
+  if (state.originalOnly) { $('score-info').textContent = ''; return; }
+  const tr = state.translation;
+  if (!tr) return;
+  const translated = tr.sentences.filter(s => s.translated !== false);
+  if (!translated.length) return;
+  const avg_ts = (translated.reduce((s,x) => s+(x.ts||0), 0) / translated.length).toFixed(3);
+  const with_back = translated.filter(x => x.back_score != null);
+  const avg_back = with_back.length
+    ? (with_back.reduce((s,x) => s+(x.back_score||0), 0) / with_back.length).toFixed(3)
+    : 'n/a';
+  const judged = translated.filter(x => x.judge_avg);
+  const avg_j = judged.length
+    ? (judged.reduce((s,x) => s+(x.judge_avg||0), 0) / judged.length).toFixed(3)
+    : 'n/a';
+  $('score-info').textContent = 'avg Translation Score: ' + avg_ts + '  ·  avg Back Score: ' + avg_back + '  ·  avg Judge: ' + avg_j;
+}
+
+function renderReader() {
+  const reader = $('reader');
+  reader.innerHTML = '';
+
+  if (state.originalOnly) {
+    state.translation.sentences.forEach(s => {
+      const row = document.createElement('div');
+      row.className = 'sentence-row';
+      const span = document.createElement('div');
+      span.className = 'sentence-only-original';
+      span.innerHTML = '<sup class="sentence-num">' + s.pos + '</sup>' + escHtml(s.original);
+      row.appendChild(span);
+      reader.appendChild(row);
+    });
+    return;
+  }
+
+  const showOrig = state.showOriginal;
+  state.translation.sentences.forEach(s => {
+    const isTranslated = s.translated !== false;
+    const row = document.createElement('div');
+    row.className = 'sentence-row' + (showOrig ? ' with-original' : '');
+
+    if (showOrig) {
+      const orig = document.createElement('div');
+      orig.className = isTranslated ? 'sentence-original' : 'sentence-translation';
+      orig.innerHTML = '<sup class="sentence-num">' + s.pos + '</sup>' + escHtml(s.original);
+      row.appendChild(orig);
+    }
+
+    const trans = document.createElement('div');
+    trans.className = 'sentence-translation';
+    if (isTranslated) {
+      trans.innerHTML = (showOrig ? '' : '<sup class="sentence-num">' + s.pos + '</sup>') +
+        escHtml(s.translation);
+      const panel = document.createElement('div');
+      panel.className = 'xray-panel' + (state.xray ? ' visible' : '');
+      const modelShort = (s.model||'').replace('gemma3:12b','gemma3').replace('ministral-3:14b','ministral').replace('nllb-200-distilled-600M','nllb-600M').replace(':12b','').replace('-3:14b','');
+      const tempStr = (s.temp !== null && s.temp !== undefined) ? 't=' + s.temp : '';
+      panel.innerHTML =
+        (s.back_translation ? '<div class="xray-backt"><span class="xray-backt-label">BT&nbsp;</span>' + escHtml(s.back_translation) + '</div>' : '') +
+        '<div class="xray-scores">' +
+          '<div class="xray-score-group">' +
+            '<div class="xray-score-row"><span class="xray-score-key">Translation Score</span><span class="xray-score-val">' + (s.ts != null ? s.ts : '&mdash;') + '</span></div>' +
+            '<div class="xray-score-row"><span class="xray-score-key">Back Score</span><span class="xray-score-val">' + (s.back_score != null ? s.back_score : '&mdash;') + '</span></div>' +
+          '</div>' +
+          '<div class="xray-score-group">' +
+            '<div class="xray-score-row"><span class="xray-score-key">Judge Average</span><span class="xray-score-val">' + (s.judge_avg != null ? s.judge_avg : '&mdash;') + '</span></div>' +
+            '<div class="xray-score-row"><span class="xray-score-key">Grammar</span><span class="xray-score-val">' + (s.sudija_grammar != null ? s.sudija_grammar : '&mdash;') + '</span></div>' +
+            '<div class="xray-score-row"><span class="xray-score-key">Naturalness</span><span class="xray-score-val">' + (s.sudija_natural != null ? s.sudija_natural : '&mdash;') + '</span></div>' +
+            '<div class="xray-score-row"><span class="xray-score-key">Fidelity</span><span class="xray-score-val">' + (s.sudija_fidelity != null ? s.sudija_fidelity : '&mdash;') + '</span></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="xray-model"><span class="xray-score-key">Model</span>&nbsp;&nbsp;' + escHtml(modelShort) + (tempStr ? ' &nbsp;&middot;&nbsp; <span class="xray-score-key">t=</span>&nbsp;' + s.temp : '') + '</div>';
+      trans.appendChild(panel);
+    } else {
+      trans.innerHTML = '';
+    }
+    row.appendChild(trans);
+    reader.appendChild(row);
+  });
+}
+
+function escHtml(str) {
+  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+$('book-select').addEventListener('change', function() {
+  const book = state.books.find(b => String(b.id) === this.value);
+  if (book) selectBook(book);
+});
+
+$('lang-select').addEventListener('change', function() {
+  if (!this.value) return;
+  if (this.value === '__original__') selectOriginal();
+  else selectLang(this.value);
+});
+
+$('toggle-original').addEventListener('change', function() {
+  state.showOriginal = this.checked;
+  if (state.translation) renderReader();
+});
+
+$('toggle-xray').addEventListener('change', function() {
+  state.xray = this.checked;
+  $('score-info').style.display = this.checked ? '' : 'none';
+  $('xray-legend').classList.toggle('visible', state.xray);
+  document.querySelectorAll('.xray-panel').forEach(p => {
+    p.classList.toggle('visible', state.xray);
+  });
+});
+
+applyI18n();
+loadBooks().catch(err => { $('reader-loading').textContent = '⚠ ' + err.message; });
+</script>
+</body>
+</html>

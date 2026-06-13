@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Art — Buchenberg</title>
+<link rel="stylesheet" href="buchenberg.css">
+<script src="nav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/15.3.5/Tone.min.js" defer></script>
+<style>
+  .art-theory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .art-card {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 20px;
+  }
+  .art-card-num {
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--accent);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .art-card h3 {
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--text);
+    margin-bottom: 10px;
+    font-family: var(--font-serif);
+  }
+  .art-card p {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin-bottom: 10px;
+  }
+  .art-card p:last-child { margin-bottom: 0; }
+
+  .art-lineage-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 32px;
+  }
+  .art-lineage-table th {
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--accent);
+    padding: 8px 12px;
+    border-bottom: 2px solid var(--border-light);
+  }
+  .art-lineage-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .art-lineage-table tr.art-current td {
+    color: var(--text);
+    font-weight: bold;
+    background: var(--toc-bg);
+  }
+
+  .art-xray-quote {
+    border-left: 3px solid var(--accent);
+    background: var(--toc-bg);
+    border-radius: 4px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-family: var(--font-serif);
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .art-xray-quote .art-quote-sig {
+    display: block;
+    margin-top: 10px;
+    font-size: 12px;
+    font-family: inherit;
+    color: var(--text-muted);
+    font-style: normal;
+  }
+
+  /* ── The Tapestry ── */
+  .tap-controls {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+    margin-bottom: 14px;
+  }
+  .tap-controls select {
+    background: var(--surface); color: var(--text);
+    border: 1px solid var(--border-light); border-radius: 4px;
+    padding: 6px 10px; font-size: 13px;
+  }
+  .tap-mode-btn, .tap-scale-btn {
+    background: var(--surface); color: var(--text-muted);
+    border: 1px solid var(--border-light); border-radius: 4px;
+    padding: 6px 12px; font-size: 12px; cursor: pointer;
+  }
+  .tap-mode-btn.active, .tap-scale-btn.active {
+    color: var(--accent); border-color: var(--accent); font-weight: bold;
+  }
+  #tap-canvas-wrap { width: 100%; margin-bottom: 10px; }
+  #tap-canvas { display: block; cursor: crosshair; }
+  #tap-tooltip {
+    position: fixed; display: none; z-index: 50; pointer-events: none;
+    max-width: 360px; background: var(--surface); color: var(--text);
+    border: 1px solid var(--border-light); border-radius: 6px;
+    padding: 10px 12px; font-size: 12px; line-height: 1.5;
+    box-shadow: 0 4px 14px rgba(0,0,0,.25);
+  }
+  #tap-tooltip .tt-score { color: var(--accent); font-weight: bold; }
+  #tap-legend {
+    display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+    font-size: 12px; color: var(--text-muted); margin-bottom: 6px;
+  }
+  .tap-swatch {
+    display: inline-block; width: 12px; height: 12px;
+    border-radius: 2px; margin-right: 5px; vertical-align: -2px;
+  }
+  #tap-grad {
+    display: inline-block; width: 140px; height: 12px; border-radius: 2px;
+    background: linear-gradient(to right, hsl(0,65%,45%), hsl(60,65%,45%), hsl(120,65%,45%));
+    vertical-align: -2px; margin: 0 5px;
+  }
+  #tap-stats { font-size: 12px; color: var(--text-muted); margin-bottom: 32px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER via nav.js -->
+
+<div id="bb-page">
+
+  <h1 class="bb-section-title">Art</h1>
+  <p class="bb-section-subtitle">
+    The same data, a different sense &mdash; sonification and generative
+    visuals of the Buchenberg corpus.
+  </p>
+
+  <!-- ── Synesthesia ─────────────────────────────────────── -->
+
+  <h2 class="bb-section-title" style="margin-bottom:8px;">Synesthesia</h2>
+  <p class="bb-section-subtitle" style="margin-bottom:16px;">
+    The <a href="geometry.html" style="color:var(--accent)">Geometry page</a> introduced
+    three figures who described the embedding space before it could be computed.
+    This page adds the fourth &mdash; and asks a question the first three never did:
+    <em>through which sense should we observe it?</em>
+  </p>
+
+  <table class="art-lineage-table">
+    <thead>
+      <tr><th>Figure</th><th>Gift</th><th>Question</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Abbott &middot; 1884</td><td>Geometry</td><td>Where does meaning live?</td></tr>
+      <tr><td>Borges &middot; 1941</td><td>Selection</td><td>What separates it from noise?</td></tr>
+      <tr><td>Wittgenstein &middot; 1953</td><td>Use</td><td>How do we measure it?</td></tr>
+      <tr class="art-current"><td>Kandinsky / Scriabin &middot; 1910&ndash;11</td><td>Synesthesia</td><td>Through which sense do we observe it?</td></tr>
+    </tbody>
+  </table>
+
+  <div class="art-theory-grid">
+
+    <div class="art-card">
+      <div class="art-card-num">Kandinsky &middot; 1911</div>
+      <h3>On the Spiritual in Art</h3>
+      <p>
+        On 2 January 1911, Wassily Kandinsky attended a Schoenberg concert in Munich.
+        What he heard pushed him toward abstraction: within weeks he painted
+        <em>Impression III (Konzert)</em>, and within the year he published
+        <em>On the Spiritual in Art</em>.
+      </p>
+      <p>
+        Its central claim: color, form, and sound are not things that illustrate one
+        another. They are <strong>different projections of the same inner content</strong>.
+        A yellow is not <em>like</em> a trumpet &mdash; both are surfaces of one
+        underlying vibration, reached through different organs.
+      </p>
+      <p>
+        Kandinsky had no mathematics for this intuition. He could only paint it.
+        The claim that content exists <em>before</em> the sense that perceives it
+        had to wait a century for an unexpected proof.
+      </p>
+    </div>
+
+    <div class="art-card">
+      <div class="art-card-num">Scriabin &middot; 1910</div>
+      <h3>Prometheus: The Poem of Fire</h3>
+      <p>
+        Alexander Scriabin went further than theory &mdash; he changed the score.
+        <em>Prometheus</em> includes a part for the <em>clavier &agrave; lumi&egrave;res</em>,
+        a keyboard that plays light: each key floods the hall with a color.
+      </p>
+      <p>
+        The light part is not decoration. It is written into the score like the
+        strings or the brass &mdash; which means the work is
+        <strong>incomplete when performed in only one channel</strong>. Hearing
+        <em>Prometheus</em> without seeing it is, by the composer&rsquo;s own
+        definition, hearing half the piece.
+      </p>
+      <p>
+        Scriabin&rsquo;s premise is operational, not mystical: if the content is one,
+        a single sense under-samples it. Add a channel &mdash; recover more of
+        the original.
+      </p>
+    </div>
+
+  </div>
+
+  <div class="art-card" style="margin-bottom:16px;">
+    <div class="art-card-num">Buchenberg &middot; 2026</div>
+    <h3>The embedding is already synesthesia</h3>
+    <p>
+      When multilingual-e5-large reads a sentence, it projects it into a point in
+      1024-dimensional space. That point is not text. It is not an image, and it is
+      not a sound. It is <strong>pure content with no sense attached</strong> &mdash;
+      the mathematical realization of Kandinsky&rsquo;s intuition about the common
+      layer beneath the modalities.
+    </p>
+    <p>
+      And if the point precedes the sense, then the choice of channel is arbitrary.
+      The UMAP scatter on the Geometry page, a melody, a generative fingerprint &mdash;
+      these are equal projections of the same object. Shadows of the same sphere.
+    </p>
+    <p>
+      Which closes the circle with Abbott. The Square in <em>Flatland</em> could only
+      ever see one projection &mdash; the shadow on his plane &mdash; and from it he
+      could never reconstruct the sphere. But a Flatlander given <em>two</em>
+      projections, shadow <em>and</em> sound, recovers more of the object than either
+      channel carries alone. Sonification is the extra dimension of observation
+      that Abbott&rsquo;s Square was never granted.
+    </p>
+    <p>
+      One chronological footnote: Kandinsky and Scriabin precede the
+      <em>Tractatus</em> (1921). The artists arrived first &mdash; again. As Borges
+      preceded Wittgenstein, as Abbott preceded the theory of reference frames.
+    </p>
+  </div>
+
+  <div class="art-xray-quote">
+    This page adds no new data. Every note you will hear and every shape you will
+    see already exists in the database &mdash; as a number. We have only changed
+    the sense through which you look. If a dissonance grates on your ear at
+    sentence 847, you have just heard a low <code>finalni_score</code>.
+    You did not read the data point. You felt it.
+    <span class="art-quote-sig">&mdash; the X-Ray attitude, taken to its conclusion:
+    not only looking inside, but choosing the organ you look with.</span>
+  </div>
+
+  <!-- ── Exhibit 1: The Tapestry ───────────────────────── -->
+
+  <h2 class="bb-section-title" style="margin-bottom:8px;">The Tapestry</h2>
+  <p class="bb-section-subtitle" style="margin-bottom:16px;">
+    A book as woven fabric. Each cell is one sentence; reading order runs
+    left to right, top to bottom. Color is the winner&rsquo;s
+    <strong>final score</strong> &mdash; or the <strong>winning model</strong>,
+    if you switch the channel. Gray cells are not yet woven.
+    Hover for the sentence; click to open the book in the Reader.
+  </p>
+  <p class="bb-section-subtitle" style="margin-bottom:16px;">
+    <strong>Absolute</strong> maps the final score onto a fixed 0.60&ndash;1.00 scale &mdash;
+    the honest picture. It is mostly green because the pipeline is consistently good:
+    half of all sentences score above 0.966. <strong>Relative</strong> colors each
+    sentence by its <em>percentile rank within this book</em>, stretching the narrow
+    band of real differences across the full gradient: a red cell is not a bad
+    translation, only one of the weakest in this fabric. Absolute shows how good
+    the weave is; Relative shows where it is thinnest.
+  </p>
+
+  <div class="tap-controls">
+    <select id="tap-book"></select>
+    <select id="tap-lang"></select>
+    <select id="tap-count">
+      <option value="0">All sentences</option>
+      <option value="1024">1024</option>
+      <option value="256">256</option>
+      <option value="64" selected>64</option>
+    </select>
+    <span style="flex:1"></span>
+    <button class="tap-mode-btn active" data-mode="score">Score</button>
+    <button class="tap-mode-btn" data-mode="model">Model</button>
+    <span style="border-left:1px solid var(--border-light);height:18px;"></span>
+    <button class="tap-scale-btn" data-scale="abs">Absolute</button>
+    <button class="tap-scale-btn active" data-scale="rel">Relative</button>
+    <span id="tap-status" style="font-size:12px;color:var(--text-muted)"></span>
+  </div>
+
+  <div id="tap-canvas-wrap"><canvas id="tap-canvas"></canvas></div>
+  <div id="tap-legend"></div>
+  <div id="tap-stats"></div>
+  <div id="tap-tooltip"></div>
+
+  <style>
+    #snd-canvas{display:block;width:100%;height:180px;border-radius:6px;background:rgba(128,128,128,0.06);}
+    #snd-start{accent-color:#27ae60;cursor:pointer;}
+  </style>
+
+  <!-- ── Exhibit 2: The Sound of Translation ───── -->
+
+  <h2 class="bb-section-title" style="margin-bottom:8px;">The Sound of Translation</h2>
+  <p class="bb-section-subtitle" style="margin-bottom:16px;">
+    The same fabric, heard instead of seen. Each sentence becomes a note in
+    reading order; its <strong>final score</strong> sets the <strong>pitch</strong>
+    &mdash; the stronger the weave, the higher it sings. Notes are locked to a
+    pentatonic scale, so any book plays in tune. A sentence
+    <strong>not yet woven</strong> is a rest: you hear its silence.
+  </p>
+  <p class="bb-section-subtitle" style="margin-bottom:16px;">
+    <strong>Relative</strong> maps each sentence to its percentile rank within the
+    book, spending the full range of pitches; <strong>Absolute</strong> ties pitch
+    to the raw 0.60&ndash;1.00 score, so a consistently strong book sings mostly
+    high. This is the third shadow of the same sphere &mdash; beside the scatter of
+    <em>Geometry</em> and the cloth of <em>The Tapestry</em>.
+  </p>
+
+  <div class="tap-controls">
+    <select id="snd-book"></select>
+    <select id="snd-lang"></select>
+    <select id="snd-count">
+      <option value="32">32 sentences</option>
+      <option value="64" selected>64 sentences</option>
+      <option value="128">128 sentences</option>
+    </select>
+    <select id="snd-tempo">
+      <option value="slow">slow</option>
+      <option value="med" selected>medium</option>
+      <option value="fast">fast</option>
+    </select>
+    <span style="border-left:1px solid var(--border-light);height:18px;"></span>
+    <button class="tap-scale-btn" data-scale="abs">Absolute</button>
+    <button class="tap-scale-btn active" data-scale="rel">Relative</button>
+    <span style="border-left:1px solid var(--border-light);height:18px;"></span>
+    <button class="tap-mode-btn active" id="snd-orch">&#127925; Orchestra</button>
+    <span style="flex:1"></span>
+    <button class="tap-mode-btn active" id="snd-play">&#9654; Play</button>
+    <button class="tap-mode-btn" id="snd-stop" disabled>&#9632; Stop</button>
+    <span id="snd-status" style="font-size:12px;color:var(--text-muted)"></span>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:10px;margin:10px 0;">
+    <span id="snd-startlabel" style="font-size:12px;color:var(--text-muted);min-width:70px;">from #1</span>
+    <input id="snd-start" type="range" min="0" max="0" value="0" style="flex:1;">
+  </div>
+
+  <div id="snd-canvas-wrap" style="width:100%;"><canvas id="snd-canvas"></canvas></div>
+  <div id="snd-now" class="bb-section-subtitle" style="margin:12px 0 0;min-height:3em;"></div>
+
+  <p class="bb-section-subtitle" style="margin-bottom:0;">
+    <em>More exhibits coming: Sentence Fingerprints.</em>
+  </p>
+
+
+</div><!-- #bb-page -->
+<div id="bb-footer">
+  <div style="max-width:1200px; margin:0 auto; padding:0 16px;">
+    Buchenberg · Open-source MT pipeline ·
+    <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a> ·
+    <a href="https://github.com/fladroid" target="_blank">GitHub</a>
+  </div>
+</div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const GAP = 1;
+  let books = [], cur = null, mode = 'score', scale = 'rel', cols = 0, sortedFS = [];
+  let cellSize = 8, tapCount = 64, tapSlice = [];
+  // fixed-grid layout: 64 -> 2x32, 256 -> 4x64, 1024 -> 8x128 (aspect 1:16), cells fill width
+  function layout(w){
+    if(!tapCount){ const cell=8; return {cell, cols:Math.max(1,Math.floor(w/cell))}; }
+    const c = Math.round(4*Math.sqrt(tapCount));
+    return { cell: Math.max(3, Math.floor(w/c)), cols: c };
+  }
+
+  const MODEL_COLORS = {
+    'gemma3:12b@0.8':      '#e74c3c',
+    'gemma3:12b@0.1':      '#e67e22',
+    'ministral-3:14b@0.8': '#3498db',
+    'ministral-3:14b@0.1': '#9b59b6',
+    'nllb-600M@0.0':       '#27ae60'
+  };
+  const UNWOVEN = 'rgba(128,128,128,0.22)';
+
+  const modelKey = s => s.model + '@' + Number(s.temp).toFixed(1);
+  const finalScore = s => 0.4 * ((s.back_score + s.ts) / 2) + 0.6 * s.judge_avg;
+  function rankOf(v){
+    let lo = 0, hi = sortedFS.length;
+    while (lo < hi) { const m = (lo + hi) >> 1; if (sortedFS[m] <= v) lo = m + 1; else hi = m; }
+    return sortedFS.length ? lo / sortedFS.length : 0;
+  }
+  function scoreColor(v){
+    const t = scale === 'rel' ? rankOf(v)
+                              : Math.max(0, Math.min(1, (v - 0.6) / 0.4));
+    return 'hsl(' + Math.round(t * 120) + ',65%,45%)';
+  }
+
+  async function init(){
+    books = await (await fetch('data/books.json?t=' + Date.now())).json();
+    books = books.filter(b => b.languages && b.languages.length);
+    $('tap-book').innerHTML = books.map(b =>
+      '<option value="' + b.id + '">' + b.title + '</option>').join('');
+    $('tap-book').addEventListener('change', fillLangs);
+    $('tap-lang').addEventListener('change', loadBook);
+    $('tap-count').addEventListener('change', () => { tapCount = +$('tap-count').value; render(); });
+    const tapControls = $('tap-book').closest('.tap-controls');
+    tapControls.querySelectorAll('.tap-mode-btn').forEach(btn =>
+      btn.addEventListener('click', () => {
+        mode = btn.dataset.mode;
+        tapControls.querySelectorAll('.tap-mode-btn').forEach(b =>
+          b.classList.toggle('active', b === btn));
+        render();
+      }));
+    tapControls.querySelectorAll('.tap-scale-btn').forEach(btn =>
+      btn.addEventListener('click', () => {
+        scale = btn.dataset.scale;
+        tapControls.querySelectorAll('.tap-scale-btn').forEach(b =>
+          b.classList.toggle('active', b === btn));
+        render();
+      }));
+    fillLangs();
+  }
+
+  function fillLangs(){
+    const b = books.find(x => String(x.id) === $('tap-book').value);
+    const LANG_NAMES = {
+      hr:'Hrvatski', sr:'Српски', bs:'Bosanski', sl:'Slovenščina',
+      mk:'Македонски', bg:'Български', de:'Deutsch', nl:'Nederlands',
+      af:'Afrikaans', fr:'Français', it:'Italiano', es:'Español',
+      pt:'Português', ro:'Română', en:'English'
+    };
+    $('tap-lang').innerHTML = b.languages.map(l =>
+      '<option value="' + l.code + '">' + l.code.toUpperCase() + ' — ' +
+      (LANG_NAMES[l.code] || l.name) + ' (' + l.sentences + '/' + b.total_sentences + ')</option>').join('');
+    loadBook();
+  }
+
+  async function loadBook(){
+    const id = $('tap-book').value, lang = $('tap-lang').value;
+    $('tap-status').textContent = 'Loading…';
+    try {
+      cur = await (await fetch('data/tr_' + id + '_' + lang + '.json?t=' + Date.now())).json();
+      sortedFS = cur.sentences.filter(x => x.translated).map(finalScore).sort((a, b) => a - b);
+      $('tap-status').textContent = '';
+      render();
+    } catch(e) {
+      $('tap-status').textContent = 'Load failed.';
+      console.error(e);
+    }
+  }
+
+  function render(){
+    if (!cur) return;
+    tapSlice = tapCount ? cur.sentences.slice(0, tapCount) : cur.sentences;
+    const cv = $('tap-canvas');
+    const w = $('tap-canvas-wrap').clientWidth;
+    const L = layout(w); cols = L.cols; cellSize = L.cell;
+    const n = tapSlice.length;
+    const rows = Math.ceil(n / cols);
+    cv.width = cols * cellSize;
+    cv.height = rows * cellSize;
+    cv.style.display = 'block'; cv.style.margin = '0 auto';
+    const ctx = cv.getContext('2d');
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    tapSlice.forEach((s, i) => {
+      const x = (i % cols) * cellSize, y = Math.floor(i / cols) * cellSize;
+      let c = UNWOVEN;
+      if (s.translated) {
+        c = mode === 'score' ? scoreColor(finalScore(s))
+                             : (MODEL_COLORS[modelKey(s)] || '#888');
+      }
+      ctx.fillStyle = c;
+      ctx.fillRect(x, y, cellSize - GAP, cellSize - GAP);
+    });
+    renderLegend();
+    renderStats();
+  }
+
+  function renderLegend(){
+    if (mode === 'score') {
+      $('tap-legend').innerHTML =
+        (scale === 'rel'
+          ? '<span>weakest</span><span id="tap-grad"></span><span>strongest &middot; percentile rank</span>'
+          : '<span>0.60</span><span id="tap-grad"></span><span>1.00 &middot; final score</span>') +
+        '<span><span class="tap-swatch" style="background:' + UNWOVEN + '"></span>not woven yet</span>';
+    } else {
+      $('tap-legend').innerHTML = Object.entries(MODEL_COLORS).map(([k, c]) =>
+        '<span><span class="tap-swatch" style="background:' + c + '"></span>' + k + '</span>'
+      ).join('') +
+        '<span><span class="tap-swatch" style="background:' + UNWOVEN + '"></span>not woven yet</span>';
+    }
+  }
+
+  function renderStats(){
+    const tr = tapSlice.filter(s => s.translated);
+    if (!tr.length) { $('tap-stats').textContent = 'No translations yet.'; return; }
+    const fs = tr.map(finalScore);
+    const avg = fs.reduce((a, b) => a + b, 0) / fs.length;
+    $('tap-stats').innerHTML =
+      'Woven: <strong>' + tr.length + '</strong> / ' + tapSlice.length +
+      ' &middot; final score min <strong>' + Math.min(...fs).toFixed(3) +
+      '</strong> &middot; avg <strong>' + avg.toFixed(3) +
+      '</strong> &middot; max <strong>' + Math.max(...fs).toFixed(3) + '</strong>';
+  }
+
+  const tt = () => $('tap-tooltip');
+  $('tap-canvas').addEventListener('mousemove', e => {
+    if (!cur || !cols) return;
+    const r = e.target.getBoundingClientRect();
+    const col = Math.floor((e.clientX - r.left) / cellSize);
+    const row = Math.floor((e.clientY - r.top) / cellSize);
+    const i = row * cols + col;
+    const s = tapSlice[i];
+    if (!s) { tt().style.display = 'none'; return; }
+    let body = '<strong>#' + s.pos + '</strong> ';
+    if (s.translated) {
+      body += '<span class="tt-score">' + finalScore(s).toFixed(3) + '</span>' +
+              ' (p' + Math.round(rankOf(finalScore(s)) * 100) + ') &middot; ' +
+              modelKey(s) + '<br>' +
+              (s.translation || '').slice(0, 160) +
+              ((s.translation || '').length > 160 ? '…' : '');
+    } else {
+      body += 'not woven yet<br><em>' + (s.original || '').slice(0, 120) + '…</em>';
+    }
+    tt().innerHTML = body;
+    tt().style.display = 'block';
+    const tx = Math.min(e.clientX + 14, window.innerWidth - 380);
+    tt().style.left = tx + 'px';
+    tt().style.top = (e.clientY + 14) + 'px';
+  });
+  $('tap-canvas').addEventListener('mouseleave', () => { tt().style.display = 'none'; });
+  $('tap-canvas').addEventListener('click', () => {
+    if (cur) window.location.href = 'reader.html?book=' + cur.book_id;
+  });
+
+  window.addEventListener('resize', () => { if (cur) render(); });
+  init();
+})();
+</script>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  let books=[], cur=null, sortedFS=[], scale='rel';
+  let synth=null, loop=null, playing=false, startIdx=0, count=64, winSlice=[];
+  let pad=null, bass=null, reverb=null, orchestra=true;
+  const BAR=8;
+  const CHORDS={ bright:['C3','E3','G3','C4'], warm:['C3','D3','G3'], dark:['A2','C3','E3'] };
+  const BASS ={ bright:'C2', warm:'C2', dark:'A1' };
+  const chordKey=t => t>=0.66?'bright':t>=0.33?'warm':'dark';
+
+  // C major pentatonic, 3 octaves, low -> high
+  const SCALE=['C3','D3','E3','G3','A3','C4','D4','E4','G4','A4','C5','D5','E5','G5','A5'];
+
+  const finalScore = s => 0.4*((s.back_score+s.ts)/2)+0.6*s.judge_avg;
+  function rankOf(v){ let lo=0,hi=sortedFS.length; while(lo<hi){const m=(lo+hi)>>1; if(sortedFS[m]<=v)lo=m+1; else hi=m;} return sortedFS.length?lo/sortedFS.length:0; }
+  function tOf(v){ return scale==='rel'?rankOf(v):Math.max(0,Math.min(1,(v-0.6)/0.4)); }
+  function noteOf(s){ const i=Math.min(SCALE.length-1,Math.floor(tOf(finalScore(s))*SCALE.length)); return SCALE[i]; }
+  function colorOf(s){ return 'hsl('+Math.round(tOf(finalScore(s))*120)+',65%,45%)'; }
+
+  async function init(){
+    books = await (await fetch('data/books.json?t='+Date.now())).json();
+    books = books.filter(b=>b.languages&&b.languages.length);
+    $('snd-book').innerHTML = books.map(b=>'<option value="'+b.id+'">'+b.title+'</option>').join('');
+    $('snd-book').addEventListener('change', fillLangs);
+    $('snd-lang').addEventListener('change', loadBook);
+    $('snd-count').addEventListener('change', ()=>{ count=+$('snd-count').value; if(!playing) prepare(); });
+    $('snd-start').addEventListener('input', ()=>{ if(!playing) prepare(); });
+    const sndControls = $('snd-play').closest('.tap-controls');
+    sndControls.querySelectorAll('.tap-scale-btn').forEach(btn=>btn.addEventListener('click',()=>{
+      scale=btn.dataset.scale;
+      sndControls.querySelectorAll('.tap-scale-btn').forEach(b=>b.classList.toggle('active',b===btn));
+      if(!playing) prepare();
+    }));
+    $('snd-orch').addEventListener('click', ()=>{
+      orchestra=!orchestra;
+      $('snd-orch').classList.toggle('active', orchestra);
+    });
+    $('snd-play').addEventListener('click', play);
+    $('snd-stop').addEventListener('click', stop);
+    fillLangs();
+  }
+
+  function fillLangs(){
+    const b=books.find(x=>String(x.id)===$('snd-book').value);
+    const LANG_NAMES={hr:'Hrvatski',sr:'Српски',bs:'Bosanski',sl:'Slovenščina',mk:'Македонски',bg:'Български',de:'Deutsch',nl:'Nederlands',af:'Afrikaans',fr:'Français',it:'Italiano',es:'Español',pt:'Português',ro:'Română',en:'English'};
+    $('snd-lang').innerHTML=b.languages.map(l=>'<option value="'+l.code+'">'+l.code.toUpperCase()+' — '+(LANG_NAMES[l.code]||l.name)+'</option>').join('');
+    loadBook();
+  }
+
+  async function loadBook(){
+    stop();
+    const id=$('snd-book').value, lang=$('snd-lang').value;
+    $('snd-status').textContent='Loading…';
+    try{
+      cur=await (await fetch('data/tr_'+id+'_'+lang+'.json?t='+Date.now())).json();
+      sortedFS=cur.sentences.filter(x=>x.translated).map(finalScore).sort((a,b)=>a-b);
+      $('snd-start').max=Math.max(0,cur.sentences.length-1);
+      $('snd-start').value=0; startIdx=0;
+      $('snd-status').textContent='';
+      prepare();
+    }catch(e){ $('snd-status').textContent='Load failed.'; console.error(e); }
+  }
+
+  function prepare(){
+    if(!cur) return;
+    startIdx=+$('snd-start').value;
+    winSlice=cur.sentences.slice(startIdx, startIdx+count);
+    $('snd-startlabel').textContent='from #'+(startIdx+1);
+    draw(-1);
+  }
+
+  function draw(active){
+    const cv=$('snd-canvas'), wrap=$('snd-canvas-wrap');
+    const W=wrap.clientWidth||600, H=180, n=winSlice.length||1;
+    cv.width=W; cv.height=H;
+    const ctx=cv.getContext('2d');
+    ctx.clearRect(0,0,W,H);
+    const bw=W/n;
+    winSlice.forEach((s,i)=>{
+      const x=i*bw;
+      if(!s.translated){
+        ctx.fillStyle='rgba(128,128,128,0.20)';
+        ctx.fillRect(x, H-5, Math.max(1,bw-1), 5);
+        return;
+      }
+      const t=tOf(finalScore(s));
+      const bh=8+t*(H-16);
+      ctx.fillStyle = i===active ? '#ffffff' : colorOf(s);
+      ctx.fillRect(x, H-bh, Math.max(1,bw-1), bh);
+    });
+  }
+
+  async function play(){
+    if(!cur||playing) return;
+    if(!winSlice.length) prepare();
+    await Tone.start();
+    if(!synth){ synth=new Tone.PolySynth(Tone.Synth).toDestination(); synth.volume.value=-9; }
+    if(!reverb){ reverb=new Tone.Reverb({decay:3, wet:0.22}).toDestination(); await reverb.ready; }
+    if(!pad){ pad=new Tone.PolySynth(Tone.Synth); pad.set({oscillator:{type:'triangle'}, envelope:{attack:0.4, decay:0.3, sustain:0.6, release:1.4}}); pad.volume.value=-15; pad.connect(reverb); }
+    if(!bass){ bass=new Tone.Synth({oscillator:{type:'triangle'}, envelope:{attack:0.01, decay:0.22, sustain:0.0, release:0.25}}); bass.volume.value=-12; bass.toDestination(); }
+    const bpm={slow:70,med:120,fast:200}[$('snd-tempo').value]||120;
+    Tone.getTransport().bpm.value=bpm;
+    let idx=0;
+    playing=true; $('snd-play').disabled=true; $('snd-stop').disabled=false;
+    loop=new Tone.Loop(time=>{
+      if(idx>=winSlice.length){ Tone.getDraw().schedule(()=>stop(), time); if(loop) loop.stop(); return; }
+      const s=winSlice[idx], here=idx;
+      if(orchestra && idx % BAR === 0){
+        let sum=0,c=0;
+        for(let k=idx;k<Math.min(idx+BAR,winSlice.length);k++){ const ss=winSlice[k]; if(ss.translated){ sum+=finalScore(ss); c++; } }
+        if(c){ const key=chordKey(tOf(sum/c)); pad.triggerAttackRelease(CHORDS[key], '1m', time); bass.triggerAttackRelease(BASS[key], '8n', time); }
+      }
+      if(s.translated) synth.triggerAttackRelease(noteOf(s), '8n', time, 0.6+0.4*tOf(finalScore(s)));
+      Tone.getDraw().schedule(()=>{ draw(here); nowPlaying(s, startIdx+here); }, time);
+      idx++;
+    }, '8n');
+    Tone.getTransport().start();
+    loop.start(0);
+  }
+
+  function stop(){
+    playing=false;
+    if(loop){ try{loop.stop();loop.dispose();}catch(e){} loop=null; }
+    try{ Tone.getTransport().stop(); }catch(e){}
+    try{ if(pad) pad.releaseAll(); }catch(e){}
+    try{ if(bass) bass.triggerRelease(); }catch(e){}
+    if($('snd-play')) $('snd-play').disabled=false;
+    if($('snd-stop')) $('snd-stop').disabled=true;
+    draw(-1);
+  }
+
+  function nowPlaying(s, pos){
+    if(!s.translated){
+      $('snd-now').innerHTML='<strong>#'+(pos+1)+'</strong> &middot; <em>not woven yet — silence</em>';
+      return;
+    }
+    const fs=finalScore(s);
+    $('snd-now').innerHTML='<strong>#'+(pos+1)+'</strong> &middot; <span style="color:'+colorOf(s)+'">'+noteOf(s)+'</span> &middot; score '+fs.toFixed(3)+' (p'+Math.round(rankOf(fs)*100)+')<br>'+(s.translation||'').slice(0,200)+((s.translation||'').length>200?'…':'');
+  }
+
+  window.addEventListener('resize',()=>{ if(cur&&!playing) draw(-1); });
+  init();
+})();
+</script>
+</body>
+</html>

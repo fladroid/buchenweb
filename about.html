@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Buchenberg</title>
+<link rel="stylesheet" href="buchenberg.css">
+<script src="nav.js"></script>
+</head>
+<body>
+
+<!-- HEADER ubačen via nav.js -->
+
+<!-- PAGE -->
+<div id="bb-page">
+  <div id="about-layout" style="display:grid; grid-template-columns: 1fr 280px; gap:32px; align-items:start;">
+
+    <!-- MAIN PROSE -->
+    <div>
+      <h1 class="bb-section-title">About Buchenberg</h1>
+
+      <div class="bb-prose">
+
+        <h2>The name</h2>
+        <p>
+          <strong>Buchenberg</strong> is a deliberate echo of <strong>Gutenberg</strong> —
+          the project that made millions of public-domain books freely available to anyone
+          with an internet connection. <em>Buch</em> is German for <em>book</em>.
+          The suffix <em>-enberg</em> is a direct tie to our source and a nod to
+          Johannes Gutenberg, whose printing press democratised access to the written word.
+          Buchenberg tries to do the same for translation.
+        </p>
+
+        <h2>The problem</h2>
+        <p>
+          How do you evaluate machine translation quality when you don't speak the target language?
+          Standard metrics like BLEU require human reference translations, which are expensive and
+          unavailable for most language pairs. Buchenberg uses a different approach:
+          <strong>back-translation scoring</strong> combined with a <strong>blind LLM judge</strong>.
+        </p>
+
+        <h2>The pipeline</h2>
+        <p>
+          Each sentence goes through the following stages:
+        </p>
+
+        <pre><code>EN original  ──►  model  ──►  target language (RF)
+                               │
+                               ▼
+                          back-translate to EN (RFE)
+                               │
+                               ▼
+              score = cosine_similarity(EN, RFE)       ← back_score
+              score = cosine_similarity(EN, RF)        ← translation_score
+              judge = Gemma4:31b blind evaluation      ← grammar / naturalness / fidelity
+              final = 0.4 × composite + 0.6 × judge</code></pre>
+
+        <p>
+          The same process is repeated with multiple models and temperatures.
+          The winner for each sentence is the candidate with the highest <code>final_score</code>.
+          The exported document is a hybrid — the best translation per sentence,
+          regardless of which model produced it.
+        </p>
+
+        <h2>Models</h2>
+        <table>
+          <tr><th>Model</th><th>Role</th><th>Engine</th></tr>
+          <tr><td><code>gemma3:12b</code></td><td>Translation</td><td>Ollama Cloud</td></tr>
+          <tr><td><code>ministral-3:14b</code></td><td>Translation</td><td>Ollama Cloud</td></tr>
+          <tr><td><code>nllb-600M</code></td><td>Translation</td><td>Local CPU</td></tr>
+          <tr><td><code>gemma4:31b</code></td><td>Judge only</td><td>Ollama Cloud</td></tr>
+        </table>
+
+        <h3 style="font-size:15px;margin:18px 0 8px;">LLM vs. NLLB &mdash; two different kinds of machine</h3>
+        <p>
+          Gemma and Ministral are <strong>LLMs</strong> &mdash; general-purpose language models
+          with billions of parameters, trained on a broad slice of human text. Translation is
+          just one of many things they can do. They generate text word by word, and the
+          temperature setting controls how adventurous they are: higher values produce freer,
+          more natural phrasing &mdash; at the risk of drifting from the original.
+        </p>
+        <p>
+          <strong>NLLB</strong> is the opposite: a specialist. Built by Meta specifically for
+          translation between 200 languages, it does nothing else. It is 20&times; smaller
+          (600M parameters), runs on an ordinary CPU, and at temperature 0.0 is fully
+          deterministic &mdash; the same sentence always yields the same translation,
+          usually a very literal one.
+        </p>
+        <p>
+          This is why the competition works: the LLMs bring naturalness and fluency, NLLB
+          brings reliability and literal fidelity. The judge decides, sentence by sentence,
+          which virtue matters more.
+        </p>
+
+        <h2>Embeddings</h2>
+        <p>
+          Cosine similarity is computed using
+          <strong>multilingual-e5-large</strong> (1024 dimensions),
+          a multilingual sentence embedding model that works across all target languages.
+          An earlier version used MiniLM-L12, but this was found to be biased toward
+          literal translations, systematically favouring NLLB over more natural outputs.
+          e5-large produces more balanced rankings.
+        </p>
+
+        <h2>Scoring</h2>
+        <table>
+          <tr><th>Metric</th><th>Formula</th><th>Weight</th></tr>
+          <tr><td><code>score</code></td><td>cosine(EN, back_EN)</td><td>—</td></tr>
+          <tr><td><code>translation_score</code></td><td>cosine(EN, translated)</td><td>—</td></tr>
+          <tr><td><code>composite</code></td><td>(score + translation_score) / 2</td><td>40%</td></tr>
+          <tr><td><code>judge_avg</code></td><td>(grammar + naturalness + fidelity) / 3</td><td>60%</td></tr>
+          <tr><td><code>final_score</code></td><td>0.4 × composite + 0.6 × judge_avg</td><td>winner</td></tr>
+        </table>
+
+        <h2>Infrastructure</h2>
+        <p>
+          The pipeline runs on two home servers: <strong>foxuno</strong> (development, Python scripts,
+          git) and <strong>balsam</strong> (PostgreSQL in Docker). No GPU is required —
+          all cloud inference goes through Ollama Cloud; NLLB runs on CPU locally.
+          This is intentional: Buchenberg is designed to work without expensive hardware.
+        </p>
+
+        <h2>Source material</h2>
+        <p>
+          All books are sourced from
+          <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a>,
+          which provides free access to over 70,000 public-domain works.
+          Buchenberg uses only books whose copyright has expired — the translations
+          produced by the pipeline are therefore also freely distributable.
+        </p>
+
+        <h2>Key learnings</h2>
+        <p>
+          Several non-obvious findings emerged during development:
+        </p>
+        <ul style="margin: 8px 0 12px 20px; line-height:2">
+          <li><strong>Metric ≠ quality.</strong> DeepL-style natural translations scored lower than
+              literal ones under MiniLM. The metric was measuring literalness, not quality.</li>
+          <li><strong>Model patterns are book-dependent.</strong> The optimal model/temperature
+              combination differs between books and languages — no single setting dominates.</li>
+          <li><strong>s1–s3 are always metadata</strong> (title, subtitle, author) and should be
+              excluded from meaningful score analysis.</li>
+          <li><strong>Batch processing requires careful fallback.</strong> LLMs sometimes return
+              the wrong number of segments; a single-sentence fallback is essential.</li>
+        </ul>
+
+        <h2>Lineage &mdash; from the Tractatus to Buchenberg</h2>
+        <p>
+          Two theories of meaning produced two histories of machine translation.
+          The early Wittgenstein held that meaning is <strong>form</strong> &mdash; language
+          mirrors reality &mdash; a view that led through Chomsky&rsquo;s universal grammar to
+          rule-based MT, and crashed with the ALPAC report in 1966. The late Wittgenstein
+          held that meaning is <strong>use</strong> &mdash; a view that led through Firth&rsquo;s
+          distributional semantics to word2vec, attention, and NLLB. Buchenberg works at
+          their intersection: a distributional engine, judged for competence in the
+          language game of each target language. Click any node.
+        </p>
+
+        <div id="lineage-wrap" style="background:var(--surface);border:1px solid var(--border-light);border-radius:6px;padding:16px;margin:16px 0 8px;">
+          <svg id="lineage-svg" style="width:100%;display:block;"></svg>
+        </div>
+        <div id="lineage-desc" style="min-height:72px;font-size:13px;line-height:1.65;color:var(--text-muted);padding:8px 4px 16px;"></div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+        <script>
+        (function(){
+        const EV = [
+          {id:"tractatus", year:"1921", label:"Tractatus", lane:"form",
+           desc:"<strong>Wittgenstein I &mdash; Tractatus Logico-Philosophicus.</strong> Meaning is logical form: a sentence is a picture of reality. If translation preserves the form, it preserves the meaning. The intellectual ancestor of every rule-based system."},
+          {id:"borges", year:"1939&ndash;44", label:"Borges", lane:"use",
+           desc:"<strong>Borges &mdash; Pierre Menard (1939), The Library of Babel (1941), Funes the Memorious (1942).</strong> Identical form, different meaning; information without selection is noise; memory without abstraction is overfitting. The problems of translation and embedding, stated by a writer before the philosophy and the mathematics existed."},
+          {id:"pi", year:"1953", label:"Investigations", lane:"use",
+           desc:"<strong>Wittgenstein II &mdash; Philosophical Investigations.</strong> A fundamental self-correction: meaning is not form but use. Language games, family resemblance. The theoretical foundation of distributional semantics."},
+          {id:"georgetown", year:"1954", label:"Georgetown", lane:"form",
+           desc:"<strong>Georgetown&ndash;IBM experiment.</strong> The first public MT demo: 60 Russian sentences, 6 grammar rules, 250 words &mdash; and a prediction that MT would be solved within five years. Rule-based optimism at its peak."},
+          {id:"chomsky", year:"1957", label:"Chomsky", lane:"form",
+           desc:"<strong>Chomsky &mdash; Syntactic Structures.</strong> Universal grammar: deep structure shared by all languages. The strongest version of meaning-as-form, and the theoretical engine of rule-based MT."},
+          {id:"firth", year:"1957", label:"Firth", lane:"use",
+           desc:"<strong>Firth &mdash; <em>You shall know a word by the company it keeps.</em></strong> The same year as Chomsky, the opposite bet: meaning lives in distribution, not in structure. Every embedding model is Firthian."},
+          {id:"alpac", year:"1966", label:"ALPAC", lane:"form", crash:true,
+           desc:"<strong>ALPAC report.</strong> The committee that ended US funding for rule-based MT: too expensive, no better than human translators, no clear path forward. The form lineage crashes here &mdash; for decades."},
+          {id:"ibm", year:"1990", label:"IBM Candide", lane:"use",
+           desc:"<strong>IBM &mdash; statistical MT (Candide).</strong> Translation reframed as probability, learned from parallel corpora. No grammar rules at all. The use lineage goes operational."},
+          {id:"w2v", year:"2013", label:"word2vec", lane:"use",
+           desc:"<strong>word2vec.</strong> Meaning as position in vector space, learned purely from distribution. king &minus; man + woman &asymp; queen: family resemblance becomes arithmetic."},
+          {id:"attn", year:"2017", label:"Attention", lane:"use",
+           desc:"<strong>Attention Is All You Need.</strong> The transformer computes meaning from context, token by token &mdash; architecturally Wittgensteinian. Quadratic cost included."},
+          {id:"nllb", year:"2022", label:"NLLB", lane:"use",
+           desc:"<strong>NLLB &mdash; No Language Left Behind.</strong> 200 languages in one distributional space. Its cross-lingual transfer is, ironically, a weak vindication of Chomsky: some structure is shared after all. Both lineages were partly right."},
+          {id:"bb", year:"2026", label:"Buchenberg", lane:"merge",
+           desc:"<strong>Buchenberg.</strong> Cosine similarity = family resemblance, quantified. Back-translation tests whether meaning survives, not form. The judge&rsquo;s naturalness score measures competence in the language game of the target language. A distributional engine with a Wittgensteinian referee &mdash; working at the intersection of both lineages."}
+        ];
+        const FORM_IDS = ["tractatus","georgetown","chomsky","alpac"];
+        const USE_IDS  = ["borges","pi","firth","ibm","w2v","attn","nllb"];
+        const COLOR = { form:"#c0392b", use:"#27ae60" };
+        function accent(){ return getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#3366cc"; }
+        function nodeColor(d){ return d.lane === "merge" ? accent() : COLOR[d.lane]; }
+
+        const svg = d3.select("#lineage-svg");
+        const descBox = document.getElementById("lineage-desc");
+        let activeId = "bb";
+
+        function showDesc(d){
+          activeId = d.id;
+          descBox.innerHTML = "<span style=\"color:" + nodeColor(d) + ";font-weight:bold;\">" + d.year + "</span> &nbsp; " + d.desc;
+          svg.selectAll("circle.ln-node").attr("stroke-width", n => n.id === activeId ? 3.5 : 1.5);
+        }
+
+        function render(){
+          const wrap = document.getElementById("lineage-wrap");
+          const W = Math.max(wrap.clientWidth - 32, 300);
+          const horizontal = W >= 620;
+          svg.selectAll("*").remove();
+          const pos = {};
+
+          if (horizontal){
+            const H = 240;
+            svg.attr("viewBox", "0 0 " + W + " " + H).attr("height", H);
+            const x = d3.scalePoint().domain(EV.map(e => e.id)).range([60, W - 70]);
+            const Y = { form: 60, use: 175, merge: 117 };
+            EV.forEach(e => pos[e.id] = { x: x(e.id), y: Y[e.lane] });
+            svg.append("text").attr("x", 8).attr("y", Y.form + 4).attr("font-size", 10).attr("fill", COLOR.form).attr("font-weight", "bold").text("FORM");
+            svg.append("text").attr("x", 8).attr("y", Y.use + 4).attr("font-size", 10).attr("fill", COLOR.use).attr("font-weight", "bold").text("USE");
+          } else {
+            const H = EV.length * 62 + 40;
+            svg.attr("viewBox", "0 0 " + W + " " + H).attr("height", H);
+            const y = d3.scalePoint().domain(EV.map(e => e.id)).range([36, H - 24]);
+            const X = { form: W * 0.28, use: W * 0.72, merge: W * 0.5 };
+            EV.forEach(e => pos[e.id] = { x: X[e.lane], y: y(e.id) });
+            svg.append("text").attr("x", W * 0.28).attr("y", 14).attr("font-size", 10).attr("fill", COLOR.form).attr("font-weight", "bold").attr("text-anchor", "middle").text("FORM");
+            svg.append("text").attr("x", W * 0.72).attr("y", 14).attr("font-size", 10).attr("fill", COLOR.use).attr("font-weight", "bold").attr("text-anchor", "middle").text("USE");
+          }
+
+          const ln = d3.line().curve(d3.curveCatmullRom.alpha(0.7));
+          const pts = ids => ids.map(id => [pos[id].x, pos[id].y]);
+
+          svg.append("path").attr("d", ln(pts(FORM_IDS)))
+             .attr("fill", "none").attr("stroke", COLOR.form).attr("stroke-width", 2).attr("opacity", 0.7);
+          svg.append("path").attr("d", ln(pts(USE_IDS.concat(["bb"]))))
+             .attr("fill", "none").attr("stroke", COLOR.use).attr("stroke-width", 2).attr("opacity", 0.7);
+          svg.append("path").attr("d", ln(pts(["chomsky", "nllb"])))
+             .attr("fill", "none").attr("stroke", COLOR.form).attr("stroke-width", 1.5)
+             .attr("stroke-dasharray", "5,5").attr("opacity", 0.35);
+
+          const g = svg.selectAll("g.ln-ev").data(EV).join("g").attr("class", "ln-ev")
+            .attr("transform", d => "translate(" + pos[d.id].x + "," + pos[d.id].y + ")")
+            .style("cursor", "pointer")
+            .on("click", (event, d) => showDesc(d));
+
+          g.append("circle").attr("class", "ln-node")
+            .attr("r", d => d.lane === "merge" ? 9 : 7)
+            .attr("fill", d => nodeColor(d))
+            .attr("stroke", "var(--surface)").attr("stroke-width", 1.5);
+
+          g.filter(d => d.crash).append("text")
+            .attr("text-anchor", "middle").attr("dominant-baseline", "central")
+            .attr("font-size", 9).attr("font-weight", "bold").attr("fill", "#fff").text("\u2715");
+
+          if (horizontal){
+            g.append("text").attr("text-anchor", "middle")
+              .attr("y", d => d.lane === "use" ? 24 : -18)
+              .attr("font-size", 11.5).attr("font-weight", d => d.lane === "merge" ? "bold" : "normal")
+              .attr("fill", "var(--text)").text(d => d.label);
+            g.append("text").attr("text-anchor", "middle")
+              .attr("y", d => d.lane === "use" ? 37 : -31)
+              .attr("font-size", 9.5).attr("fill", "var(--text-muted)").text(d => d.year.replace(/&ndash;/, "\u2013"));
+          } else {
+            g.append("text")
+              .attr("text-anchor", d => d.lane === "form" ? "end" : d.lane === "use" ? "start" : "middle")
+              .attr("x", d => d.lane === "form" ? -16 : d.lane === "use" ? 16 : 0)
+              .attr("y", d => d.lane === "merge" ? 26 : 0)
+              .attr("dominant-baseline", d => d.lane === "merge" ? "auto" : "central")
+              .attr("font-size", 11.5).attr("font-weight", d => d.lane === "merge" ? "bold" : "normal")
+              .attr("fill", "var(--text)").text(d => d.label + "  (" + d.year.replace(/&ndash;/, "\u2013") + ")");
+          }
+
+          const active = EV.find(e => e.id === activeId);
+          if (active) showDesc(active);
+        }
+
+        window.addEventListener("resize", () => render());
+        render();
+        })();
+        </script>
+
+      </div>
+    </div>
+
+    <!-- SIDEBAR INFOBOX -->
+    <div>
+      <div class="bb-infobox" style="float:none; width:100%; margin:0 0 16px 0;">
+        <div class="bb-infobox-title">Project info</div>
+        <table>
+          <tr><td>Status</td><td>Active development</td></tr>
+          <tr><td>Started</td><td>2026</td></tr>
+          <tr><td>Author</td><td>Flavio</td></tr>
+          <tr><td>Pipeline</td><td>bb v2</td></tr>
+          <tr><td>Database</td><td>PostgreSQL + pgvector</td></tr>
+          <tr><td>Inference</td><td>Ollama Cloud + CPU</td></tr>
+          <tr><td>Source</td><td><a href="https://github.com/fladroid" target="_blank">GitHub</a></td></tr>
+          <tr><td>Books</td><td><a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a></td></tr>
+        </table>
+      </div>
+
+      <div class="bb-infobox" style="float:none; width:100%; margin:0 0 16px 0;">
+        <div class="bb-infobox-title">Target languages</div>
+        <table>
+          <tr><td>South Slavic</td><td>hr, bs, sr, sl, mk, bg</td></tr>
+          <tr><td>West Germanic</td><td>de, nl, af</td></tr>
+          <tr><td>Romance</td><td>fr, it, es, pt, ro</td></tr>
+        </table>
+      </div>
+
+      <div class="bb-infobox" style="float:none; width:100%; margin:0 0 16px 0;">
+        <div class="bb-infobox-title">Philosophy</div>
+        <table>
+          <tr><td colspan="2" style="font-style:italic; color:var(--text-muted); line-height:1.7; padding:8px;">
+            The path matters more than the destination.
+            The pipeline we are building is generic and applicable far beyond book translation.
+            <br><br>
+            Buchenberg is a practical implementation of the author&rsquo;s
+            <strong>X-Ray attitude</strong>: refusing to treat machine translation as a
+            black box, and building windows into it &mdash; layer by layer, score by score.
+            <br><br>
+            &mdash; Flavio
+          </td></tr>
+        </table>
+      </div>
+
+      <div class="bb-infobox" style="float:none; width:100%; margin:0;">
+        <div class="bb-infobox-title">Authorship &amp; Collaboration</div>
+        <table>
+          <tr><td colspan="2" style="line-height:1.7; padding:8px;">
+            Buchenberg is conceived, designed and maintained by <strong>Flavio</strong> (fladroid).
+            The project&rsquo;s philosophy, methodology, architecture and all final design
+            decisions are his &mdash; and remain his sole responsibility.
+            <br><br>
+            The project is built in ongoing collaboration with
+            <strong><a href="https://claude.ai" target="_blank">Claude</a></strong> (Anthropic) &mdash;
+            not as a code-completion tool, but as a working partner across more than 60
+            documented sessions: implementation, debugging, analysis, and the conceptual
+            dialogue that shaped pages like <em>Geometry of Meaning</em> and <em>Art</em>.
+            Every session is recorded in <code>docs/sessions/</code>, where both names
+            appear &mdash; a deliberate choice, in the spirit of this project&rsquo;s
+            X-Ray attitude: the process of building should be as transparent as the thing built.
+            <br><br>
+            <em>Flavio &amp; Claude · Buchenberg · 2026</em>
+          </td></tr>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div id="bb-footer">
+  <div style="max-width:1200px; margin:0 auto; padding:0 16px;">
+    Buchenberg · Open-source MT pipeline ·
+    <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a> ·
+    <a href="https://github.com/fladroid" target="_blank">GitHub</a>
+  </div>
+</div>
+
+<script>
+const I18N = {
+  en: { nav_home:"Home", nav_about:"About", nav_stats:"X-Ray Stats", nav_books:"Library", nav_nlp:"NLP", nav_reader:"Reader" },
+  de: { nav_home:"Startseite", nav_about:"Über", nav_stats:"X-Ray Statistik", nav_books:"Bücher", nav_nlp:"NLP", nav_reader:"Leser" },
+  it: { nav_home:"Home", nav_about:"Informazioni", nav_stats:"Statistiche X-Ray", nav_books:"Libri", nav_nlp:"NLP", nav_reader:"Lettore" },
+  hr: { nav_home:"Početna", nav_about:"O projektu", nav_stats:"X-Ray Statistike", nav_books:"Knjige", nav_nlp:"NLP", nav_reader:"Čitač" },
+  sr: { nav_home:"Почетна", nav_about:"О пројекту", nav_stats:"X-Ray Статистике", nav_books:"Књиге", nav_nlp:"NLP", nav_reader:"Читач" },
+};
+
+// Theme
+const savedTheme = localStorage.getItem('bb-theme') || 'light';
+document.documentElement.setAttribute('data-theme', savedTheme);
+function updateThemeBtn() {
+  document.getElementById('bb-theme-toggle').textContent =
+    document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+}
+updateThemeBtn();
+// theme toggle: centralizovano u nav.js
+
+// UI Language
+let uiLang = localStorage.getItem('bb-ui-lang') || 'en';
+function t(key) { return (I18N[uiLang] || {})[key] || I18N.en[key] || key; }
+function applyI18n() {
+  const navLinks = document.querySelectorAll('.bb-nav-link');
+  navLinks[0].textContent = t('nav_home');
+  navLinks[1].textContent = t('nav_about');
+  navLinks[2].textContent = t('nav_stats');
+  navLinks[3].textContent = t('nav_books');
+  navLinks[4].textContent = t('nav_nlp');
+  navLinks[5].textContent = t('nav_reader');
+  document.querySelectorAll('.bb-lang-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.lang === uiLang));
+}
+document.querySelectorAll('.bb-lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    uiLang = btn.dataset.lang;
+    localStorage.setItem('bb-ui-lang', uiLang);
+    applyI18n();
+  });
+});
+
+applyI18n();
+</script>
+</body>
+</html>

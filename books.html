@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Books — Buchenberg</title>
+<link rel="stylesheet" href="buchenberg.css">
+<script src="nav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js"></script>
+<style>
+/* ── Word Cloud Modal ── */
+#wc-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+#wc-modal-overlay.open { display: flex; }
+
+#wc-modal {
+  background: var(--surface);
+  border-radius: 10px;
+  width: min(900px, 96vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px 28px 20px 28px;
+  position: relative;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+}
+
+#wc-modal-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+#wc-modal-author {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+#wc-close {
+  position: absolute;
+  top: 16px; right: 18px;
+  background: none; border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  line-height: 1;
+}
+#wc-close:hover { color: var(--text); }
+
+#wc-lang-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+#wc-lang-bar label {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-right: 4px;
+}
+.wc-lang-btn {
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.wc-lang-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+#wc-clouds {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 600px) { #wc-clouds { grid-template-columns: 1fr; } }
+
+.wc-panel {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--bg);
+}
+.wc-panel-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  text-align: center;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.wc-svg-wrap {
+  width: 100%;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wc-svg-wrap svg { display: block; }
+
+#wc-coverage {
+  margin-top: 14px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+#wc-coverage span { color: var(--accent); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- HEADER ubačen via nav.js -->
+
+<!-- PAGE -->
+<div id="bb-page">
+  <h1 class="bb-section-title" id="page-title">Library</h1>
+  <p class="bb-section-subtitle" id="page-subtitle">
+    All books are sourced from Project Gutenberg (public domain).
+    Each translation is a sentence-level hybrid produced by the Buchenberg pipeline.
+  </p>
+  <div id="book-cards" class="bb-cards">
+    <div class="bb-loading" id="loading">Loading…</div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div id="bb-footer">
+  <div style="max-width:1200px; margin:0 auto; padding:0 16px;">
+    Buchenberg · Open-source MT pipeline ·
+    <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a> ·
+    <a href="https://github.com/fladroid" target="_blank">GitHub</a>
+  </div>
+</div>
+
+<!-- WORD CLOUD MODAL -->
+<div id="wc-modal-overlay">
+  <div id="wc-modal">
+    <button id="wc-close" title="Close">✕</button>
+    <div id="wc-modal-title"></div>
+    <div id="wc-modal-author"></div>
+
+    <div id="wc-lang-bar">
+      <label id="wc-lang-label">Compare with:</label>
+      <!-- lang buttons injected by JS -->
+    </div>
+
+    <div id="wc-clouds">
+      <div class="wc-panel">
+        <div class="wc-panel-title">EN — Original</div>
+        <div class="wc-svg-wrap" id="wc-en"></div>
+      </div>
+      <div class="wc-panel">
+        <div class="wc-panel-title" id="wc-lang-title">—</div>
+        <div class="wc-svg-wrap" id="wc-tr"></div>
+      </div>
+    </div>
+
+    <div id="wc-coverage"></div>
+  </div>
+</div>
+
+<script>
+// ── Stop words (EN + common multilingual) ────────────────────
+const STOP_EN = new Set("a an the and or but in on at to of for with by from as is was are were be been being have has had do does did will would could should may might shall not no nor so yet both either neither one two three all any few more most other some such than then there these they this those through very what which while who whom whose within would i me my myself we our ours ourselves you your yours yourself he him his himself she her hers herself it its itself they them their theirs themselves what which who whom this that these those am is are was were be been being have has had do does did will would could should may might must can could".split(" "));
+const STOP_MULTI = new Set("die der das den dem ein eine einer eines einem ich du er sie es wir ihr sie sie un une le la les des du au aux en je tu il elle nous vous ils elles un una il lo la i gli le un uno una di da in con su per tra fra e è il la lo un de het een en van in op te is was zijn worden er ik jij hij zij we jullie ze het een van in op te met voor naar om dat ze er ook wat als dan nog al zo meer nu ja nee maar ook al al reeds van aan bij over door uit om af the of and to in is it that he she they we you a an was were be been being have has had this those i me my we our you your he him his she her its they them their what which who whom".split(" "));
+const STOP_WORDS = new Set([...STOP_EN, ...STOP_MULTI]);
+
+// ── i18n ─────────────────────────────────────────────────────
+const LANG_NAMES_NATIVE = {
+  hr:"Hrvatski", bs:"Bosanski", sr:"Српски", sl:"Slovenščina",
+  de:"Deutsch", nl:"Nederlands", af:"Afrikaans",
+  fr:"Français", it:"Italiano", es:"Español", pt:"Português", ro:"Română",
+  mk:"Македонски", bg:"Български"
+};
+
+const I18N = {
+  en: {
+    nav_home:"Home", nav_about:"About", nav_stats:"X-Ray Stats", nav_books:"Library", nav_nlp:"NLP", nav_reader:"Reader",
+    page_title:"Library",
+    page_subtitle:"All books are sourced from Project Gutenberg (public domain). Each translation is a sentence-level hybrid produced by the Buchenberg pipeline.",
+    lbl_sentences:"sentences", lbl_languages:"languages",
+    btn_read:"Read", btn_gutenberg:"Gutenberg", btn_ner:"NER", btn_wordcloud:"Word cloud",
+    coming_soon:"coming soon",
+    wc_compare:"Compare with:", wc_loading:"Building word cloud…",
+    wc_coverage:"{n} of {total} sentences translated ({pct}%) — word cloud reflects translated sample only",
+    wc_en_full:"EN — Full text ({n} sentences)",
+    wc_tr_sample:"{lang} — {n} translated sentences",
+  },
+  de: {
+    nav_home:"Startseite", nav_about:"Über", nav_stats:"X-Ray Statistik", nav_books:"Bücher", nav_nlp:"NLP", nav_reader:"Leser",
+    page_title:"Übersetzte Bücher",
+    page_subtitle:"Alle Bücher stammen aus dem Project Gutenberg (gemeinfrei). Jede Übersetzung ist ein satzweises Hybrid der Buchenberg-Pipeline.",
+    lbl_sentences:"Sätze", lbl_languages:"Sprachen",
+    btn_read:"Lesen", btn_gutenberg:"Gutenberg", btn_ner:"NER", btn_wordcloud:"Wortwolke",
+    coming_soon:"demnächst",
+    wc_compare:"Vergleichen mit:", wc_loading:"Wortwolke wird erstellt…",
+    wc_coverage:"{n} von {total} Sätzen übersetzt ({pct}%) — Wortwolke zeigt nur übersetzten Teil",
+    wc_en_full:"EN — Volltext ({n} Sätze)",
+    wc_tr_sample:"{lang} — {n} übersetzte Sätze",
+  },
+  it: {
+    nav_home:"Home", nav_about:"Informazioni", nav_stats:"Statistiche X-Ray", nav_books:"Libri", nav_nlp:"NLP", nav_reader:"Lettore",
+    page_title:"Libri tradotti",
+    page_subtitle:"Tutti i libri provengono da Project Gutenberg (pubblico dominio). Ogni traduzione è un ibrido a livello di frase prodotto dalla pipeline Buchenberg.",
+    lbl_sentences:"frasi", lbl_languages:"lingue",
+    btn_read:"Leggi", btn_gutenberg:"Gutenberg", btn_ner:"NER", btn_wordcloud:"Nuvola di parole",
+    coming_soon:"prossimamente",
+    wc_compare:"Confronta con:", wc_loading:"Creazione nuvola…",
+    wc_coverage:"{n} di {total} frasi tradotte ({pct}%) — la nuvola riflette solo il campione tradotto",
+    wc_en_full:"EN — Testo completo ({n} frasi)",
+    wc_tr_sample:"{lang} — {n} frasi tradotte",
+  },
+  hr: {
+    nav_home:"Početna", nav_about:"O projektu", nav_stats:"X-Ray Statistike", nav_books:"Knjige", nav_nlp:"NLP", nav_reader:"Čitač",
+    page_title:"Prevedene knjige",
+    page_subtitle:"Sve knjige dolaze s Project Gutenberga (javna domena). Svaki prijevod je hibrid na razini rečenica, proizveden Buchenberg pipelineom.",
+    lbl_sentences:"rečenica", lbl_languages:"jezika",
+    btn_read:"Čitaj", btn_gutenberg:"Gutenberg", btn_ner:"NER", btn_wordcloud:"Oblak riječi",
+    coming_soon:"uskoro",
+    wc_compare:"Usporedi s:", wc_loading:"Gradim oblak…",
+    wc_coverage:"{n} od {total} rečenica prevedeno ({pct}%) — oblak prikazuje samo prevedeni uzorak",
+    wc_en_full:"EN — Cijeli tekst ({n} rečenica)",
+    wc_tr_sample:"{lang} — {n} prevedenih rečenica",
+  },
+  sr: {
+    nav_home:"Почетна", nav_about:"О пројекту", nav_stats:"X-Ray Статистике", nav_books:"Књиге", nav_nlp:"NLP", nav_reader:"Читач",
+    page_title:"Prevedene knjige",
+    page_subtitle:"Sve knjige potiču sa Project Gutenberga (javna domena). Svaki prevod je hibrid na nivou rečenica, proizveden Buchenberg pipelineom.",
+    lbl_sentences:"rečenica", lbl_languages:"jezika",
+    btn_read:"Čitaj", btn_gutenberg:"Gutenberg", btn_ner:"NER", btn_wordcloud:"Oblak reči",
+    coming_soon:"uskoro",
+    wc_compare:"Uporedi s:", wc_loading:"Gradim oblak…",
+    wc_coverage:"{n} od {total} rečenica prevedeno ({pct}%) — oblak prikazuje samo prevedeni uzorak",
+    wc_en_full:"EN — Ceo tekst ({n} rečenica)",
+    wc_tr_sample:"{lang} — {n} prevedenih rečenica",
+  },
+};
+
+// ── Theme ─────────────────────────────────────────────────────
+const savedTheme = localStorage.getItem('bb-theme') || 'light';
+document.documentElement.setAttribute('data-theme', savedTheme);
+function updateThemeBtn() {
+  document.getElementById('bb-theme-toggle').textContent =
+    document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+}
+updateThemeBtn();
+// theme toggle: centralizovano u nav.js
+
+// ── UI Language ───────────────────────────────────────────────
+let uiLang = localStorage.getItem('bb-ui-lang') || 'en';
+function t(key) { return (I18N[uiLang] || {})[key] || I18N.en[key] || key; }
+function tf(key, vars) {
+  let s = t(key);
+  for (const [k, v] of Object.entries(vars)) s = s.replace(`{${k}}`, v);
+  return s;
+}
+
+function applyI18n() {
+  const navLinks = document.querySelectorAll('.bb-nav-link');
+  navLinks[0].textContent = t('nav_home');
+  navLinks[1].textContent = t('nav_about');
+  navLinks[2].textContent = t('nav_stats');
+  navLinks[3].textContent = t('nav_books');
+  navLinks[4].textContent = t('nav_nlp');
+  navLinks[5].textContent = t('nav_reader');
+  document.getElementById('page-title').textContent = t('page_title');
+  document.getElementById('page-subtitle').textContent = t('page_subtitle');
+  document.querySelectorAll('.bb-lang-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.lang === uiLang));
+}
+
+document.querySelectorAll('.bb-lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    uiLang = btn.dataset.lang;
+    localStorage.setItem('bb-ui-lang', uiLang);
+    applyI18n();
+    renderCards(window._books);
+  });
+});
+
+// ── Word frequency ────────────────────────────────────────────
+function wordFreq(texts) {
+  const freq = {};
+  for (const text of texts) {
+    const words = text.toLowerCase()
+      .replace(/[^a-zàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿšžčćđšžč\s]/gi, ' ')
+      .split(/\s+/);
+    for (const w of words) {
+      if (w.length < 3) continue;
+      if (STOP_WORDS.has(w)) continue;
+      freq[w] = (freq[w] || 0) + 1;
+    }
+  }
+  return Object.entries(freq)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 120)
+    .map(([text, value]) => ({ text, value }));
+}
+
+// ── Draw word cloud ───────────────────────────────────────────
+function drawCloud(containerId, words, isDark) {
+  const wrap = document.getElementById(containerId);
+  wrap.innerHTML = '';
+
+  if (!words || words.length === 0) {
+    wrap.innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem;padding:20px;">No data</div>';
+    return;
+  }
+
+  const W = wrap.offsetWidth || 380;
+  const H = 220;
+
+  const maxVal = words[0].value;
+  const minVal = words[words.length - 1].value;
+  const sizeScale = d3.scaleLinear()
+    .domain([minVal, maxVal])
+    .range([11, 46]);
+
+  const colors = isDark
+    ? ["#7eb8f7","#f7c97e","#7ef7a8","#f77e7e","#c87ef7","#7ef7f7","#f7f77e"]
+    : ["#1a6fba","#b07000","#0a7a30","#ba1a1a","#6a0a9a","#0a7a7a","#7a7a00"];
+
+  d3.layout.cloud()
+    .size([W, H])
+    .words(words.map(d => ({ text: d.text, size: sizeScale(d.value) })))
+    .padding(3)
+    .rotate(() => (Math.random() > 0.8 ? 90 : 0))
+    .font("sans-serif")
+    .fontSize(d => d.size)
+    .on("end", drawn => {
+      const svg = d3.select(wrap).append("svg")
+        .attr("width", W).attr("height", H);
+      svg.append("g")
+        .attr("transform", `translate(${W/2},${H/2})`)
+        .selectAll("text")
+        .data(drawn)
+        .enter().append("text")
+        .style("font-size", d => `${d.size}px`)
+        .style("font-family", "sans-serif")
+        .style("fill", (d, i) => colors[i % colors.length])
+        .attr("text-anchor", "middle")
+        .attr("transform", d => `translate(${d.x},${d.y})rotate(${d.rotate})`)
+        .text(d => d.text);
+    })
+    .start();
+}
+
+// ── Word cloud modal ──────────────────────────────────────────
+let wcBook = null;
+let wcLang = null;
+let wcOrigData = null;
+let wcTrData = null;
+let __wcV = null;
+
+async function openWordCloud(book, v) {
+  __wcV = v;
+  wcBook = book;
+
+  document.getElementById('wc-modal-title').textContent = book.title;
+  document.getElementById('wc-modal-author').textContent = book.author;
+  document.getElementById('wc-modal-overlay').classList.add('open');
+  document.getElementById('wc-lang-label').textContent = t('wc_compare');
+
+  // Lang buttons
+  const langBar = document.getElementById('wc-lang-bar');
+  // Remove old lang buttons
+  langBar.querySelectorAll('.wc-lang-btn').forEach(b => b.remove());
+
+  const langs = [...(book.languages || [])];
+  const sortedForWc = [...langs].sort((a,b) => (LANG_NAMES_NATIVE[a.code]||a.code).localeCompare(LANG_NAMES_NATIVE[b.code]||b.code));
+  const byCount = [...langs].sort((a,b) => b.sentences - a.sentences);
+  wcLang = byCount[0]?.code || null;
+
+  sortedForWc.forEach(lang => {
+    const btn = document.createElement('button');
+    btn.className = 'wc-lang-btn' + (lang.code === wcLang ? ' active' : '');
+    btn.textContent = LANG_NAMES_NATIVE[lang.code] || lang.code.toUpperCase();
+    btn.dataset.code = lang.code;
+    btn.addEventListener('click', () => {
+      wcLang = lang.code;
+      langBar.querySelectorAll('.wc-lang-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.code === wcLang));
+      loadAndRenderTr();
+    });
+    langBar.appendChild(btn);
+  });
+
+  // Load orig
+  document.getElementById('wc-en').innerHTML = `<div style="color:var(--text-muted);font-size:0.85rem;">${t('wc_loading')}</div>`;
+  document.getElementById('wc-tr').innerHTML = `<div style="color:var(--text-muted);font-size:0.85rem;">${t('wc_loading')}</div>`;
+
+  try {
+    wcOrigData = await fetch(`data/orig_${book.id}.json?v=${__wcV}`).then(r => r.json());
+  } catch(e) { wcOrigData = null; }
+
+  if (wcLang) {
+    await loadAndRenderTr();
+  } else {
+    // No translations — render EN only
+    wcTrData = null;
+    renderWC();
+  }
+}
+
+async function loadAndRenderTr() {
+  if (!wcLang || !wcBook) return;
+  try {
+    wcTrData = await fetch(`data/tr_${wcBook.id}_${wcLang}.json?v=${__wcV}`).then(r => r.json());
+  } catch(e) { wcTrData = null; }
+  renderWC();
+}
+
+function renderWC() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+  // EN cloud — full original text
+  if (wcOrigData) {
+    const enTexts = (wcOrigData.sentences || []).map(s => s.text || s.original || '').filter(Boolean);
+    const enFreq = wordFreq(enTexts);
+    drawCloud('wc-en', enFreq, isDark);
+    document.querySelector('.wc-panel:first-child .wc-panel-title').textContent =
+      tf('wc_en_full', { n: enTexts.length.toLocaleString() });
+  }
+
+  // TR cloud — translated sentences only
+  const langName = wcLang ? (LANG_NAMES_NATIVE[wcLang] || wcLang.toUpperCase()) : '';
+  document.getElementById('wc-lang-title').textContent = langName;
+
+  if (!wcLang) {
+    document.getElementById('wc-tr').innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem;padding:20px;text-align:center;">No translations available yet</div>';
+    document.getElementById('wc-coverage').innerHTML = '';
+  } else if (wcTrData) {
+    const allSentences = wcTrData.sentences || [];
+    const translated = allSentences.filter(s => s.translated !== false && s.translation);
+    const trTexts = translated.map(s => s.translation).filter(Boolean);
+    const trFreq = wordFreq(trTexts);
+    drawCloud('wc-tr', trFreq, isDark);
+
+    document.querySelector('#wc-clouds .wc-panel:last-child .wc-panel-title').textContent =
+      tf('wc_tr_sample', { lang: langName, n: translated.length.toLocaleString() });
+
+    const total = allSentences.length;
+    const pct = total > 0 ? Math.round(translated.length / total * 100) : 0;
+    document.getElementById('wc-coverage').innerHTML =
+      `⚠ ${tf('wc_coverage', { n: translated.length, total: total.toLocaleString(), pct })}`;
+  } else {
+    document.getElementById('wc-tr').innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem;">No data</div>';
+  }
+}
+
+// Close modal
+document.getElementById('wc-close').addEventListener('click', () => {
+  document.getElementById('wc-modal-overlay').classList.remove('open');
+});
+document.getElementById('wc-modal-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('wc-modal-overlay'))
+    document.getElementById('wc-modal-overlay').classList.remove('open');
+});
+
+// ── Cards ─────────────────────────────────────────────────────
+function renderCards(books) {
+  if (!books) return;
+  const container = document.getElementById('book-cards');
+  container.innerHTML = '';
+
+  books.forEach(book => {
+    const langCount = (book.languages || []).length;
+    const totalSentences = book.total_sentences || 0;
+
+    const card = document.createElement('div');
+    card.className = 'bb-card';
+
+    const head = document.createElement('div');
+    head.className = 'bb-card-head';
+    head.innerHTML = `
+      <div class="bb-card-title">${escHtml(book.title)}</div>
+      <div class="bb-card-author">${escHtml(book.author)}</div>
+    `;
+
+    const body = document.createElement('div');
+    body.className = 'bb-card-body';
+
+    const meta = document.createElement('div');
+    meta.className = 'bb-card-meta';
+    meta.textContent = `${totalSentences.toLocaleString()} ${t('lbl_sentences')} · ${langCount} ${t('lbl_languages')}`;
+
+    const langsDiv = document.createElement('div');
+    langsDiv.className = 'bb-card-langs';
+    const sortedLangs = [...(book.languages || [])].sort((a, b) => {
+      const na = LANG_NAMES_NATIVE[a.code] || a.code;
+      const nb = LANG_NAMES_NATIVE[b.code] || b.code;
+      return na.localeCompare(nb);
+    });
+    // Translation status badge
+    const totalLangs = sortedLangs.length;
+    if (totalLangs === 0) {
+      const nb = document.createElement('span');
+      nb.className = 'bb-badge bb-badge-coming-soon';
+      nb.textContent = 'No translations yet';
+      langsDiv.appendChild(nb);
+    } else {
+      const nb = document.createElement('span');
+      nb.className = 'bb-badge';
+      nb.style.marginBottom = '6px';
+      nb.style.background = 'rgba(51,102,204,0.1)';
+      nb.style.color = 'var(--accent)';
+      nb.textContent = totalLangs + ' language' + (totalLangs > 1 ? 's' : '');
+      langsDiv.appendChild(nb);
+      sortedLangs.forEach(lang => {
+        const badge = document.createElement('span');
+        badge.className = 'bb-badge';
+        badge.title = LANG_NAMES_NATIVE[lang.code] || lang.code;
+        badge.textContent = lang.code.toUpperCase();
+        langsDiv.appendChild(badge);
+      });
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'bb-card-actions';
+
+    const readBtn = document.createElement('a');
+    readBtn.className = 'bb-btn bb-btn-primary';
+    readBtn.href = `reader.html?book=${book.id}`;
+    readBtn.textContent = t('btn_read');
+
+    const gutBtn = document.createElement('a');
+    gutBtn.className = 'bb-btn';
+    gutBtn.href = `https://www.gutenberg.org/ebooks/${book.gutenberg_id}`;
+    gutBtn.target = '_blank';
+    gutBtn.textContent = t('btn_gutenberg');
+
+    const nerBtn = document.createElement('a');
+    nerBtn.className = 'bb-btn';
+    nerBtn.href = 'nlp.html?book=' + book.id;
+    nerBtn.textContent = t('btn_ner');
+
+    const wcBtn = document.createElement('button');
+    wcBtn.className = 'bb-btn';
+    wcBtn.textContent = t('btn_wordcloud');
+    wcBtn.addEventListener('click', () => openWordCloud(book, window.__v));
+
+    actions.appendChild(readBtn);
+    actions.appendChild(gutBtn);
+    actions.appendChild(nerBtn);
+    actions.appendChild(wcBtn);
+
+    body.appendChild(meta);
+    body.appendChild(langsDiv);
+    body.appendChild(actions);
+    card.appendChild(head);
+    card.appendChild(body);
+    container.appendChild(card);
+  });
+}
+
+function escHtml(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Load ──────────────────────────────────────────────────────
+async function init() {
+  const __ver = await fetch(`data/version.json?t=${Date.now()}`).then(r => r.json()).catch(() => ({v: Date.now()}));
+  window.__v = __ver.v;
+  try {
+    const books = await fetch(`data/books.json?v=${window.__v}`).then(r => r.json());
+    window._books = books;
+    document.getElementById('loading').style.display = 'none';
+    renderCards(books);
+  } catch(e) {
+    document.getElementById('loading').textContent = '⚠ ' + e.message;
+  }
+}
+
+applyI18n();
+init();
+</script>
+</body>
+</html>

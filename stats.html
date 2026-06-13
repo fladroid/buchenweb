@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X-Ray Stats — Buchenberg</title>
+<link rel="stylesheet" href="buchenberg.css">
+<script src="nav.js"></script>
+<style>
+  .bb-table { width:100%; border-collapse:collapse; font-size:13px; margin-bottom:24px; }
+  .bb-table th {
+    background:var(--toc-bg); text-align:left; padding:6px 10px;
+    border:1px solid var(--border); font-weight:bold; color:var(--text-muted);
+  }
+  .bb-table td { padding:5px 10px; border:1px solid var(--border-light); color:var(--text); }
+  .bb-table tr:hover td { background:var(--border-light); }
+
+  .winner-bar-wrap { background:var(--border-light); border-radius:2px; height:10px; width:100%; min-width:80px; }
+  .winner-bar { background:var(--accent); border-radius:2px; height:10px; transition:width .3s; }
+
+  .model-gem3  { color: #2a6; }
+  .model-min3  { color: #a62; }
+  .model-nllb  { color: #62a; }
+</style>
+</head>
+<body>
+
+<!-- HEADER ubačen via nav.js -->
+
+<!-- PAGE -->
+<div id="bb-page">
+
+  <h1 class="bb-section-title">X-Ray Statistics</h1>
+  <p class="bb-section-subtitle">
+    Aggregate data from the Buchenberg pipeline — winner distribution, scores, and coverage.
+    Data is loaded live from translation JSON files.
+  </p>
+
+  <!-- SUMMARY CARDS -->
+  <div id="summary-cards" class="bb-stats-grid" style="margin-bottom:32px;">
+    <div class="bb-stat-card">
+      <div class="bb-stat-number" id="stat-total-translations">–</div>
+      <div class="bb-stat-label">Total translated sentences</div>
+    </div>
+    <div class="bb-stat-card">
+      <div class="bb-stat-number" id="stat-total-books">–</div>
+      <div class="bb-stat-label">Books in corpus</div>
+    </div>
+    <div class="bb-stat-card">
+      <div class="bb-stat-number" id="stat-total-langs">–</div>
+      <div class="bb-stat-label">Language × book combinations</div>
+    </div>
+    <div class="bb-stat-card">
+      <div class="bb-stat-number" id="stat-avg-ts">–</div>
+      <div class="bb-stat-label">Avg translation score (all)</div>
+    </div>
+  </div>
+
+  <!-- WINNER DISTRIBUTION -->
+  <h2 class="bb-section-title">Winner distribution by model</h2>
+  <p class="bb-section-subtitle">How often each model wins — across all books and languages.</p>
+  <div id="winner-table-wrap">
+    <div class="bb-loading">Loading…</div>
+  </div>
+
+  <!-- PER LANGUAGE TABLE -->
+  <h2 class="bb-section-title" style="margin-top:32px;">Coverage by book and language</h2>
+  <p class="bb-section-subtitle">Number of translated sentences per book/language combination.</p>
+  <div id="coverage-table-wrap">
+    <div class="bb-loading">Loading…</div>
+  </div>
+
+  <!-- SCORE TABLE -->
+  <h2 class="bb-section-title" style="margin-top:32px;">Average scores by language</h2>
+  <p class="bb-section-subtitle">
+    Avg translation score and judge score per language (all books combined).
+    Higher is better; max 1.0.
+  </p>
+  <div id="score-table-wrap">
+    <div class="bb-loading">Loading…</div>
+  </div>
+
+  <p style="font-size:12px; color:var(--text-light); margin-top:24px;">
+    ⚠ Statistics are computed client-side from the same JSON files used by the Reader.
+    Winner model information requires judge data (<code>judge_avg</code>) to be present.
+    Sentences without judge data are excluded from judge averages.
+  </p>
+
+</div>
+
+<!-- FOOTER -->
+<div id="bb-footer">
+  <div style="max-width:1200px; margin:0 auto; padding:0 16px;">
+    Buchenberg · Open-source MT pipeline ·
+    <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a> ·
+    <a href="https://github.com/fladroid" target="_blank">GitHub</a>
+  </div>
+</div>
+
+<script>
+const LANG_NAMES_NATIVE = {
+  hr:"Hrvatski", bs:"Bosanski", sr:"Српски", sl:"Slovenščina",
+  de:"Deutsch", nl:"Nederlands", af:"Afrikaans",
+  fr:"Français", it:"Italiano", es:"Español", pt:"Português", ro:"Română",
+  mk:"Македонски", bg:"Български"
+};
+
+const I18N = {
+  en: { nav_home:"Home", nav_about:"About", nav_stats:"X-Ray Stats", nav_books:"Library", nav_nlp:"NLP", nav_reader:"Reader" },
+  de: { nav_home:"Startseite", nav_about:"Über", nav_stats:"X-Ray Statistik", nav_books:"Bücher", nav_nlp:"NLP", nav_reader:"Leser" },
+  it: { nav_home:"Home", nav_about:"Informazioni", nav_stats:"Statistiche X-Ray", nav_books:"Libri", nav_nlp:"NLP", nav_reader:"Lettore" },
+  hr: { nav_home:"Početna", nav_about:"O projektu", nav_stats:"X-Ray Statistike", nav_books:"Knjige", nav_nlp:"NLP", nav_reader:"Čitač" },
+  sr: { nav_home:"Почетна", nav_about:"О пројекту", nav_stats:"X-Ray Статистике", nav_books:"Књиге", nav_nlp:"NLP", nav_reader:"Читач" },
+};
+
+// ── Theme ─────────────────────────────────────────────────────
+const savedTheme = localStorage.getItem('bb-theme') || 'light';
+document.documentElement.setAttribute('data-theme', savedTheme);
+function updateThemeBtn() {
+  document.getElementById('bb-theme-toggle').textContent =
+    document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+}
+updateThemeBtn();
+// theme toggle: centralizovano u nav.js
+
+// ── UI Language ───────────────────────────────────────────────
+let uiLang = localStorage.getItem('bb-ui-lang') || 'en';
+function t(key) { return (I18N[uiLang] || {})[key] || I18N.en[key] || key; }
+function applyI18n() {
+  const navLinks = document.querySelectorAll('.bb-nav-link');
+  ['nav_home','nav_about','nav_stats','nav_books','nav_nlp','nav_reader'].forEach((k,i) => {
+    navLinks[i].textContent = t(k);
+  });
+  document.querySelectorAll('.bb-lang-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.lang === uiLang));
+}
+document.querySelectorAll('.bb-lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    uiLang = btn.dataset.lang;
+    localStorage.setItem('bb-ui-lang', uiLang);
+    applyI18n();
+  });
+});
+
+// ── Stats computation ─────────────────────────────────────────
+function modelShortName(model) {
+  if (!model) return '?';
+  if (model.includes('gemma3') || model.includes('gemma3:12b')) return 'gemma3:12b';
+  if (model.includes('ministral') || model.includes('ministral-3')) return 'ministral-3:14b';
+  if (model.includes('nllb')) return 'nllb-600M';
+  if (model.includes('gemma4')) return 'gemma4:31b';
+  return model;
+}
+
+function modelClass(model) {
+  if (!model) return '';
+  if (model.includes('gemma3')) return 'model-gem3';
+  if (model.includes('ministral')) return 'model-min3';
+  if (model.includes('nllb')) return 'model-nllb';
+  return '';
+}
+
+async function loadStats() {
+  const __ver = await fetch(`data/version.json?t=${Date.now()}`).then(r => r.json()).catch(() => ({v: Date.now()}));
+  const __v = __ver.v;
+  const books = await fetch(`data/books.json?v=${__v}`).then(r => r.json());
+
+  // Učitaj sve tr_*.json fajlove
+  const allTranslations = []; // {book, lang, sentences}
+  for (const book of books) {
+    for (const lang of (book.languages || [])) {
+      try {
+        const data = await fetch(`data/tr_${book.id}_${lang.code}.json?v=${__v}`).then(r => r.json());
+        allTranslations.push({ book, lang: lang.code, sentences: data.sentences || [] });
+      } catch(e) { /* skip */ }
+    }
+  }
+
+  // ── Summary cards ──
+  let totalSentences = 0, totalTs = 0, tsCount = 0;
+  const langBookSet = new Set();
+  allTranslations.forEach(tr => {
+    const translated = tr.sentences.filter(s => s.translated !== false);
+    totalSentences += translated.length;
+    langBookSet.add(`${tr.book.id}_${tr.lang}`);
+    translated.forEach(s => {
+      if (s.ts) { totalTs += s.ts; tsCount++; }
+    });
+  });
+  document.getElementById('stat-total-translations').textContent = totalSentences.toLocaleString();
+  document.getElementById('stat-total-books').textContent = books.length;
+  document.getElementById('stat-total-langs').textContent = langBookSet.size;
+  document.getElementById('stat-avg-ts').textContent = tsCount
+    ? (totalTs / tsCount).toFixed(3) : '–';
+
+  // ── Winner distribution ──
+  const winnerCounts = {};
+  let totalWinners = 0;
+  allTranslations.forEach(tr => {
+    tr.sentences.filter(s => s.translated !== false && s.model).forEach(s => {
+      const key = modelShortName(s.model) + (s.temperatura !== undefined ? ` @${s.temperatura}` : '');
+      winnerCounts[key] = (winnerCounts[key] || 0) + 1;
+      totalWinners++;
+    });
+  });
+  window._winnerRows = Object.entries(winnerCounts).map(([model, count]) => ({model, count}));
+  window._totalWinners = totalWinners;
+
+  // ── Coverage table ──
+  window._coverageRows = [];
+  allTranslations.forEach(tr => {
+    const translated = tr.sentences.filter(s => s.translated !== false).length;
+    window._coverageRows.push({
+      book: tr.book.title,
+      lang: tr.lang,
+      langName: LANG_NAMES_NATIVE[tr.lang] || tr.lang,
+      translated
+    });
+  });
+
+  // ── Score by language ──
+  const langScores = {};
+  allTranslations.forEach(tr => {
+    if (!langScores[tr.lang]) langScores[tr.lang] = { ts_sum:0, ts_n:0, j_sum:0, j_n:0, langName: LANG_NAMES_NATIVE[tr.lang] || tr.lang };
+    const s = langScores[tr.lang];
+    tr.sentences.filter(x => x.translated !== false).forEach(x => {
+      if (x.ts) { s.ts_sum += x.ts; s.ts_n++; }
+      if (x.judge_avg) { s.j_sum += x.judge_avg; s.j_n++; }
+    });
+  });
+  window._scoreRows = Object.entries(langScores).map(([lang, s]) => ({
+    lang,
+    langName: s.langName,
+    avg_ts: s.ts_n ? s.ts_sum / s.ts_n : null,
+    avg_j:  s.j_n  ? s.j_sum  / s.j_n  : null,
+    n: s.ts_n
+  }));
+
+  // Sort state
+  window._sort = {
+    winner:   { col: 'count',   asc: false },
+    coverage: { col: 'translated', asc: false },
+    score:    { col: 'langName', asc: true  }
+  };
+
+  renderWinnerTable();
+  renderCoverageTable();
+  renderScoreTable();
+}
+
+function sortIcon(tableKey, col) {
+  const s = window._sort[tableKey];
+  if (s.col !== col) return '';
+  return s.asc ? ' ▲' : ' ▼';
+}
+
+function thClick(tableKey, col, defaultAsc, renderFn) {
+  const s = window._sort[tableKey];
+  if (s.col === col) s.asc = !s.asc;
+  else { s.col = col; s.asc = defaultAsc; }
+  renderFn();
+}
+
+function sortRows(rows, col, asc) {
+  return [...rows].sort((a, b) => {
+    let va = a[col], vb = b[col];
+    if (va === null) va = -Infinity;
+    if (vb === null) vb = -Infinity;
+    if (typeof va === 'string') va = va.toLowerCase();
+    if (typeof vb === 'string') vb = vb.toLowerCase();
+    if (va < vb) return asc ? -1 : 1;
+    if (va > vb) return asc ? 1 : -1;
+    return 0;
+  });
+}
+
+function renderWinnerTable() {
+  const { col, asc } = window._sort.winner;
+  const totalWinners = window._totalWinners;
+  const rows = sortRows(window._winnerRows, col, asc);
+  let html = `<table class="bb-table"><tr>
+    <th style="cursor:pointer" onclick="thClick('winner','model',true,renderWinnerTable)">Model${sortIcon('winner','model')}</th>
+    <th style="cursor:pointer" onclick="thClick('winner','count',false,renderWinnerTable)">Wins${sortIcon('winner','count')}</th>
+    <th>%</th>
+    <th style="min-width:120px">Distribution</th></tr>`;
+  rows.forEach(({model, count}) => {
+    const pct = totalWinners ? (count / totalWinners * 100).toFixed(1) : 0;
+    const cls = modelClass(model);
+    html += `<tr>
+      <td><span class="${cls}" style="font-family:var(--font-mono);font-size:12px">${model}</span></td>
+      <td>${count.toLocaleString()}</td>
+      <td>${pct}%</td>
+      <td><div class="winner-bar-wrap"><div class="winner-bar" style="width:${pct}%"></div></div></td>
+    </tr>`;
+  });
+  html += `<tr style="font-weight:bold"><td>Total</td><td>${totalWinners.toLocaleString()}</td><td>100%</td><td></td></tr></table>`;
+  document.getElementById('winner-table-wrap').innerHTML = html;
+}
+
+function renderCoverageTable() {
+  const { col, asc } = window._sort.coverage;
+  const rows = sortRows(window._coverageRows, col, asc);
+  let html = `<table class="bb-table"><tr>
+    <th style="cursor:pointer" onclick="thClick('coverage','book',true,renderCoverageTable)">Book${sortIcon('coverage','book')}</th>
+    <th style="cursor:pointer" onclick="thClick('coverage','langName',true,renderCoverageTable)">Language${sortIcon('coverage','langName')}</th>
+    <th style="cursor:pointer" onclick="thClick('coverage','translated',false,renderCoverageTable)">Sentences${sortIcon('coverage','translated')}</th></tr>`;
+  rows.forEach(({book, lang, langName, translated}) => {
+    html += `<tr>
+      <td>${book}</td>
+      <td>${langName} <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-light)">${lang.toUpperCase()}</span></td>
+      <td>${translated}</td>
+    </tr>`;
+  });
+  html += '</table>';
+  document.getElementById('coverage-table-wrap').innerHTML = html;
+}
+
+function renderScoreTable() {
+  const { col, asc } = window._sort.score;
+  const rows = sortRows(window._scoreRows, col, asc);
+  let html = `<table class="bb-table"><tr>
+    <th style="cursor:pointer" onclick="thClick('score','langName',true,renderScoreTable)">Language${sortIcon('score','langName')}</th>
+    <th style="cursor:pointer" onclick="thClick('score','avg_ts',false,renderScoreTable)">Avg translation score${sortIcon('score','avg_ts')}</th>
+    <th style="cursor:pointer" onclick="thClick('score','avg_j',false,renderScoreTable)">Avg judge score${sortIcon('score','avg_j')}</th>
+    <th style="cursor:pointer" onclick="thClick('score','n',false,renderScoreTable)">Sentences${sortIcon('score','n')}</th></tr>`;
+  rows.forEach(({lang, langName, avg_ts, avg_j, n}) => {
+    html += `<tr>
+      <td>${langName} <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-light)">${lang.toUpperCase()}</span></td>
+      <td>${avg_ts !== null ? avg_ts.toFixed(3) : '–'}</td>
+      <td>${avg_j  !== null ? avg_j.toFixed(3)  : '–'}</td>
+      <td>${n}</td>
+    </tr>`;
+  });
+  html += '</table>';
+  document.getElementById('score-table-wrap').innerHTML = html;
+}
+
+applyI18n();
+loadStats().catch(err => {
+  document.getElementById('winner-table-wrap').innerHTML = '⚠ ' + err.message;
+});
+</script>
+</body>
+</html>

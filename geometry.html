@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geometry of Meaning — Buchenberg</title>
+<link rel="stylesheet" href="buchenberg.css">
+<script src="nav.js"></script>
+<style>
+  .geo-info-banner {
+    background: var(--toc-bg);
+    border: 1px solid var(--border-light);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 8px 14px;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+  }
+
+  /* Theory cards */
+  .geo-theory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .geo-card {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 20px;
+  }
+  .geo-card-num {
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--accent);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .geo-card h3 {
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--text);
+    margin-bottom: 10px;
+    font-family: var(--font-serif);
+  }
+  .geo-card p {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin-bottom: 10px;
+  }
+  .geo-card p:last-child { margin-bottom: 0; }
+  .geo-formula {
+    background: var(--toc-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text);
+    margin-top: 10px;
+    line-height: 1.7;
+  }
+  .geo-vec-example {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    word-break: break-all;
+    line-height: 1.5;
+  }
+
+  /* Scatter plot */
+  .geo-scatter-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 32px;
+  }
+  .geo-scatter-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  .geo-lang-btn {
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-muted);
+    transition: all .15s;
+  }
+  .geo-lang-btn.active { color: #fff; border-color: transparent; }
+  .geo-lang-btn[data-lang="en"].active  { background: #3366cc; }
+  .geo-lang-btn[data-lang="hr"].active  { background: #c0392b; }
+  .geo-lang-btn[data-lang="sr"].active  { background: #8e44ad; }
+  .geo-lang-btn[data-lang="it"].active  { background: #27ae60; }
+  .geo-lang-btn[data-lang="de"].active  { background: #e67e22; }
+  #geo-svg-wrap { width: 100%; overflow: hidden; }
+  #geo-svg { width: 100%; height: 480px; cursor: crosshair; }
+  .geo-tooltip {
+    position: fixed;
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--text);
+    max-width: 320px;
+    pointer-events: none;
+    z-index: 200;
+    box-shadow: var(--shadow);
+    line-height: 1.5;
+  }
+  .geo-tooltip-lang {
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 3px;
+  }
+  .geo-tooltip-score {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+  .geo-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .geo-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .geo-legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Measure similarity */
+  .geo-measure-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 32px;
+  }
+  .geo-measure-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 600px) {
+    .geo-measure-row { grid-template-columns: 1fr; }
+    .geo-theory-grid { grid-template-columns: 1fr; }
+  }
+  .geo-measure-label {
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 5px;
+  }
+  .geo-measure-select {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    font-family: var(--font-sans);
+  }
+  .geo-measure-text {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 5px;
+    font-style: italic;
+    min-height: 36px;
+    line-height: 1.5;
+  }
+  #geo-compare-btn {
+    padding: 7px 20px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: var(--font-sans);
+    transition: opacity .15s;
+  }
+  #geo-compare-btn:hover { opacity: .85; }
+  .geo-result-wrap {
+    margin-top: 20px;
+    display: none;
+  }
+  .geo-result-number {
+    font-size: 40px;
+    font-weight: bold;
+    color: var(--accent);
+    font-family: var(--font-serif);
+    line-height: 1;
+  }
+  .geo-result-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    margin-bottom: 16px;
+  }
+  .geo-result-layout {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 24px;
+    align-items: center;
+  }
+  @media (max-width: 500px) {
+    .geo-result-layout { grid-template-columns: 1fr; }
+  }
+  #geo-angle-svg { flex-shrink: 0; }
+  .geo-interp {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.65;
+  }
+  .geo-interp-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER via nav.js -->
+
+<div id="bb-page">
+
+  <h1 class="bb-section-title">Geometry of Meaning</h1>
+  <p class="bb-section-subtitle">
+    How Buchenberg measures translation quality using vector mathematics —
+    illustrated with real sentences from <em>The Hound of the Baskervilles</em>.
+  </p>
+
+  <div class="geo-info-banner">
+    Scatter plot uses pre-calculated embeddings (multilingual-e5-large, 1024 dimensions) from static JSON.
+    The <strong>Measure similarity</strong> section loads
+    <a href="https://huggingface.co/Xenova/multilingual-e5-large" target="_blank" style="color:var(--accent)">Xenova/multilingual-e5-large</a>
+    via Transformers.js (~100 MB on first load, then cached by the browser).
+    This may take a moment on slow connections.
+  </div>
+
+  <!-- ── THEORY ─────────────────────────────────────────── -->
+  <h2 class="bb-section-title" style="margin-bottom:16px;">The mathematics behind the pipeline</h2>
+
+  <div class="geo-theory-grid">
+
+    <div class="geo-card">
+      <div class="geo-card-num">01</div>
+      <h3>A sentence becomes a point</h3>
+      <p>
+        The embedding model reads a sentence and outputs a list of 1024 numbers.
+        Each number captures a different aspect of meaning — grammar, topic, tone, context.
+      </p>
+      <p>
+        Two sentences that mean the same thing — even in different languages — produce
+        similar lists of numbers. This is what makes cross-lingual comparison possible.
+      </p>
+      <div class="geo-vec-example">
+        "Holmes sat at the table."<br>
+        → [0.021, −0.147, 0.382, 0.009, −0.251, … × 1024]
+      </div>
+    </div>
+
+    <div class="geo-card">
+      <div class="geo-card-num">02</div>
+      <h3>1024 dimensions of meaning</h3>
+      <p>
+        We perceive space in 3 dimensions — length, width, height. A colour is a point
+        in 3D space: (R, G, B). A sentence lives in 1024-dimensional space.
+      </p>
+      <p>
+        We cannot visualise 1024 dimensions directly, so we use projection techniques
+        (like UMAP below) to collapse them to 2D — preserving the most important
+        neighbourhood relationships.
+      </p>
+      <p>
+        Sentences that are semantically close end up near each other in that 2D projection,
+        even though the full 1024D geometry is much richer.
+      </p>
+    </div>
+
+    <div class="geo-card">
+      <div class="geo-card-num">03</div>
+      <h3>Cosine similarity — measuring the angle</h3>
+      <p>
+        Given two vectors <strong>A</strong> and <strong>B</strong>, cosine similarity
+        measures the angle between them — not the distance.
+        This matters: a long sentence and a short sentence saying the same thing
+        should score 1.0, not be penalised for length.
+      </p>
+      <div class="geo-formula">
+        cos(θ) = (A · B) / (|A| × |B|)<br><br>
+        1.0 → identical meaning<br>
+        0.5 → loosely related<br>
+        0.0 → unrelated
+      </div>
+      <p style="margin-top:10px;">
+        Buchenberg computes two cosine scores per translation: the
+        <em>translation score</em> (EN vs. translated) and the <em>back score</em>
+        (EN vs. back-translated). Both feed the final winner formula.
+      </p>
+    </div>
+
+    <div class="geo-card">
+      <div class="geo-card-num">04</div>
+      <h3>The winner formula</h3>
+      <p>
+        Five models compete for each sentence. The winner is selected by a weighted score
+        that combines geometric similarity with a blind LLM judge (Gemma4:31b).
+      </p>
+      <div class="geo-formula">
+        composite = (back_score + translation_score) / 2<br><br>
+        final = 0.4 × composite<br>
+               + 0.6 × judge_avg<br><br>
+        judge_avg = (grammar + naturalness<br>
+                    + fidelity) / 3
+      </div>
+      <p style="margin-top:10px;">
+        The judge carries 60% of the weight — linguistic quality
+        matters more than raw cosine proximity.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- ── SCATTER PLOT ───────────────────────────────────── -->
+  <h2 class="bb-section-title" style="margin-bottom:8px;">Explore the semantic space</h2>
+  <p class="bb-section-subtitle" style="margin-bottom:16px;">
+    200 sentences from <em>The Hound of the Baskervilles</em> projected to 2D via UMAP.
+    Toggle languages to see how translations cluster around the English original.
+    Hover over any point for the sentence text.
+  </p>
+
+  <div class="geo-scatter-wrap">
+    <div class="geo-scatter-controls">
+      <span style="font-size:12px;color:var(--text-muted);margin-right:4px;">Show:</span>
+      <button class="geo-lang-btn active" data-lang="en">English</button>
+      <button class="geo-lang-btn active" data-lang="hr">Croatian</button>
+      <button class="geo-lang-btn active" data-lang="sr">Serbian</button>
+      <button class="geo-lang-btn active" data-lang="it">Italian</button>
+      <button class="geo-lang-btn active" data-lang="de">German</button>
+      <span style="margin-left:auto;font-size:12px;color:var(--text-muted);" id="geo-point-count"></span>
+    </div>
+    <div id="geo-svg-wrap">
+      <svg id="geo-svg" role="img" aria-label="UMAP scatter plot of sentence embeddings"></svg>
+    </div>
+    <div class="geo-legend">
+      <span class="geo-legend-item"><span class="geo-legend-dot" style="background:#3366cc"></span>English (original)</span>
+      <span class="geo-legend-item"><span class="geo-legend-dot" style="background:#c0392b"></span>Croatian</span>
+      <span class="geo-legend-item"><span class="geo-legend-dot" style="background:#27ae60"></span>Italian</span>
+      <span class="geo-legend-item"><span class="geo-legend-dot" style="background:#e67e22"></span>German</span>
+    </div>
+  </div>
+
+  <!-- ── MEASURE SIMILARITY ────────────────────────────── -->
+  <h2 class="bb-section-title" style="margin-bottom:8px;">Measure similarity</h2>
+  <p class="bb-section-subtitle" style="margin-bottom:16px;">
+    Type any sentence — or pick from the corpus — and compute real 1024-dimensional cosine similarity
+    using the same model that powers the Buchenberg pipeline.
+  </p>
+
+  <div id="geo-model-status" style="background:var(--toc-bg);border:1px solid var(--border-light);border-radius:6px;padding:14px 18px;margin-bottom:16px;font-size:13px;color:var(--text-muted);">
+    <span id="geo-model-status-text">⏳ Loading multilingual-e5-large model…</span>
+    <div style="margin-top:8px;height:4px;background:var(--border-light);border-radius:2px;overflow:hidden;">
+      <div id="geo-model-progress" style="height:100%;width:0%;background:var(--accent);transition:width .3s;border-radius:2px;"></div>
+    </div>
+  </div>
+
+  <div class="geo-measure-wrap" id="geo-measure-main" style="opacity:.4;pointer-events:none;">
+    <div class="geo-measure-row">
+      <div>
+        <div class="geo-measure-label">Sentence A</div>
+        <input type="text" id="geo-input-a" class="geo-measure-select" placeholder="Type any sentence…" autocomplete="off">
+        <div style="margin-top:6px;">
+          <select id="geo-sel-a" class="geo-measure-select" style="font-size:11px;"></select>
+        </div>
+      </div>
+      <div>
+        <div class="geo-measure-label">Sentence B</div>
+        <input type="text" id="geo-input-b" class="geo-measure-select" placeholder="Type any sentence…" autocomplete="off">
+        <div style="margin-top:6px;">
+          <select id="geo-sel-b" class="geo-measure-select" style="font-size:11px;"></select>
+        </div>
+      </div>
+    </div>
+    <button id="geo-compare-btn">Compare →</button>
+
+    <div class="geo-result-wrap" id="geo-result">
+      <div class="geo-result-layout">
+        <div>
+          <svg id="geo-angle-svg" width="140" height="140" viewBox="0 0 140 140" role="img" aria-label="Angle between two vectors"></svg>
+        </div>
+        <div>
+          <div class="geo-result-number" id="geo-score-num">—</div>
+          <div class="geo-result-label">cosine similarity (1024D)</div>
+          <div class="geo-interp" id="geo-interp"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── PHILOSOPHY: TWO READINGS ──────────────────────── -->
+  <h2 class="bb-section-title" style="margin-bottom:8px;">Two readings of this space</h2>
+  <p class="bb-section-subtitle" style="margin-bottom:16px;">
+    The geometry above is not just mathematics. A writer and a philosopher described
+    this space long before anyone could compute it.
+  </p>
+
+  <div class="geo-theory-grid" style="grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); margin-bottom:16px;">
+
+    <div class="geo-card">
+      <div class="geo-card-num">Borges &middot; 1941</div>
+      <h3>The Library and the Compass</h3>
+      <p>
+        In <em>The Library of Babel</em>, Jorge Luis Borges imagined a library containing
+        every possible book &mdash; every combination of letters, in every language.
+        Its librarians spend their lives searching for one meaningful page, and die
+        without finding it. The library contains everything, and is therefore worth
+        nothing: <strong>information without selection is noise</strong>.
+      </p>
+      <p>
+        The embedding space above is that library, made continuous. Every possible
+        sentence in every language has coordinates here, and almost all of them are
+        gibberish. What makes the space usable is not its content but its
+        <em>index</em> &mdash; a function that can tell meaning from noise.
+      </p>
+      <p>
+        That is what Buchenberg builds. Five models generate candidates near the point
+        where the meaning of the original lives; cosine similarity and a blind judge
+        measure which candidate landed closest. The librarian finally has a compass.
+        It is also why the judge carries 60% of the final score: the scoring function
+        is a more valuable artifact than any single translation it selects.
+      </p>
+      <p>
+        Borges made the point twice. In <em>Pierre Menard, Author of the Quixote</em>
+        (1939), a modern writer recreates Cervantes word for word &mdash; and the
+        identical text means something entirely different. Form does not carry meaning;
+        context does. Menard is the problem of translation, stated precisely,
+        fourteen years before philosophy caught up.
+      </p>
+    </div>
+
+    <div class="geo-card">
+      <div class="geo-card-num">Wittgenstein &middot; 1953</div>
+      <h3>Meaning as Use</h3>
+      <p>
+        The young Wittgenstein of the <em>Tractatus</em> (1921) believed meaning was
+        logical form: a sentence mirrors reality, and translation preserves the mirror.
+        The late Wittgenstein of the <em>Philosophical Investigations</em> (1953)
+        corrected himself: <strong>the meaning of a word is its use in the
+        language</strong>. Concepts are held together not by a common essence but by
+        <em>family resemblance</em> &mdash; overlapping similarities, like the faces
+        of one family.
+      </p>
+      <p>
+        The scatter plot above is family resemblance, quantified. The embedding model
+        learns meaning from nothing but use &mdash; the company each word keeps across
+        billions of sentences. Cosine similarity is the degree of resemblance between
+        two members of the family; the UMAP clusters you can see are families of
+        meaning, drawn by no one.
+      </p>
+      <p>
+        The whole pipeline follows the late Wittgenstein. Back-translation tests
+        whether <em>meaning</em> survives the round trip, not whether form does.
+        And the judge&rsquo;s naturalness score measures exactly what he called
+        competence in a language game: does this sentence live comfortably in the
+        life of the target language?
+      </p>
+    </div>
+
+  </div>
+
+  <p style="font-size:12.5px;color:var(--text-muted);font-style:italic;margin:0 4px 48px;">
+    Edwin Abbott&rsquo;s <em>Flatland</em> &mdash; book 21 in this corpus &mdash; completes
+    the trio: Abbott supplies the geometry, Borges the semantics, Wittgenstein the bridge
+    between them. Buchenberg translates literature with a technology whose problems were
+    stated most precisely by literature itself.
+  </p>
+
+</div><!-- #bb-page -->
+<div id="bb-footer">
+  <div style="max-width:1200px; margin:0 auto; padding:0 16px;">
+    Buchenberg · Open-source MT pipeline ·
+    <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a> ·
+    <a href="https://github.com/fladroid" target="_blank">GitHub</a>
+  </div>
+</div>
+
+
+<div class="geo-tooltip" id="geo-tooltip"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+const DATA_URL = "data/geometry.json?t=" + Date.now();
+const LANG_COLOR = { en: "#3366cc", hr: "#c0392b", sr: "#8e44ad", it: "#27ae60", de: "#e67e22" };
+const LANG_NAME  = { en: "English", hr: "Croatian", sr: "Serbian", it: "Italian", de: "German" };
+const RADIUS = { en: 5, hr: 4, sr: 4, it: 4, de: 4 };
+const OPACITY = { en: 0.85, hr: 0.7, sr: 0.7, it: 0.7, de: 0.7 };
+
+let geoData = null;
+let activeLangs = new Set(["en","hr","sr","it","de"]);
+let allPoints = [];
+let vectors = {};   // s_id -> { en: Float32Array, hr, it, de }
+
+async function loadData() {
+  const resp = await fetch(DATA_URL);
+  geoData = await resp.json();
+  buildPoints();
+  buildVectors();
+  renderScatter();
+  populateSelects();
+  updatePointCount();
+}
+
+function buildPoints() {
+  allPoints = [];
+  for (const s of geoData.sentences) {
+    allPoints.push({ lang: "en", id: s.id, x: s.umap.x, y: s.umap.y, text: s.en, score: null });
+    for (const [lang, tr] of Object.entries(s.translations)) {
+      if (tr.umap) {
+        allPoints.push({
+          lang, id: s.id,
+          x: tr.umap.x, y: tr.umap.y,
+          text: tr.prevod,
+          en_text: s.en,
+          score: tr.finalni_score
+        });
+      }
+    }
+  }
+}
+
+function buildVectors() {
+  vectors = {};
+  for (const s of geoData.sentences) {
+    vectors[s.id] = { en: s.umap };
+    for (const [lang, tr] of Object.entries(s.translations)) {
+      if (tr.umap) vectors[s.id][lang] = tr.umap;
+    }
+  }
+}
+
+function updatePointCount() {
+  const n = allPoints.filter(p => activeLangs.has(p.lang)).length;
+  document.getElementById("geo-point-count").textContent = n + " points";
+}
+
+function renderScatter() {
+  const svgEl = document.getElementById("geo-svg");
+  const W = svgEl.clientWidth || 700;
+  const H = 480;
+  const PAD = 24;
+
+  d3.select(svgEl).selectAll("*").remove();
+  const svg = d3.select(svgEl)
+    .attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("width", "100%")
+    .attr("height", H);
+
+  const pts = allPoints.filter(p => activeLangs.has(p.lang));
+  const xScale = d3.scaleLinear().domain([0,1]).range([PAD, W - PAD]);
+  const yScale = d3.scaleLinear().domain([0,1]).range([H - PAD, PAD]);
+
+  // EN points last (on top) via layer ordering
+  const order = ["de","it","sr","hr","en"];
+  for (const lang of order) {
+    if (!activeLangs.has(lang)) continue;
+    svg.selectAll(`.dot-${lang}`)
+      .data(pts.filter(p => p.lang === lang))
+      .join("circle")
+        .attr("class", `dot-${lang}`)
+        .attr("cx", d => xScale(d.x))
+        .attr("cy", d => yScale(d.y))
+        .attr("r", RADIUS[lang])
+        .attr("fill", LANG_COLOR[lang])
+        .attr("fill-opacity", OPACITY[lang])
+        .attr("stroke", "none")
+        .style("cursor","pointer")
+        .on("mousemove", function(event, d) { showTooltip(event, d); })
+        .on("mouseleave", () => hideTooltip());
+  }
+}
+
+const tooltip = document.getElementById("geo-tooltip");
+
+function showTooltip(event, d) {
+  const langLabel = `<div class="geo-tooltip-lang" style="color:${LANG_COLOR[d.lang]}">${LANG_NAME[d.lang]} · s${d.id}</div>`;
+  const text = `<div>${d.text}</div>`;
+  const score = d.score != null
+    ? `<div class="geo-tooltip-score">final score: ${d.score.toFixed(3)}</div>` : "";
+  const enCtx = d.en_text
+    ? `<div class="geo-tooltip-score" style="margin-top:4px;border-top:1px solid var(--border-light);padding-top:4px;">${d.en_text}</div>` : "";
+  tooltip.innerHTML = langLabel + text + score + enCtx;
+  tooltip.style.display = "block";
+  tooltip.style.left = (event.clientX + 14) + "px";
+  tooltip.style.top  = (event.clientY - 10) + "px";
+}
+function hideTooltip() { tooltip.style.display = "none"; }
+
+// Lang toggle buttons
+document.querySelectorAll(".geo-lang-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const lang = btn.dataset.lang;
+    if (activeLangs.has(lang)) {
+      if (activeLangs.size > 1) { activeLangs.delete(lang); btn.classList.remove("active"); }
+    } else {
+      activeLangs.add(lang); btn.classList.add("active");
+    }
+    renderScatter();
+    updatePointCount();
+  });
+});
+
+// ── Measure similarity ──────────────────────────────────
+
+function populateSelects() {
+  const selA = document.getElementById("geo-sel-a");
+  const selB = document.getElementById("geo-sel-b");
+  const inpA = document.getElementById("geo-input-a");
+  const inpB = document.getElementById("geo-input-b");
+  for (const s of geoData.sentences) {
+    const short = s.en.length > 72 ? s.en.slice(0, 69) + "…" : s.en;
+    selA.add(new Option(`s${s.id} — ${short}`, s.id));
+    selB.add(new Option(`s${s.id} — ${short}`, s.id));
+  }
+  // Placeholder na vrhu
+  const placeholder = () => new Option("— select from corpus —", "");
+  selA.insertBefore(placeholder(), selA.firstChild);
+  selB.insertBefore(placeholder(), selB.firstChild);
+  selA.value = ""; selB.value = "";
+
+  // Sync select → input
+  function syncToInput(sel, inp) {
+    if (!sel.value) return;
+    const s = geoData.sentences.find(s => s.id == sel.value);
+    if (s) inp.value = s.en;
+  }
+  selA.addEventListener("change", () => syncToInput(selA, inpA));
+  selB.addEventListener("change", () => syncToInput(selB, inpB));
+}
+
+function scoreInterpretation(v) {
+  if (v >= 0.95) return { label: "Near-identical", color: "#27ae60",
+    text: "These sentences share nearly the same meaning. In translation terms, this is a near-perfect match." };
+  if (v >= 0.85) return { label: "Very similar", color: "#2ecc71",
+    text: "Strong semantic overlap. The sentences address the same topic with similar framing." };
+  if (v >= 0.70) return { label: "Related", color: "#f39c12",
+    text: "Moderately related. They share some concepts but differ in focus or phrasing." };
+  if (v >= 0.50) return { label: "Loosely related", color: "#e67e22",
+    text: "Weak connection. Possibly same general domain but different content." };
+  return { label: "Unrelated", color: "#c0392b",
+    text: "These sentences are semantically distant — different topics, different contexts." };
+}
+
+function cosine1024(a, b) {
+  // Both vectors are already L2-normalized by e5-large (normalize_embeddings=True)
+  // So cosine similarity = dot product
+  let dot = 0;
+  for (let i = 0; i < a.length; i++) dot += a[i] * b[i];
+  return Math.min(1, Math.max(-1, dot));
+}
+
+function drawAngle(angleDeg, color) {
+  const svg = document.getElementById("geo-angle-svg");
+  const cx = 70, cy = 80, r = 52;
+  const aRad = (angleDeg * Math.PI) / 180;
+  const x1 = cx + r, y1 = cy;
+  const x2 = cx + r * Math.cos(-aRad);
+  const y2 = cy + r * Math.sin(-aRad);
+  const largeArc = angleDeg > 180 ? 1 : 0;
+  const arcX = cx + 22 * Math.cos(-aRad / 2);
+  const arcY = cy + 22 * Math.sin(-aRad / 2);
+  svg.innerHTML = `
+    <line x1="${cx}" y1="${cy}" x2="${x1}" y2="${y1}" stroke="${LANG_COLOR.en}" stroke-width="2.5"/>
+    <line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="2.5"/>
+    <path d="M ${cx+20} ${cy} A 20 20 0 ${largeArc} 0 ${cx+20*Math.cos(-aRad)} ${cy+20*Math.sin(-aRad)}"
+          fill="none" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="${arcX}" y="${arcY}" text-anchor="middle" dominant-baseline="middle"
+          font-size="10" fill="var(--text-muted)">${Math.round(angleDeg)}°</text>
+    <circle cx="${cx}" cy="${cy}" r="3" fill="var(--text-muted)"/>
+    <rect x="${x1+4}" y="${y1-10}" width="20" height="16" rx="3" fill="${LANG_COLOR.en}"/>
+    <text x="${x1+14}" y="${y1+2}" text-anchor="middle" dominant-baseline="middle"
+          font-size="11" font-weight="bold" fill="#fff">A</text>
+    <rect x="${x2+4}" y="${y2-10}" width="20" height="16" rx="3" fill="${color}"/>
+    <text x="${x2+14}" y="${y2+2}" text-anchor="middle" dominant-baseline="middle"
+          font-size="11" font-weight="bold" fill="#fff">B</text>`;
+}
+
+function showResult(sim) {
+  const angleDeg = Math.acos(sim) * 180 / Math.PI;
+  const interp = scoreInterpretation(sim);
+  document.getElementById("geo-score-num").textContent = sim.toFixed(4);
+  document.getElementById("geo-score-num").style.color = interp.color;
+  document.getElementById("geo-interp").innerHTML =
+    `<span class="geo-interp-badge" style="background:${interp.color}22;color:${interp.color}">${interp.label}</span><br>${interp.text}`;
+  drawAngle(angleDeg, interp.color);
+  document.getElementById("geo-result").style.display = "block";
+}
+
+// ── Transformers.js ─────────────────────────────────────
+let embedder = null;
+
+async function loadModel() {
+  const statusText = document.getElementById("geo-model-status-text");
+  const progressBar = document.getElementById("geo-model-progress");
+  const measureMain = document.getElementById("geo-measure-main");
+
+  try {
+    const { pipeline, env } = await import(
+      "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/transformers.min.js"
+    );
+    env.allowLocalModels = false;
+
+    statusText.textContent = "⏳ Downloading model weights… (first load ~100 MB, then cached)";
+    progressBar.style.width = "10%";
+
+    embedder = await pipeline("feature-extraction", "Xenova/multilingual-e5-large", {
+      progress_callback: (p) => {
+        if (p.status === "progress" && p.total) {
+          const pct = Math.round((p.loaded / p.total) * 85) + 10;
+          progressBar.style.width = pct + "%";
+          statusText.textContent = `⏳ Downloading… ${Math.round(p.loaded/1e6)}/${Math.round(p.total/1e6)} MB`;
+        }
+      }
+    });
+
+    progressBar.style.width = "100%";
+    statusText.textContent = "✅ multilingual-e5-large ready";
+    setTimeout(() => {
+      document.getElementById("geo-model-status").style.display = "none";
+    }, 1800);
+
+    measureMain.style.opacity = "1";
+    measureMain.style.pointerEvents = "auto";
+
+  } catch (err) {
+    statusText.textContent = "❌ Failed to load model: " + err.message;
+    progressBar.style.background = "#c0392b";
+  }
+}
+
+async function embed(text) {
+  const out = await embedder("query: " + text, { pooling: "mean", normalize: true });
+  return Array.from(out.data);
+}
+
+document.getElementById("geo-compare-btn").addEventListener("click", async () => {
+  if (!embedder) return;
+  const btn = document.getElementById("geo-compare-btn");
+  const textA = document.getElementById("geo-input-a").value.trim();
+  const textB = document.getElementById("geo-input-b").value.trim();
+  if (!textA || !textB) return;
+
+  btn.textContent = "Computing…";
+  btn.disabled = true;
+
+  try {
+    const [vecA, vecB] = await Promise.all([embed(textA), embed(textB)]);
+    const sim = cosine1024(vecA, vecB);
+    showResult(sim);
+  } catch(e) {
+    console.error(e);
+  } finally {
+    btn.textContent = "Compare →";
+    btn.disabled = false;
+  }
+});
+
+window.addEventListener("resize", () => { if (geoData) renderScatter(); });
+loadData().then(() => loadModel());
+</script>
+</body>
+</html>

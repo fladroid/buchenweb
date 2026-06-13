@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NLP — Buchenberg</title>
+<link rel="stylesheet" href="buchenberg.css">
+<script src="nav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js"></script>
+<style>
+/* ── Layout ── */
+#nlp-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 16px 48px 16px;
+}
+
+#nlp-book-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+#nlp-book-bar label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-right: 4px;
+}
+.nlp-book-btn {
+  padding: 5px 14px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+.nlp-book-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* ── Top panels ── */
+#nlp-top {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 700px) { #nlp-top { grid-template-columns: 1fr; } }
+
+.nlp-panel {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 16px;
+}
+.nlp-panel-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+/* ── Word Cloud ── */
+#nlp-wc-wrap {
+  width: 100%;
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── NER panel ── */
+#nlp-ner-types {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.nlp-type-btn {
+  padding: 2px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+.nlp-type-btn.active { color: #fff; border-color: transparent; }
+.nlp-type-btn[data-tip="PERSON"].active { background: #b8860b; }
+.nlp-type-btn[data-tip="GPE"].active    { background: #2e7d32; }
+.nlp-type-btn[data-tip="ORG"].active    { background: #6a1b9a; }
+.nlp-type-btn[data-tip="ALL"].active    { background: var(--accent); }
+
+#nlp-ner-list {
+  max-height: 240px;
+  overflow-y: auto;
+  font-size: 0.84rem;
+}
+.nlp-ner-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.nlp-ner-item:hover { background: var(--bg); }
+.nlp-ner-item.active { background: var(--bg); font-weight: 600; }
+.nlp-ner-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.nlp-ner-name { flex: 1; }
+.nlp-ner-sort-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.nlp-ner-sort-btn {
+  cursor: pointer;
+  user-select: none;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+.nlp-ner-sort-btn:hover { color: var(--text); }
+.nlp-ner-sort-btn.active { color: var(--text); font-weight: 600; }
+.nlp-ner-count {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  min-width: 28px;
+  text-align: right;
+}
+
+/* ── Tables panel ── */
+#nlp-tables-panel {
+  margin-top: 24px;
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.nlp-table-box {
+  flex: 1;
+  min-width: 320px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+.nlp-table-box table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.nlp-table-box th {
+  text-align: left;
+  padding: 5px 8px;
+  border-bottom: 2px solid var(--border);
+  color: var(--text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.nlp-table-box td {
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.nlp-table-box tr:last-child td { border-bottom: none; }
+.nlp-table-box tr:hover td { background: var(--hover-bg, rgba(255,255,255,0.04)); }
+.tip-badge {
+  display: inline-block;
+  font-size: 0.70rem;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-weight: 600;
+  margin-left: 3px;
+}
+.tip-PERSON { background: #7c5c0022; color: #c9952a; border: 1px solid #7c5c0055; }
+.tip-GPE    { background: #1a4a2022; color: #4caf7d; border: 1px solid #1a4a2055; }
+.tip-ORG    { background: #2a1a4a22; color: #9b7fd4; border: 1px solid #2a1a4a55; }
+.tip-OTHER  { background: #33333322; color: #aaaaaa; border: 1px solid #44444455; }
+.nlp-table-search {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--input-bg, var(--card-bg));
+  color: var(--text);
+  font-size: 0.82rem;
+}
+
+/* ── Text panel ── */
+#nlp-text-panel {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 16px;
+}
+#nlp-text-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+#nlp-active-entity {
+  font-size: 0.84rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+#nlp-text-body {
+  max-height: 420px;
+  overflow-y: auto;
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+.nlp-sent {
+  padding: 3px 6px;
+  border-radius: 3px;
+  margin-bottom: 2px;
+  transition: background 0.15s;
+}
+.nlp-sent.highlight {
+  background: rgba(255, 200, 0, 0.18);
+  border-left: 3px solid #f0b400;
+  padding-left: 8px;
+}
+.nlp-sent.hl-current {
+  background: rgba(255, 200, 0, 0.40);
+}
+.nlp-sent-num {
+  font-size: 0.7em;
+  color: var(--text-muted);
+  vertical-align: super;
+  margin-right: 6px;
+  user-select: none;
+}
+.nlp-hl-btn {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+}
+.nlp-hl-btn:hover { border-color: var(--accent); color: var(--accent); }
+[data-theme="dark"] .nlp-sent.highlight {
+  background: rgba(255, 200, 0, 0.10);
+}
+#nlp-loading {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  padding: 32px;
+  text-align: center;
+}
+
+/* ── Network Graph ── */
+#nlp-network-panel {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+#nlp-network-wrap {
+  width: 100%;
+  height: 420px;
+  position: relative;
+}
+#nlp-network-wrap svg {
+  width: 100%;
+  height: 100%;
+}
+.nlp-net-node {
+  cursor: pointer;
+}
+.nlp-net-node circle {
+  stroke-width: 2;
+  transition: opacity 0.2s;
+}
+.nlp-net-node text {
+  font-size: 11px;
+  font-family: sans-serif;
+  pointer-events: none;
+  dominant-baseline: central;
+}
+.nlp-net-link {
+  stroke-opacity: 0.5;
+}
+#nlp-net-tip {
+  display: none;
+  position: absolute;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  pointer-events: none;
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+/* ── Network slider ── */
+#nlp-net-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+#nlp-net-controls label {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+#nlp-net-slider {
+  width: 140px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+#nlp-net-slider-val {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+  min-width: 16px;
+}
+#nlp-net-link-count {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER ubačen via nav.js -->
+
+<!-- PAGE -->
+<div id="nlp-page">
+  <h1 class="bb-section-title" id="nlp-title">Natural Language Processing</h1>
+  <p class="bb-section-subtitle" id="nlp-subtitle">Word cloud and named entity analysis of original English texts.</p>
+
+  <div id="nlp-book-bar">
+    <label id="nlp-book-label">Book:</label>
+    <!-- book buttons injected by JS -->
+  </div>
+
+  <div id="nlp-top">
+    <!-- Word Cloud -->
+    <div class="nlp-panel">
+      <div class="nlp-panel-title" id="nlp-wc-title">Word Cloud — EN Original</div>
+      <div id="nlp-wc-wrap">
+        <div id="nlp-loading">Loading…</div>
+      </div>
+    </div>
+
+    <!-- NER -->
+    <div class="nlp-panel">
+      <div class="nlp-panel-title" id="nlp-ner-title">Named Entities</div>
+      <div id="nlp-ner-types">
+        <button class="nlp-type-btn active" data-tip="ALL">All</button>
+        <button class="nlp-type-btn" data-tip="PERSON">Person</button>
+        <button class="nlp-type-btn" data-tip="GPE">Place</button>
+        <button class="nlp-type-btn" data-tip="ORG">Org</button>
+      </div>
+      <div id="nlp-ner-sort-header" class="nlp-ner-sort-header">
+        <span class="nlp-ner-sort-btn active" id="nlp-ner-sort-name">Name ▲</span>
+        <span class="nlp-ner-sort-btn active" id="nlp-ner-sort-count">Count ▼</span>
+      </div>
+      <div id="nlp-ner-list"></div>
+    </div>
+  </div>
+
+
+  <!-- Network Graph -->
+  <!-- Tables -->
+  <div id="nlp-tables-panel">
+    <div class="nlp-table-box">
+      <div class="nlp-panel-title" id="nlp-links-title">Entity Links</div>
+      <input class="nlp-table-search" id="nlp-links-search" type="text" placeholder="Filter...">
+      <div style="max-height:400px;overflow-y:auto;">
+        <table id="nlp-links-table">
+          <thead><tr>
+            <th id="nlp-th-from" data-col="od" style="cursor:pointer;">From</th>
+            <th id="nlp-th-to" data-col="do" style="cursor:pointer;">To</th>
+            <th id="nlp-th-weight" data-col="tezina" style="text-align:right;cursor:pointer;">Links ▼</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="nlp-table-box">
+      <div class="nlp-panel-title" id="nlp-conflicts-title">Type Conflicts</div>
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;" id="nlp-conflicts-sub">Entities classified under multiple types</div>
+      <div style="max-height:400px;overflow-y:auto;">
+        <table id="nlp-conflicts-table">
+          <thead><tr>
+            <th id="nlp-th-entity" data-col="ime" style="cursor:pointer;">Entity ▲</th>
+            <th id="nlp-th-types" data-col="ukupno" style="cursor:pointer;">Types</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Network -->
+  <div id="nlp-network-panel">
+    <div class="nlp-panel-title" id="nlp-net-title">Entity Network</div>
+    <div id="nlp-net-controls">
+      <label id="nlp-net-label">Min. co-occurrences:</label>
+      <input type="range" id="nlp-net-slider" min="1" max="10" value="2" step="1">
+      <span id="nlp-net-slider-val">2</span>
+      <span id="nlp-net-link-count"></span>
+    </div>
+    <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:6px;">Scroll to zoom · Drag to pan · Double-click to reset</div>
+    <div id="nlp-network-wrap">
+      <div id="nlp-net-tip"></div>
+    </div>
+  </div>
+
+  <!-- Text -->
+  <div id="nlp-text-panel">
+    <div id="nlp-text-header">
+      <div class="nlp-panel-title" id="nlp-text-title">Original Text</div>
+      <div id="nlp-active-entity"></div>
+      <span id="nlp-hl-nav" style="display:none;align-items:center;gap:6px;margin-left:auto;">
+        <button id="nlp-hl-prev" class="nlp-hl-btn" title="Previous">&#9664;</button>
+        <span id="nlp-hl-counter" style="font-size:0.8rem;color:var(--text-muted);min-width:48px;text-align:center;"></span>
+        <button id="nlp-hl-next" class="nlp-hl-btn" title="Next">&#9654;</button>
+        <label style="font-size:0.8rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;cursor:pointer;margin-left:8px;">
+          <input type="checkbox" id="nlp-hl-only"> only highlighted
+        </label>
+      </span>
+    </div>
+    <div id="nlp-text-body"></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div id="bb-footer">
+  <div style="max-width:1400px; margin:0 auto; padding:0 16px;">
+    Buchenberg · Open-source MT pipeline ·
+    <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a> ·
+    <a href="https://github.com/fladroid" target="_blank">GitHub</a>
+  </div>
+</div>
+
+<script>
+// ── Stop words ────────────────────────────────────────────────
+const STOP_EN = new Set("a an the and or but in on at to of for with by from as is was are were be been being have has had do does did will would could should may might shall not no nor so yet both either neither one two three all any few more most other some such than then there these they this those through very what which while who whom whose within i me my myself we our ours ourselves you your yours yourself he him his himself she her hers herself it its itself they them their theirs themselves".split(" "));
+
+// ── NER colours ───────────────────────────────────────────────
+const TIP_COLOR = { PERSON: "#b8860b", GPE: "#2e7d32", ORG: "#6a1b9a" };
+const TIP_COLOR_DARK = { PERSON: "#f0c040", GPE: "#66bb6a", ORG: "#ce93d8" };
+
+// ── i18n ─────────────────────────────────────────────────────
+const I18N = {
+  en: {
+    nav_home:"Home", nav_about:"About", nav_stats:"X-Ray Stats",
+    nav_books:"Library", nav_nlp:"NLP", nav_reader:"Reader",
+    nlp_title:"Natural Language Processing",
+    nlp_subtitle:"Word cloud and named entity analysis of original English texts.",
+    nlp_book_label:"Book:",
+    nlp_wc_title:"Word Cloud — EN Original",
+    nlp_ner_title:"Named Entities",
+    nlp_text_title:"Original Text",
+    nlp_net_title:"Entity Network", nlp_click_hint:"Click an entity to highlight sentences", nlp_links_title:"Entity Links", nlp_conflicts_title:"Type Conflicts", nlp_conflicts_sub:"Entities classified under multiple types", nlp_th_from:"From", nlp_th_to:"To", nlp_th_weight:"Links", nlp_th_entity:"Entity", nlp_th_types:"Types",
+    tip_all:"All", tip_person:"Person", tip_place:"Place", tip_org:"Org",
+  },
+  de: {
+    nav_home:"Startseite", nav_about:"Über", nav_stats:"X-Ray Statistik",
+    nav_books:"Bücher", nav_nlp:"NLP", nav_reader:"Leser",
+    nlp_title:"Natürliche Sprachverarbeitung",
+    nlp_subtitle:"Wortwolke und Named-Entity-Analyse der englischen Originaltexte.",
+    nlp_book_label:"Buch:",
+    nlp_wc_title:"Wortwolke — EN Original",
+    nlp_ner_title:"Benannte Entitäten",
+    nlp_text_title:"Originaltext",
+    nlp_net_title:"Entitätsnetzwerk", nlp_click_hint:"Entität anklicken zum Hervorheben",
+    tip_all:"Alle", tip_person:"Person", tip_place:"Ort", tip_org:"Org",
+  },
+  it: {
+    nav_home:"Home", nav_about:"Informazioni", nav_stats:"Statistiche X-Ray",
+    nav_books:"Libri", nav_nlp:"NLP", nav_reader:"Lettore",
+    nlp_title:"Elaborazione del linguaggio naturale",
+    nlp_subtitle:"Nuvola di parole e analisi delle entità nei testi originali inglesi.",
+    nlp_book_label:"Libro:",
+    nlp_wc_title:"Nuvola di parole — EN Originale",
+    nlp_ner_title:"Entità nominate",
+    nlp_text_title:"Testo originale",
+    nlp_net_title:"Rete di entità", nlp_click_hint:"Clicca un'entità per evidenziare le frasi",
+    tip_all:"Tutte", tip_person:"Persona", tip_place:"Luogo", tip_org:"Org",
+  },
+  hr: {
+    nav_home:"Početna", nav_about:"O projektu", nav_stats:"X-Ray Statistike",
+    nav_books:"Knjige", nav_nlp:"NLP", nav_reader:"Čitač",
+    nlp_title:"Obrada prirodnog jezika",
+    nlp_subtitle:"Oblak riječi i analiza imenovanih entiteta originalnih engleskih tekstova.",
+    nlp_book_label:"Knjiga:",
+    nlp_wc_title:"Oblak riječi — EN Original",
+    nlp_ner_title:"Imenovani entiteti",
+    nlp_text_title:"Originalni tekst",
+    nlp_net_title:"Mreža entiteta", nlp_click_hint:"Klikni entitet za isticanje rečenica",
+    tip_all:"Sve", tip_person:"Osoba", tip_place:"Mjesto", tip_org:"Org",
+  },
+  sr: {
+    nav_home:"Почетна", nav_about:"О пројекту", nav_stats:"X-Ray Статистике",
+    nav_books:"Књиге", nav_nlp:"NLP", nav_reader:"Читач",
+    nlp_title:"Obrada prirodnog jezika",
+    nlp_subtitle:"Oblak reči i analiza imenovanih entiteta originalnih engleskih tekstova.",
+    nlp_book_label:"Knjiga:",
+    nlp_wc_title:"Oblak reči — EN Original",
+    nlp_ner_title:"Imenovani entiteti",
+    nlp_text_title:"Originalni tekst",
+    nlp_net_title:"Mreža entiteta", nlp_click_hint:"Klikni entitet za isticanje rečenica",
+    tip_all:"Sve", tip_person:"Osoba", tip_place:"Mesto", tip_org:"Org",
+  },
+};
+
+// ── Theme ─────────────────────────────────────────────────────
+const savedTheme = localStorage.getItem('bb-theme') || 'light';
+document.documentElement.setAttribute('data-theme', savedTheme);
+function updateThemeBtn() {
+  document.getElementById('bb-theme-toggle').textContent =
+    document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+}
+updateThemeBtn();
+// theme toggle: centralizovano u nav.js; redraw na promjenu teme
+new MutationObserver(() => {
+  if (window._origData) { drawWC(window._origData); drawNetwork(); }
+}).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+// ── UI Language ───────────────────────────────────────────────
+let uiLang = localStorage.getItem('bb-ui-lang') || 'en';
+function t(key) { return (I18N[uiLang] || {})[key] || I18N.en[key] || key; }
+
+function applyI18n() {
+  const navLinks = document.querySelectorAll('.bb-nav-link');
+  navLinks[0].textContent = t('nav_home');
+  navLinks[1].textContent = t('nav_about');
+  navLinks[2].textContent = t('nav_stats');
+  navLinks[3].textContent = t('nav_books');
+  navLinks[4].textContent = t('nav_nlp');
+  navLinks[5].textContent = t('nav_reader');
+  document.getElementById('nlp-title').textContent = t('nlp_title');
+  document.getElementById('nlp-subtitle').textContent = t('nlp_subtitle');
+  document.getElementById('nlp-book-label').textContent = t('nlp_book_label');
+  document.getElementById('nlp-wc-title').textContent = t('nlp_wc_title');
+  document.getElementById('nlp-ner-title').textContent = t('nlp_ner_title');
+  document.getElementById('nlp-text-title').textContent = t('nlp_text_title');
+  document.querySelector('[data-tip="ALL"]').textContent = t('tip_all');
+  document.querySelector('[data-tip="PERSON"]').textContent = t('tip_person');
+  document.querySelector('[data-tip="GPE"]').textContent = t('tip_place');
+  document.querySelector('[data-tip="ORG"]').textContent = t('tip_org');
+  document.querySelectorAll('.bb-lang-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.lang === uiLang));
+  if (!document.getElementById('nlp-active-entity').textContent)
+    document.getElementById('nlp-active-entity').textContent = t('nlp_click_hint');
+  const netTitleEl = document.getElementById('nlp-net-title');
+  if (netTitleEl) netTitleEl.textContent = t('nlp_net_title') || 'Entity Network';
+}
+
+document.querySelectorAll('.bb-lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    uiLang = btn.dataset.lang;
+    localStorage.setItem('bb-ui-lang', uiLang);
+    applyI18n();
+  });
+});
+
+// ── State ─────────────────────────────────────────────────────
+let activeBookId = null;
+let activeNerTip = 'ALL';
+let activeEntitet = null;
+let nerData = null;       // {knjiga_id, entiteti: {PERSON:[...], GPE:[...], ORG:[...]}}
+let nerRecMap = {};       // entitet ime_norm → Set of recenica positions
+let __v = null;
+
+// ── Word frequency ────────────────────────────────────────────
+function wordFreq(texts, nerNames) {
+  const freq = {};
+  for (const text of texts) {
+    const words = text.toLowerCase()
+      .replace(/[^a-zàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿšžčćđ\s]/gi, ' ')
+      .split(/\s+/);
+    for (const w of words) {
+      if (w.length < 3) continue;
+      if (STOP_EN.has(w)) continue;
+      freq[w] = (freq[w] || 0) + 1;
+    }
+  }
+  return Object.entries(freq)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 150)
+    .map(([text, value]) => {
+      // Provjeri da li je NER entitet
+      const nerMatch = nerNames[text.toLowerCase()];
+      return { text, value, tip: nerMatch || null };
+    });
+}
+
+// Gradi lookup: lowercase ime → tip
+function buildNerLookup(nerData) {
+  const lookup = {};
+  if (!nerData) return lookup;
+  for (const [tip, lista] of Object.entries(nerData.entiteti || {})) {
+    for (const ent of lista) {
+      lookup[ent.ime.toLowerCase()] = tip;
+      // Dodaj i zadnju riječ (npr. "holmes" za "Sherlock Holmes")
+      const parts = ent.ime.toLowerCase().split(' ');
+      if (parts.length > 1) lookup[parts[parts.length - 1]] = tip;
+    }
+  }
+  return lookup;
+}
+
+// ── Draw word cloud ───────────────────────────────────────────
+function drawWC(origData) {
+  const wrap = document.getElementById('nlp-wc-wrap');
+  wrap.innerHTML = '';
+  if (!origData) return;
+
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const nerLookup = buildNerLookup(nerData);
+  const texts = (origData.sentences || []).map(s => s.text || s.original || '').filter(Boolean);
+  const words = wordFreq(texts, nerLookup);
+
+  const W = wrap.offsetWidth || 480;
+  const H = 280;
+
+  const maxVal = words[0]?.value || 1;
+  const minVal = words[words.length - 1]?.value || 1;
+  const sizeScale = d3.scaleLinear().domain([minVal, maxVal]).range([11, 52]);
+
+  const defaultColors = isDark
+    ? ["#7eb8f7","#b0b3b8","#8a8d91"]
+    : ["#3366cc","#54595d","#72777d"];
+
+  d3.layout.cloud()
+    .size([W, H])
+    .words(words.map(d => ({ text: d.text, size: sizeScale(d.value), tip: d.tip })))
+    .padding(3)
+    .rotate(() => (Math.random() > 0.85 ? 90 : 0))
+    .font("sans-serif")
+    .fontSize(d => d.size)
+    .on("end", drawn => {
+      const svg = d3.select(wrap).append("svg").attr("width", W).attr("height", H);
+      const colors = isDark ? TIP_COLOR_DARK : TIP_COLOR;
+      svg.append("g")
+        .attr("transform", `translate(${W/2},${H/2})`)
+        .selectAll("text")
+        .data(drawn)
+        .enter().append("text")
+        .style("font-size", d => `${d.size}px`)
+        .style("font-family", "sans-serif")
+        .style("font-weight", d => d.tip ? "700" : "400")
+        .style("fill", d => d.tip ? colors[d.tip] : defaultColors[Math.floor(Math.random() * 3)])
+        .attr("text-anchor", "middle")
+        .attr("transform", d => `translate(${d.x},${d.y})rotate(${d.rotate})`)
+        .text(d => d.text);
+    })
+    .start();
+}
+
+// ── NER lista ─────────────────────────────────────────────────
+let nerSortCol = 'pojave', nerSortAsc = false;
+
+function renderNerList() {
+  const list = document.getElementById('nlp-ner-list');
+  list.innerHTML = '';
+  if (!nerData) return;
+
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const colors = isDark ? TIP_COLOR_DARK : TIP_COLOR;
+
+  let entiteti = [];
+  if (activeNerTip === 'ALL') {
+    for (const [tip, lista] of Object.entries(nerData.entiteti || {})) {
+      lista.forEach(e => entiteti.push({ ...e, tip }));
+    }
+  } else {
+    (nerData.entiteti[activeNerTip] || []).forEach(e =>
+      entiteti.push({ ...e, tip: activeNerTip }));
+  }
+  // Sortiranje
+  entiteti.sort((a, b) => {
+    let va = nerSortCol === 'ime' ? a.ime.toLowerCase() : a.pojave;
+    let vb = nerSortCol === 'ime' ? b.ime.toLowerCase() : b.pojave;
+    if (va < vb) return nerSortAsc ? -1 : 1;
+    if (va > vb) return nerSortAsc ? 1 : -1;
+    return 0;
+  });
+  // Ažuriraj sort header
+  const nameBtn = document.getElementById('nlp-ner-sort-name');
+  const countBtn = document.getElementById('nlp-ner-sort-count');
+  if (nameBtn && countBtn) {
+    nameBtn.className = 'nlp-ner-sort-btn' + (nerSortCol === 'ime' ? ' active' : '');
+    countBtn.className = 'nlp-ner-sort-btn' + (nerSortCol === 'pojave' ? ' active' : '');
+    nameBtn.textContent = 'Name' + (nerSortCol === 'ime' ? (nerSortAsc ? ' ▲' : ' ▼') : '');
+    countBtn.textContent = 'Count' + (nerSortCol === 'pojave' ? (nerSortAsc ? ' ▲' : ' ▼') : ' ▼');
+  }
+
+  entiteti.forEach(ent => {
+    const item = document.createElement('div');
+    item.className = 'nlp-ner-item' + (activeEntitet === ent.ime ? ' active' : '');
+    item.innerHTML = `
+      <div class="nlp-ner-dot" style="background:${colors[ent.tip] || '#999'}"></div>
+      <div class="nlp-ner-name">${ent.ime}</div>
+      <div class="nlp-ner-count">${ent.pojave}</div>
+    `;
+    item.addEventListener('click', () => {
+      activeEntitet = activeEntitet === ent.ime ? null : ent.ime;
+      renderNerList();
+      highlightText();
+    });
+    list.appendChild(item);
+  });
+}
+
+// ── Text panel ────────────────────────────────────────────────
+function renderText(origData) {
+  const body = document.getElementById('nlp-text-body');
+  body.innerHTML = '';
+  if (!origData) return;
+
+  (origData.sentences || []).forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'nlp-sent';
+    div.dataset.pos = i;
+    const num = document.createElement('span');
+    num.className = 'nlp-sent-num';
+    num.textContent = i + 1;
+    div.appendChild(num);
+    div.appendChild(document.createTextNode(s.text || s.original || ''));
+    body.appendChild(div);
+  });
+}
+
+let hlList = [], hlIndex = 0;
+
+function highlightText() {
+  const entityEl = document.getElementById('nlp-active-entity');
+  const nav = document.getElementById('nlp-hl-nav');
+
+  if (!activeEntitet) {
+    document.querySelectorAll('.nlp-sent').forEach(el => {
+      el.classList.remove('highlight', 'hl-current');
+      el.style.display = '';
+    });
+    entityEl.textContent = t('nlp_click_hint');
+    nav.style.display = 'none';
+    hlList = [];
+    return;
+  }
+
+  entityEl.textContent = activeEntitet;
+  if (!nerData || !activeBookId) return;
+
+  const highlighted = nerRecMap[activeEntitet] || new Set();
+  document.querySelectorAll('.nlp-sent').forEach(el => {
+    const pos = parseInt(el.dataset.pos);
+    el.classList.toggle('highlight', highlighted.has(pos));
+    el.classList.remove('hl-current');
+  });
+
+  hlList = Array.from(document.querySelectorAll('.nlp-sent.highlight'));
+  hlIndex = 0;
+  applyHlOnly();
+  if (hlList.length) gotoHl(0); else updateHlNav();
+}
+
+function applyHlOnly() {
+  const only = document.getElementById('nlp-hl-only').checked;
+  document.querySelectorAll('.nlp-sent').forEach(el => {
+    el.style.display = (only && !el.classList.contains('highlight')) ? 'none' : '';
+  });
+}
+
+function updateHlNav() {
+  const nav = document.getElementById('nlp-hl-nav');
+  if (!hlList.length) { nav.style.display = 'none'; return; }
+  nav.style.display = 'flex';
+  document.getElementById('nlp-hl-counter').textContent = (hlIndex + 1) + '/' + hlList.length;
+}
+
+function gotoHl(idx) {
+  if (!hlList.length) return;
+  hlIndex = ((idx % hlList.length) + hlList.length) % hlList.length;
+  hlList.forEach(el => el.classList.remove('hl-current'));
+  const cur = hlList[hlIndex];
+  cur.classList.add('hl-current');
+  cur.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  updateHlNav();
+}
+
+document.getElementById('nlp-hl-prev').addEventListener('click', () => gotoHl(hlIndex - 1));
+document.getElementById('nlp-hl-next').addEventListener('click', () => gotoHl(hlIndex + 1));
+document.getElementById('nlp-hl-only').addEventListener('change', applyHlOnly);
+
+// ── Load book ─────────────────────────────────────────────────
+async function loadBook(bookId) {
+  activeBookId = bookId;
+  activeEntitet = null;
+  document.getElementById('nlp-active-entity').textContent = t('nlp_click_hint');
+  document.getElementById('nlp-wc-wrap').innerHTML =
+    `<div id="nlp-loading" style="color:var(--text-muted);font-size:0.85rem;">Loading…</div>`;
+  document.getElementById('nlp-ner-list').innerHTML = '';
+  document.getElementById('nlp-text-body').innerHTML = '';
+
+  // Učitaj orig + ner paralelno
+  const [origData, nerJson] = await Promise.all([
+    fetch(`data/orig_${bookId}.json?v=${__v}`).then(r => r.json()).catch(() => null),
+    fetch(`data/ner_${bookId}.json?v=${__v}`).then(r => r.json()).catch(() => null),
+  ]);
+
+  window._origData = origData;
+  nerData = nerJson;
+
+  // Gradi mapu: ime_norm → Set pozicija rečenica
+  nerRecMap = {};
+  if (nerJson) {
+    // Trebamo recenica pozicije iz orig_*.json
+    // ner_*.json ima samo pojave (count), ne pozicije
+    // Koristimo text search za highlight
+    buildNerRecMap(origData, nerJson);
+  }
+
+  // Ažuriraj slider max prema podacima knjige
+  if (nerData && nerData.veze && nerData.veze.length > 0) {
+    const maxT = Math.max(...nerData.veze.map(v => v.tezina));
+    const slider = document.getElementById('nlp-net-slider');
+    slider.max = maxT;
+    slider.value = Math.min(minTezina, maxT);
+    minTezina = parseInt(slider.value);
+    document.getElementById('nlp-net-slider-val').textContent = minTezina;
+  }
+  drawWC(origData);
+  drawNetwork();
+  renderNerList();
+  renderText(origData);
+  renderLinksTable(nerData);
+  renderConflictsTable(nerData);
+}
+
+function buildNerRecMap(origData, nerJson) {
+  if (!origData || !nerJson) return;
+  const sentences = origData.sentences || [];
+
+  // Za svaki entitet — nađi rečenice koje sadrže ime (case-insensitive)
+  // Stopwords se ignorišu kao dijelovi imena; match samo cijele riječi (word boundary)
+  const STOP = new Set(['the','and','of','a','an','in','on','at','to','for','de','la','le','el','von','van','der','den','mr','mrs','dr','sir','st','my']);
+  const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  for (const [tip, lista] of Object.entries(nerJson.entiteti || {})) {
+    for (const ent of lista) {
+      const set = new Set();
+      const nameLower = ent.ime.toLowerCase();
+      // Značajni dijelovi imena (npr. prezime) — bez stopworda
+      const parts = nameLower.split(' ').filter(p => p.length > 2 && !STOP.has(p));
+      const partRes = parts.map(p => new RegExp('\\b' + escRe(p) + '\\b'));
+      // Fallback: puno ime kao fraza (kad su svi dijelovi stopwords)
+      const fullRe = new RegExp('\\b' + escRe(nameLower) + '\\b');
+      sentences.forEach((s, i) => {
+        const textLower = (s.text || s.original || '').toLowerCase();
+        // PERSON: OR (hvata i samo prezime); ostali tipovi: AND (sve riječi)
+        const match = partRes.length > 0
+          ? (tip === 'PERSON' ? partRes.some(r => r.test(textLower)) : partRes.every(r => r.test(textLower)))
+          : fullRe.test(textLower);
+        if (match) {
+          set.add(i);
+        }
+      });
+      nerRecMap[ent.ime] = set;
+    }
+  }
+}
+
+// ── Type filter ───────────────────────────────────────────────
+document.querySelectorAll('.nlp-type-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    activeNerTip = btn.dataset.tip;
+    activeEntitet = null;
+    document.querySelectorAll('.nlp-type-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.tip === activeNerTip));
+    renderNerList();
+    highlightText();
+  });
+});
+
+
+
+// ── Network slider ─────────────────────────────────────────────
+let minTezina = 2;
+
+document.getElementById('nlp-net-slider').addEventListener('input', function() {
+  minTezina = parseInt(this.value);
+  document.getElementById('nlp-net-slider-val').textContent = minTezina;
+  drawNetwork();
+});
+
+// ── Network Graph ─────────────────────────────────────────────
+function drawNetwork() {
+  const wrap = document.getElementById('nlp-network-wrap');
+  // Ukloni stari SVG
+  d3.select('#nlp-network-wrap svg').remove();
+
+  if (!nerData || !nerData.veze) {
+    wrap.innerHTML = '<div id="nlp-net-tip"></div><div style="color:var(--text-muted);font-size:0.85rem;padding:20px;">No co-occurrence data</div>';
+    return;
+  }
+
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const colors = isDark ? TIP_COLOR_DARK : TIP_COLOR;
+  const defaultColor = isDark ? '#7eb8f7' : '#3366cc';
+
+  const W = wrap.offsetWidth || 800;
+  const H = 420;
+
+  // Gradi skupove čvorova iz veza + entiteta
+  const nodeMap = {};
+  const allEntiteti = [];
+  for (const [tip, lista] of Object.entries(nerData.entiteti || {})) {
+    lista.forEach(e => {
+      nodeMap[e.ime] = { id: e.ime, tip, pojave: e.pojave };
+      allEntiteti.push({ id: e.ime, tip, pojave: e.pojave });
+    });
+  }
+
+  // Samo čvorovi koji su u vezama + top izolirani čvorovi
+  const vezaNodes = new Set();
+  nerData.veze.forEach(v => { vezaNodes.add(v.od); vezaNodes.add(v.do); });
+
+  // Dodaj top 10 izolirane PERSON čvorove ako nisu već u vezama
+  const topIzolirani = allEntiteti
+    .filter(e => e.tip === 'PERSON' && !vezaNodes.has(e.id))
+    .sort((a, b) => b.pojave - a.pojave)
+    .slice(0, 5);
+
+  const nodes = [...vezaNodes].map(id => nodeMap[id]).filter(Boolean);
+  topIzolirani.forEach(e => nodes.push(e));
+
+  const maxPojave = Math.max(...nodes.map(n => n.pojave));
+  const rScale = d3.scaleSqrt().domain([1, maxPojave]).range([6, 28]);
+
+  const filteredVeze = nerData.veze.filter(v => v.tezina >= minTezina);
+  const linkCount = filteredVeze.length;
+  const lcEl = document.getElementById("nlp-net-link-count");
+  if (lcEl) lcEl.textContent = linkCount + " connections";
+  const maxTezina = filteredVeze.length > 0 ? Math.max(...filteredVeze.map(v => v.tezina)) : 1;
+  const wScale = d3.scaleLinear().domain([1, maxTezina]).range([1, 7]);
+  const links = filteredVeze.map(v => ({ source: v.od, target: v.do, tezina: v.tezina }));
+
+  const svg = d3.select('#nlp-network-wrap').append('svg')
+    .attr('width', W).attr('height', H);
+
+  // Defs — arrow marker (opcionalno)
+  const defs = svg.append('defs');
+
+  // Zoom & Pan
+  const zoomG = svg.append('g');  // wrapper group za zoom
+  svg.call(d3.zoom()
+    .scaleExtent([0.3, 4])
+    .on('zoom', event => zoomG.attr('transform', event.transform)))
+    .on('dblclick.zoom', () => svg.transition().duration(400)
+      .call(d3.zoom().transform, d3.zoomIdentity));
+
+  // Links
+  const link = zoomG.append('g').selectAll('line')
+    .data(links).enter().append('line')
+    .attr('class', 'nlp-net-link')
+    .attr('stroke', isDark ? '#555' : '#bbb')
+    .attr('stroke-width', d => wScale(d.tezina));
+
+  // Nodes
+  const node = zoomG.append('g').selectAll('g')
+    .data(nodes).enter().append('g')
+    .attr('class', 'nlp-net-node')
+    .call(d3.drag()
+      .on('start', dragstarted)
+      .on('drag', dragged)
+      .on('end', dragended));
+
+  node.append('circle')
+    .attr('r', d => rScale(d.pojave))
+    .attr('fill', d => colors[d.tip] || defaultColor)
+    .attr('fill-opacity', 0.85)
+    .attr('stroke', d => colors[d.tip] || defaultColor)
+    .attr('stroke-opacity', 0.4);
+
+  node.append('text')
+    .text(d => {
+      // Skrati duga imena
+      const parts = d.id.split(' ');
+      return parts.length > 1 ? parts[parts.length - 1] : d.id;
+    })
+    .attr('text-anchor', 'middle')
+    .attr('dy', d => rScale(d.pojave) + 12)
+    .attr('fill', isDark ? '#e4e6ea' : '#202122')
+    .style('font-size', '10px');
+
+  // Tooltip
+  const tip = document.getElementById('nlp-net-tip');
+  node
+    .on('mouseover', (event, d) => {
+      tip.style.display = 'block';
+      tip.textContent = d.id + ' (' + d.pojave + ')';
+    })
+    .on('mousemove', event => {
+      const rect = wrap.getBoundingClientRect();
+      tip.style.left = (event.clientX - rect.left + 10) + 'px';
+      tip.style.top = (event.clientY - rect.top - 20) + 'px';
+    })
+    .on('mouseout', () => { tip.style.display = 'none'; })
+    .on('click', (event, d) => {
+      activeEntitet = activeEntitet === d.id ? null : d.id;
+      renderNerList();
+      highlightText();
+    });
+
+  // Force simulation
+  const sim = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(d => d.id).distance(80))
+    .force('charge', d3.forceManyBody().strength(-200))
+    .force('center', d3.forceCenter(W / 2, H / 2))
+    .force('collision', d3.forceCollide().radius(d => rScale(d.pojave) + 5))
+    .on('tick', () => {
+      link
+        .attr('x1', d => d.source.x)
+        .attr('y1', d => d.source.y)
+        .attr('x2', d => d.target.x)
+        .attr('y2', d => d.target.y);
+      node.attr('transform', d =>
+        'translate(' + Math.max(30, Math.min(W-30, d.x)) + ',' +
+                       Math.max(30, Math.min(H-30, d.y)) + ')');
+    });
+
+  function dragstarted(event, d) {
+    if (!event.active) sim.alphaTarget(0.3).restart();
+    d.fx = d.x; d.fy = d.y;
+  }
+  function dragged(event, d) { d.fx = event.x; d.fy = event.y; }
+  function dragended(event, d) {
+    if (!event.active) sim.alphaTarget(0);
+    d.fx = null; d.fy = null;
+  }
+}
+
+// ── Entity Links Table ───────────────────────────────────────
+let linksSortCol = 'tezina', linksSortAsc = false;
+let conflictsSortCol = 'ime', conflictsSortAsc = true;
+
+function setSortIndicators(tableId, sortCol, sortAsc) {
+  document.querySelectorAll('#' + tableId + ' th').forEach(th => {
+    const col = th.dataset.col;
+    th.textContent = th.textContent.replace(/ [▲▼]$/, '');
+    if (col === sortCol) th.textContent += sortAsc ? ' ▲' : ' ▼';
+  });
+}
+
+function renderLinksTable(nerData) {
+  const tbody = document.querySelector('#nlp-links-table tbody');
+  tbody.innerHTML = '';
+  if (!nerData || !nerData.veze) return;
+  const search = document.getElementById('nlp-links-search');
+  const query = search ? search.value.toLowerCase() : '';
+  let veze = nerData.veze.filter(v =>
+    !query || v.od.toLowerCase().includes(query) || v.do.toLowerCase().includes(query)
+  );
+  // Sortiranje
+  veze = [...veze].sort((a, b) => {
+    let va = a[linksSortCol], vb = b[linksSortCol];
+    if (typeof va === 'string') va = va.toLowerCase();
+    if (typeof vb === 'string') vb = vb.toLowerCase();
+    if (va < vb) return linksSortAsc ? -1 : 1;
+    if (va > vb) return linksSortAsc ? 1 : -1;
+    return 0;
+  });
+  setSortIndicators('nlp-links-table', linksSortCol, linksSortAsc);
+  veze.forEach(v => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${v.od}<span class="tip-badge tip-${v.od_tip||'OTHER'}">${v.od_tip||''}</span></td>
+      <td>${v.do}<span class="tip-badge tip-${v.do_tip||'OTHER'}">${v.do_tip||''}</span></td>
+      <td style="text-align:right;font-weight:600;">${v.tezina}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderConflictsTable(nerData) {
+  const tbody = document.querySelector('#nlp-conflicts-table tbody');
+  tbody.innerHTML = '';
+  if (!nerData || !nerData.entiteti) return;
+  const byName = {};
+  Object.entries(nerData.entiteti).forEach(([tip, lista]) => {
+    lista.forEach(e => {
+      const key = e.ime;
+      if (!byName[key]) byName[key] = [];
+      byName[key].push({tip, pojave: e.pojave});
+    });
+  });
+  let konflikti = Object.entries(byName)
+    .filter(([, tipovi]) => tipovi.length > 1)
+    .map(([ime, tipovi]) => ({ime, tipovi, ukupno: tipovi.reduce((s,t)=>s+t.pojave,0)}));
+  // Sortiranje
+  konflikti.sort((a, b) => {
+    let va = a[conflictsSortCol], vb = b[conflictsSortCol];
+    if (conflictsSortCol === 'ukupno') { va = a.ukupno; vb = b.ukupno; }
+    if (conflictsSortCol === 'ime') { va = a.ime.toLowerCase(); vb = b.ime.toLowerCase(); }
+    if (va < vb) return conflictsSortAsc ? -1 : 1;
+    if (va > vb) return conflictsSortAsc ? 1 : -1;
+    return 0;
+  });
+  setSortIndicators('nlp-conflicts-table', conflictsSortCol, conflictsSortAsc);
+  konflikti.forEach(({ime, tipovi}) => {
+    const tr = document.createElement('tr');
+    const tipStr = tipovi.map(t =>
+      `<span class="tip-badge tip-${t.tip}">${t.tip}</span> <small>(${t.pojave}×)</small>`
+    ).join(' ');
+    tr.innerHTML = `<td>${ime}</td><td>${tipStr}</td>`;
+    tbody.appendChild(tr);
+  });
+  if (konflikti.length === 0) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td colspan="2" style="color:var(--text-muted);text-align:center;">No conflicts found</td>';
+    tbody.appendChild(tr);
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────────
+async function init() {
+  const __ver = await fetch(`data/version.json?t=${Date.now()}`).then(r => r.json()).catch(() => ({v: Date.now()}));
+  __v = __ver.v;
+
+  const books = await fetch(`data/books.json?v=${__v}`).then(r => r.json()).catch(() => []);
+
+  const bar = document.getElementById('nlp-book-bar');
+  bar.querySelectorAll('.nlp-book-btn').forEach(b => b.remove());
+
+  books.forEach((book, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'nlp-book-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = book.title;
+    btn.dataset.id = book.id;
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nlp-book-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.id === btn.dataset.id));
+      loadBook(book.id);
+    });
+    bar.appendChild(btn);
+  });
+
+  // URL param ?book=ID
+  const urlBook = new URLSearchParams(window.location.search).get('book');
+  const defaultBook = urlBook ? parseInt(urlBook) : (books[0]?.id || null);
+  document.querySelectorAll('.nlp-book-btn').forEach(b =>
+    b.classList.toggle('active', parseInt(b.dataset.id) === defaultBook));
+  if (defaultBook) loadBook(defaultBook);
+}
+
+// Search filter za links tabelu
+document.getElementById('nlp-links-search').addEventListener('input', () => {
+  renderLinksTable(nerData);
+});
+
+// Sort listeners — links tabela
+document.querySelectorAll('#nlp-links-table th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    if (linksSortCol === col) linksSortAsc = !linksSortAsc;
+    else { linksSortCol = col; linksSortAsc = col !== 'tezina'; }
+    renderLinksTable(nerData);
+  });
+});
+
+// Sort listeners — NER lista
+document.getElementById('nlp-ner-sort-name').addEventListener('click', () => {
+  if (nerSortCol === 'ime') nerSortAsc = !nerSortAsc;
+  else { nerSortCol = 'ime'; nerSortAsc = true; }
+  renderNerList();
+});
+document.getElementById('nlp-ner-sort-count').addEventListener('click', () => {
+  if (nerSortCol === 'pojave') nerSortAsc = !nerSortAsc;
+  else { nerSortCol = 'pojave'; nerSortAsc = false; }
+  renderNerList();
+});
+
+// Sort listeners — conflicts tabela
+document.querySelectorAll('#nlp-conflicts-table th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    if (conflictsSortCol === col) conflictsSortAsc = !conflictsSortAsc;
+    else { conflictsSortCol = col; conflictsSortAsc = col !== 'ukupno'; }
+    renderConflictsTable(nerData);
+  });
+});
+
+applyI18n();
+init();
+</script>
+</body>
+</html>

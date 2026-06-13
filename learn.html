@@ -1,0 +1,2456 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buchenberg — Learn</title>
+  <link rel="stylesheet" href="buchenberg.css">
+<script src="nav.js"></script>
+  <style>
+    /* ── Learn page styles ── */
+    .learn-hero {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0 12px;
+      margin-bottom: 20px;
+    }
+    .learn-hero-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+    .learn-hero h1 {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    .learn-hero p {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .learn-main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 16px 48px;
+    }
+
+    /* ── Setup panel ── */
+    #setup-panel {
+      display: block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 28px 32px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    #setup-panel h2 {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+    .setup-row {
+      margin-bottom: 18px;
+    }
+    .setup-row label {
+      display: block;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .setup-row select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      font-family: var(--font-sans);
+    }
+    .setup-row select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .difficulty-btns {
+      display: flex;
+      gap: 8px;
+    }
+    .diff-btn {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: var(--bg);
+      color: var(--text-muted);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .15s;
+      text-align: center;
+    }
+    .diff-btn:hover { border-color: var(--accent); color: var(--text); }
+    .diff-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    #start-btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      margin-top: 8px;
+    }
+
+    /* ── Game panel ── */
+    #game-panel { display: none; }
+
+    .game-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .game-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .game-meta strong { color: var(--text); }
+
+    .score-display {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .score-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 4px 12px;
+      font-size: 13px;
+    }
+    .score-box span { color: var(--accent); font-weight: bold; font-size: 16px; }
+
+    .progress-bar-wrap {
+      height: 4px;
+      background: var(--border-light);
+      border-radius: 2px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width .3s ease;
+    }
+
+    /* ── Sentence block ── */
+    .sentence-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+    .sentence-block .context-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-light);
+      margin-bottom: 8px;
+    }
+    .sentence-block .context-text {
+      font-family: var(--font-serif);
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text-muted);
+      font-style: italic;
+      border-left: 3px solid var(--border-light);
+      padding-left: 12px;
+      margin-bottom: 16px;
+    }
+    .sentence-block .target-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-light);
+      margin-bottom: 8px;
+    }
+    .sentence-block .target-text {
+      font-family: var(--font-serif);
+      font-size: 16px;
+      line-height: 1.9;
+    }
+
+    /* ── Blank ── */
+    .blank-wrap {
+      display: inline-block;
+      position: relative;
+      vertical-align: middle;
+      margin: 0 2px;
+    }
+    .blank-input {
+      border: none;
+      border-bottom: 2px solid var(--accent);
+      background: transparent;
+      color: var(--text);
+      font-family: var(--font-serif);
+      font-size: 16px;
+      padding: 0 4px 1px;
+      min-width: 60px;
+      outline: none;
+      text-align: center;
+      transition: border-color .15s;
+    }
+    .blank-input:focus { border-bottom-color: var(--link); }
+    .blank-input.correct {
+      border-bottom-color: #2e7d32;
+      color: #2e7d32;
+      background: rgba(46,125,50,0.06);
+    }
+    .blank-input.incorrect {
+      border-bottom-color: #c62828;
+      color: #c62828;
+      background: rgba(198,40,40,0.06);
+    }
+    .blank-input.revealed {
+      border-bottom-color: #f57c00;
+      color: #f57c00;
+    }
+
+    /* ── Multiple choice popup ── */
+    .mc-popup {
+      display: none;
+      position: absolute;
+      top: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      z-index: 50;
+      min-width: 180px;
+      padding: 6px;
+    }
+    .mc-popup.open { display: block; }
+    .mc-option {
+      display: block;
+      width: 100%;
+      padding: 7px 12px;
+      text-align: left;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: var(--font-serif);
+      color: var(--text);
+      border-radius: 3px;
+      transition: background .12s;
+    }
+    .mc-option:hover { background: var(--border-light); }
+    .mc-option.correct-opt { background: rgba(46,125,50,0.12); color: #2e7d32; }
+    .mc-option.wrong-opt { background: rgba(198,40,40,0.08); color: #c62828; }
+
+    /* ── Controls ── */
+    .game-controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Results panel ── */
+    #results-panel { display: none; }
+    .results-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 32px;
+      max-width: 500px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .results-score {
+      font-size: 56px;
+      font-weight: bold;
+      color: var(--accent);
+      font-family: var(--font-serif);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .results-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+    .results-breakdown {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+    .rb-item { text-align: center; }
+    .rb-num { font-size: 24px; font-weight: bold; color: var(--text); }
+    .rb-lbl { font-size: 11px; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; }
+    .rb-item.green .rb-num { color: #2e7d32; }
+    .rb-item.red .rb-num { color: #c62828; }
+
+    /* ── Feedback toast ── */
+    #feedback-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 10px 18px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity .2s;
+      pointer-events: none;
+      z-index: 200;
+    }
+    #feedback-toast.show { opacity: 1; }
+    #feedback-toast.good { background: #2e7d32; color: #fff; }
+    #feedback-toast.bad  { background: #c62828; color: #fff; }
+    #feedback-toast.info { background: var(--accent); color: #fff; }
+
+    /* ── Game tabs ── */
+    .game-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0;
+    }
+    .game-tab {
+      padding: 8px 18px;
+      border: none;
+      background: none;
+      font-size: 14px;
+      font-family: var(--font-sans);
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color .15s, border-color .15s;
+    }
+    .game-tab:hover { color: var(--text); }
+    .game-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      font-weight: bold;
+    }
+
+    /* ── Match game ── */
+    #match-panel { display: none; }
+    #match-results-panel { display: none; }
+
+    .match-setup {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 28px 32px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .match-setup h2 {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .match-game-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .match-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .match-col-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-light);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .match-item {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      padding: 10px 14px;
+      font-family: var(--font-serif);
+      font-size: 14px;
+      line-height: 1.5;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      margin-bottom: 8px;
+      min-height: 52px;
+    }
+    .match-item:hover { border-color: var(--accent); }
+    .match-item.selected {
+      border-color: var(--accent);
+      background: rgba(51,102,204,0.07);
+    }
+    .match-item.correct {
+      border-color: #2e7d32;
+      background: rgba(46,125,50,0.08);
+      cursor: default;
+      color: var(--text-muted);
+    }
+    .match-item.wrong {
+      border-color: #c62828;
+      background: rgba(198,40,40,0.07);
+    }
+    .match-item.disabled {
+      opacity: 0.45;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .match-results-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 32px;
+      max-width: 500px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .match-time {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    /* ── Direction info badge ── */
+    .direction-badge {
+      display: inline-block;
+      background: var(--border-light);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 6px 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .direction-badge strong { color: var(--accent); }
+
+    /* ── Memory game ── */
+    #memory-panels { display:none; }
+
+    .memory-setup {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 28px 32px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .memory-setup h2 {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .memory-game-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .memory-board {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .mem-card {
+      height: 120px;
+      perspective: 800px;
+      cursor: pointer;
+    }
+
+    .mem-card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.35s ease;
+      border-radius: 6px;
+    }
+
+    .mem-card.flipped .mem-card-inner {
+      transform: rotateY(180deg);
+    }
+    .mem-card.matched .mem-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .mem-card-front,
+    .mem-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 6px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+
+    .mem-card-front {
+      background: var(--accent);
+      border: 2px solid var(--accent);
+      color: #fff;
+      font-size: 28px;
+      font-weight: bold;
+      font-family: var(--font-serif);
+    }
+
+    .mem-card-back {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      transform: rotateY(180deg);
+      font-family: var(--font-serif);
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--text);
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .mem-card-back .card-lang-badge {
+      position: absolute;
+      top: 5px;
+      left: 7px;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-light);
+      font-family: var(--font-sans);
+    }
+
+    .mem-card.matched .mem-card-back {
+      border-color: #2e7d32;
+      background: rgba(46,125,50,0.08);
+      color: var(--text-muted);
+    }
+
+    .mem-card.wrong-flash .mem-card-back {
+      border-color: #c62828;
+      background: rgba(198,40,40,0.07);
+    }
+
+    .memory-results-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 32px;
+      max-width: 500px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    #memory-results-panel { display: none; }
+
+    /* ── Scrambled Sentence ── */
+    #scrambled-panels { display:none; }
+
+    .scrambled-setup {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 28px 32px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .scrambled-setup h2 {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .scrambled-game-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .scrambled-context {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+    }
+    .scrambled-context .context-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-light);
+      margin-bottom: 8px;
+    }
+    .scrambled-context .context-text {
+      font-family: var(--font-serif);
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text-muted);
+      font-style: italic;
+      border-left: 3px solid var(--border-light);
+      padding-left: 12px;
+    }
+
+    .scrambled-answer-area {
+      min-height: 60px;
+      background: var(--bg);
+      border: 2px dashed var(--border);
+      border-radius: 4px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+    .scrambled-answer-area.correct-area {
+      border-color: #2e7d32;
+      background: rgba(46,125,50,0.05);
+    }
+    .scrambled-answer-area.wrong-area {
+      border-color: #c62828;
+      background: rgba(198,40,40,0.05);
+    }
+    .scrambled-answer-placeholder {
+      color: var(--text-light);
+      font-size: 13px;
+      font-style: italic;
+    }
+
+    .scrambled-pool {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 20px;
+      min-height: 40px;
+    }
+
+    .scr-word {
+      padding: 6px 12px;
+      border: 1px solid var(--accent);
+      border-radius: 20px;
+      background: var(--bg);
+      color: var(--accent);
+      font-family: var(--font-serif);
+      font-size: 14px;
+      cursor: pointer;
+      transition: background .12s, color .12s;
+      user-select: none;
+    }
+    .scr-word:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+    .scr-word.in-answer {
+      border-color: var(--border);
+      color: var(--text);
+      background: var(--surface);
+    }
+    .scr-word.in-answer:hover {
+      border-color: #c62828;
+      color: #c62828;
+      background: rgba(198,40,40,0.05);
+    }
+
+    .scrambled-correct-answer {
+      font-family: var(--font-serif);
+      font-size: 14px;
+      color: #2e7d32;
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      background: rgba(46,125,50,0.06);
+      border-radius: 3px;
+      display: none;
+    }
+
+    #scrambled-results-panel { display: none; }
+    .scrambled-results-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 32px;
+      max-width: 500px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    /* -- Overview -- */
+    .overview-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:4px}
+    @media(max-width:620px){.overview-grid{grid-template-columns:1fr}}
+    .game-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:24px;display:flex;flex-direction:column;transition:border-color .15s}
+    .game-card:hover{border-color:var(--accent)}
+    .game-card-icon{font-size:26px;margin-bottom:10px;line-height:1}
+    .game-card h3{font-family:var(--font-serif);font-size:18px;font-weight:bold;margin-bottom:8px;color:var(--text)}
+    .game-card > p{font-size:14px;color:var(--text-muted);line-height:1.6;margin-bottom:12px;flex:1}
+    .game-card-rules{list-style:none;padding:0;margin:0 0 18px 0}
+    .game-card-rules li{font-size:12px;color:var(--text-muted);padding:3px 0 3px 14px;position:relative;line-height:1.5}
+    .game-card-rules li::before{content:"\00b7";position:absolute;left:0;color:var(--accent);font-weight:bold}
+    .game-card-play{width:100%;padding:10px}
+
+
+    #scr-hint-reveal {
+      display:none;
+      font-family:var(--font-serif);
+      font-size:14px;
+      color:var(--text-muted);
+      padding:8px 14px;
+      background:rgba(51,102,204,0.07);
+      border:1px dashed var(--accent);
+      border-radius:3px;
+      margin-bottom:10px;
+      user-select:none;
+      line-height:1.6;
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- HEADER ubačen via nav.js -->
+
+<!-- HERO -->
+<div class="learn-hero">
+  <div class="learn-hero-inner">
+    <h1>Language Learning</h1>
+    <p id="hero-subtitle">Choose a game and start learning languages from classic literature.</p>
+  </div>
+</div>
+
+<div class="learn-main">
+
+  <!-- OVERVIEW -->
+  <div id="overview-panel">
+    <div class="overview-grid">
+
+      <div class="game-card" data-game="fillin">
+        <div class="game-card-icon">✏️</div>
+        <h3>Fill in the Blank</h3>
+        <p>Read a sentence from classic literature and fill in the missing words. Learn a foreign language with English as context, or practise English with a translation as hint.</p>
+        <ul class="game-card-rules">
+          <li>Easy: 1 blank &middot; Medium: 2 &middot; Hard: 3</li>
+          <li>Click blank to pick from multiple choice, then type if wrong</li>
+          <li>Hint reveals one word (&minus;3 pts) &middot; 10 sentences per round</li>
+        </ul>
+        <button class="bb-btn bb-btn-primary game-card-play">Play &rarr;</button>
+      </div>
+
+      <div class="game-card" data-game="match">
+        <div class="game-card-icon">🔗</div>
+        <h3>Sentence Match</h3>
+        <p>Two columns &mdash; English on the left, translation on the right. Click one sentence from each side to pair them. Train your eye to recognise which translation belongs to which original.</p>
+        <ul class="game-card-rules">
+          <li>10 sentence pairs per round</li>
+          <li>+10 pts for a correct match, &minus;2 pts for a wrong pair</li>
+          <li>Match all pairs as quickly as possible</li>
+        </ul>
+        <button class="bb-btn bb-btn-primary game-card-play">Play &rarr;</button>
+      </div>
+
+      <div class="game-card" data-game="memory">
+        <div class="game-card-icon">🃏</div>
+        <h3>Memory</h3>
+        <p>Classic card-flip game. Flip two cards at a time and find matching English&ndash;translation pairs. Cards stay face up when matched &mdash; fewer attempts means a better score.</p>
+        <ul class="game-card-rules">
+          <li>5 pairs = 10 cards on the board</li>
+          <li>Find all pairs in as few attempts as possible</li>
+          <li>Unmatched cards flip back after a short delay</li>
+        </ul>
+        <button class="bb-btn bb-btn-primary game-card-play">Play &rarr;</button>
+      </div>
+
+      <div class="game-card" data-game="scrambled">
+        <div class="game-card-icon">🔀</div>
+        <h3>Scrambled Sentence</h3>
+        <p>The words of a translated sentence are shuffled. Click them in the right order to reconstruct the translation. The English sentence is shown as context throughout.</p>
+        <ul class="game-card-rules">
+          <li>5 sentences per round</li>
+          <li>+10 pts first try, +5 pts after rearranging, 0 pts if wrong</li>
+          <li>Wrong answer reveals the correct sentence</li>
+        </ul>
+        <button class="bb-btn bb-btn-primary game-card-play">Play &rarr;</button>
+      </div>
+
+    </div>
+  </div><!-- /overview-panel -->
+
+  <!-- GAME CONTAINER -->
+  <div id="games-container" style="display:none">
+
+  <!-- TABS -->
+  <div class="game-tabs">
+    <button class="game-tab active" data-tab="fillin">Fill in the Blank</button>
+    <button class="game-tab" data-tab="match">Sentence Match</button>
+    <button class="game-tab" data-tab="memory">Memory</button>
+    <button class="game-tab" data-tab="scrambled">Scrambled</button>
+  </div>
+
+  <!-- FILL IN THE BLANK panels -->
+  <div id="fillin-panels">
+
+  <!-- SETUP -->
+  <div id="setup-panel">
+    <h2>New Game</h2>
+
+    <div class="setup-row">
+      <label>I want to learn</label>
+      <select id="sel-lang"><option value="">Loading...</option></select>
+    </div>
+
+    <div class="setup-row">
+      <label>Book</label>
+      <select id="sel-book"><option value="">— select a language first —</option></select>
+    </div>
+
+    <div class="setup-row" id="direction-info-row" style="display:none">
+      <label>Learning direction</label>
+      <div class="direction-badge" id="direction-badge"></div>
+    </div>
+
+    <div class="setup-row" id="hint-lang-row" style="display:none">
+      <label>Hint language (context)</label>
+      <select id="sel-hint-lang">
+        <option value="">— select a book first —</option>
+      </select>
+    </div>
+
+    <div class="setup-row">
+      <label>Difficulty</label>
+      <div class="difficulty-btns">
+        <button class="diff-btn active" data-diff="easy">Easy</button>
+        <button class="diff-btn" data-diff="medium">Medium</button>
+        <button class="diff-btn" data-diff="hard">Hard</button>
+      </div>
+    </div>
+
+    <button id="start-btn" class="bb-btn bb-btn-primary">Start Game &#8594;</button>
+  </div>
+
+  <!-- GAME -->
+  <div id="game-panel">
+    <div class="game-header">
+      <div class="game-meta">
+        <strong id="gm-book"></strong> &nbsp;&middot;&nbsp;
+        <span id="gm-lang"></span> &nbsp;&middot;&nbsp;
+        Sentence <span id="gm-sent-num">1</span> of <span id="gm-sent-total">10</span>
+      </div>
+      <div class="score-display">
+        <div class="score-box">Score: <span id="score-val">0</span></div>
+        <button class="bb-btn" id="quit-btn">Quit</button>
+      </div>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+    </div>
+
+    <div id="sentences-container"></div>
+
+    <div class="game-controls">
+      <button class="bb-btn bb-btn-primary" id="check-btn">Check Answers</button>
+      <button class="bb-btn" id="hint-btn">Hint (&#8722;3 pts)</button>
+      <button class="bb-btn" id="next-btn" style="display:none">Next Sentence &#8594;</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results-panel">
+    <div class="results-box">
+      <div class="results-score" id="res-score">0</div>
+      <div class="results-label">points earned</div>
+      <div class="results-breakdown">
+        <div class="rb-item green">
+          <div class="rb-num" id="res-correct">0</div>
+          <div class="rb-lbl">Correct</div>
+        </div>
+        <div class="rb-item red">
+          <div class="rb-num" id="res-wrong">0</div>
+          <div class="rb-lbl">Wrong</div>
+        </div>
+        <div class="rb-item">
+          <div class="rb-num" id="res-hints">0</div>
+          <div class="rb-lbl">Hints used</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button class="bb-btn bb-btn-primary" id="play-again-btn">Play Again</button>
+        <button class="bb-btn" id="new-game-btn">New Game</button>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /fillin-panels -->
+
+  <!-- MATCH panels -->
+  <div id="match-panels" style="display:none">
+
+    <!-- MATCH SETUP -->
+    <div id="match-panel" style="display:block">
+      <div class="match-setup">
+        <h2>Sentence Match</h2>
+        <div class="setup-row">
+          <label>Language (translation)</label>
+          <select id="match-sel-lang"><option value="">Loading...</option></select>
+        </div>
+        <div class="setup-row">
+          <label>Book</label>
+          <select id="match-sel-book"><option value="">— select a language first —</option></select>
+        </div>
+        <button id="match-start-btn" class="bb-btn bb-btn-primary" style="width:100%;padding:12px;font-size:15px;margin-top:8px;">Start Match &#8594;</button>
+      </div>
+    </div>
+
+    <!-- MATCH GAME -->
+    <div id="match-game-panel" style="display:none">
+      <div class="match-game-header">
+        <div class="game-meta">
+          <strong id="mg-book"></strong> &nbsp;&middot;&nbsp;
+          <span id="mg-lang"></span> &nbsp;&middot;&nbsp;
+          <span id="mg-pairs">0</span>/10 matched
+        </div>
+        <div class="score-display">
+          <div class="score-box">Score: <span id="match-score-val">0</span></div>
+          <button class="bb-btn" id="match-quit-btn">Quit</button>
+        </div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="match-progress-bar" style="width:0%"></div>
+      </div>
+      <div class="match-columns">
+        <div>
+          <div class="match-col-label" id="match-col-left-label">English</div>
+          <div id="match-col-left"></div>
+        </div>
+        <div>
+          <div class="match-col-label" id="match-col-right-label">Translation</div>
+          <div id="match-col-right"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MATCH RESULTS -->
+    <div id="match-results-panel">
+      <div class="match-results-box">
+        <div class="results-score" id="match-res-score">0</div>
+        <div class="results-label">points earned</div>
+        <div class="match-time">Completed in <span id="match-res-time">0</span> seconds</div>
+        <div class="results-breakdown" style="margin-bottom:28px">
+          <div class="rb-item green">
+            <div class="rb-num" id="match-res-correct">0</div>
+            <div class="rb-lbl">Correct</div>
+          </div>
+          <div class="rb-item red">
+            <div class="rb-num" id="match-res-wrong">0</div>
+            <div class="rb-lbl">Wrong</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:center;">
+          <button class="bb-btn bb-btn-primary" id="match-play-again-btn">Play Again</button>
+          <button class="bb-btn" id="match-new-game-btn">New Game</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /match-panels -->
+
+  <!-- MEMORY panels -->
+  <div id="memory-panels" style="display:none">
+
+    <!-- MEMORY SETUP -->
+    <div id="memory-setup-panel">
+      <div class="memory-setup">
+        <h2>Memory</h2>
+        <div class="setup-row">
+          <label>Language (translation)</label>
+          <select id="mem-sel-lang"><option value="">Loading...</option></select>
+        </div>
+        <div class="setup-row">
+          <label>Book</label>
+          <select id="mem-sel-book"><option value="">— select a language first —</option></select>
+        </div>
+        <button id="mem-start-btn" class="bb-btn bb-btn-primary" style="width:100%;padding:12px;font-size:15px;margin-top:8px;">Start Memory &#8594;</button>
+      </div>
+    </div>
+
+    <!-- MEMORY GAME -->
+    <div id="memory-game-panel" style="display:none">
+      <div class="memory-game-header">
+        <div class="game-meta">
+          <strong id="mem-book"></strong> &nbsp;&middot;&nbsp;
+          <span id="mem-lang-label"></span> &nbsp;&middot;&nbsp;
+          <span id="mem-matched">0</span>/5 pairs
+        </div>
+        <div class="score-display">
+          <div class="score-box">Attempts: <span id="mem-attempts">0</span></div>
+          <button class="bb-btn" id="mem-quit-btn">Quit</button>
+        </div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="mem-progress-bar" style="width:0%"></div>
+      </div>
+      <div class="memory-board" id="memory-board"></div>
+    </div>
+
+    <!-- MEMORY RESULTS -->
+    <div id="memory-results-panel">
+      <div class="memory-results-box">
+        <div class="results-score" id="mem-res-attempts">0</div>
+        <div class="results-label">attempts to find all 5 pairs</div>
+        <div class="results-breakdown">
+          <div class="rb-item green">
+            <div class="rb-num" id="mem-res-pairs">5</div>
+            <div class="rb-lbl">Pairs found</div>
+          </div>
+          <div class="rb-item">
+            <div class="rb-num" id="mem-res-best">5</div>
+            <div class="rb-lbl">Best possible</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:center;">
+          <button class="bb-btn bb-btn-primary" id="mem-play-again-btn">Play Again</button>
+          <button class="bb-btn" id="mem-new-game-btn">New Game</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /memory-panels -->
+
+  <!-- SCRAMBLED panels -->
+  <div id="scrambled-panels" style="display:none">
+
+    <!-- SETUP -->
+    <div id="scrambled-setup-panel">
+      <div class="scrambled-setup">
+        <h2>Scrambled Sentence</h2>
+        <div class="setup-row">
+          <label>Language (translation)</label>
+          <select id="scr-sel-lang"><option value="">Loading...</option></select>
+        </div>
+        <div class="setup-row">
+          <label>Book</label>
+          <select id="scr-sel-book"><option value="">— select a language first —</option></select>
+        </div>
+        <button id="scr-start-btn" class="bb-btn bb-btn-primary" style="width:100%;padding:12px;font-size:15px;margin-top:8px;">Start Scrambled &#8594;</button>
+      </div>
+    </div>
+
+    <!-- GAME -->
+    <div id="scrambled-game-panel" style="display:none">
+      <div class="scrambled-game-header">
+        <div class="game-meta">
+          <strong id="scr-book"></strong> &nbsp;&middot;&nbsp;
+          <span id="scr-lang-label"></span> &nbsp;&middot;&nbsp;
+          Sentence <span id="scr-sent-num">1</span> of 5
+        </div>
+        <div class="score-display">
+          <div class="score-box">Score: <span id="scr-score-val">0</span></div>
+          <button class="bb-btn" id="scr-quit-btn">Quit</button>
+        </div>
+      </div>
+
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="scr-progress-bar" style="width:0%"></div>
+      </div>
+
+      <div class="scrambled-context">
+        <div class="context-label">English (context)</div>
+        <div class="context-text" id="scr-context-text"></div>
+      </div>
+
+      <div id="scr-hint-reveal"></div>
+
+      <div class="context-label" style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-light);margin-bottom:6px;">Your answer</div>
+      <div class="scrambled-answer-area" id="scr-answer-area">
+        <span class="scrambled-answer-placeholder" id="scr-placeholder">Click words below to build the sentence...</span>
+      </div>
+
+      <div class="scrambled-correct-answer" id="scr-correct-answer"></div>
+
+      <div class="context-label" style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-light);margin-bottom:6px;">Words</div>
+      <div class="scrambled-pool" id="scr-pool"></div>
+
+      <div class="game-controls">
+        <button class="bb-btn bb-btn-primary" id="scr-check-btn">Check</button>
+        <button class="bb-btn" id="scr-clear-btn">Clear</button>
+        <button class="bb-btn" id="scr-peek-btn">Hold to Peek</button>
+        <button class="bb-btn" id="scr-next-btn" style="display:none">Next &#8594;</button>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="scrambled-results-panel">
+      <div class="scrambled-results-box">
+        <div class="results-score" id="scr-res-score">0</div>
+        <div class="results-label">points out of 50</div>
+        <div class="results-breakdown">
+          <div class="rb-item green">
+            <div class="rb-num" id="scr-res-correct">0</div>
+            <div class="rb-lbl">First try</div>
+          </div>
+          <div class="rb-item">
+            <div class="rb-num" id="scr-res-partial">0</div>
+            <div class="rb-lbl">With moves</div>
+          </div>
+          <div class="rb-item red">
+            <div class="rb-num" id="scr-res-wrong">0</div>
+            <div class="rb-lbl">Wrong</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:center;">
+          <button class="bb-btn bb-btn-primary" id="scr-play-again-btn">Play Again</button>
+          <button class="bb-btn" id="scr-new-game-btn">New Game</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /scrambled-panels -->
+
+
+
+
+  </div><!-- /games-container -->
+
+</div>
+
+<!-- FEEDBACK TOAST -->
+<div id="feedback-toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// Theme
+// ══════════════════════════════════════════════════════
+(function() {
+  const saved = localStorage.getItem('bb-theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('bb-theme-toggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+// theme toggle: centralizovano u nav.js
+
+// ══════════════════════════════════════════════════════
+// Constants
+// ══════════════════════════════════════════════════════
+const GAME_SUBTITLES = {
+  overview:  'Choose a game and start learning languages from classic literature.',
+  fillin:    'Fill in missing words in sentences from classic literature — multiple choice, then typing.',
+  match:     'Match English sentences with their translations — speed and accuracy.',
+  memory:    'Flip cards to find matching English–translation pairs.',
+  scrambled: 'Rearrange scrambled words to reconstruct the original translation.'
+};
+function setSubtitle(g){var el=document.getElementById('hero-subtitle');if(el)el.textContent=GAME_SUBTITLES[g]||GAME_SUBTITLES.overview;}
+
+const LANG_NAMES = {
+  hr:'Croatian', sr:'Serbian', bs:'Bosnian', sl:'Slovenian',
+  mk:'Macedonian', bg:'Bulgarian', de:'German', nl:'Dutch',
+  af:'Afrikaans', fr:'French', it:'Italian', es:'Spanish',
+  pt:'Portuguese', ro:'Romanian', en:'English'
+};
+
+// ══════════════════════════════════════════════════════
+// State
+// ══════════════════════════════════════════════════════
+let books = [];
+let currentBook = null;
+let currentLang = null;   // language being learned (code, or 'en')
+let direction = 'learn-foreign'; // learn-foreign | learn-english
+let difficulty = 'easy';
+let sentences = [];
+let gameSentences = [];
+let currentSentIdx = 0;
+let score = 0;
+let correct = 0;
+let wrong = 0;
+let hintsUsed = 0;
+let checkedThisSentence = false;
+let openMC = null;
+
+const BLANKS_BY_DIFF = { easy: 1, medium: 2, hard: 3 };
+const PTS_CORRECT_MC   = 8;
+const PTS_CORRECT_TYPE = 10;
+const PTS_HINT         = -3;
+const PTS_WRONG        = 0;
+
+// ══════════════════════════════════════════════════════
+// Boot
+// ══════════════════════════════════════════════════════
+async function fetchVersion() {
+  try {
+    const r = await fetch('data/version.json?t=' + Date.now());
+    const j = await r.json();
+    return j.v || Date.now();
+  } catch(e) { return Date.now(); }
+}
+
+async function loadBooks() {
+  const v = await fetchVersion();
+  const res = await fetch('data/books.json?v=' + v);
+  books = await res.json();
+  populateLangDropdown();
+  populateMatchLangDropdown();
+  populateMemLangDropdown();
+  populateScrLangDropdown();
+}
+
+// ══════════════════════════════════════════════════════
+// Fill-in: Step 1 — populate language dropdown
+// ══════════════════════════════════════════════════════
+function populateLangDropdown() {
+  // Count books per language (for foreign langs)
+  const langCount = {};
+  books.forEach(b => {
+    (b.languages || []).forEach(l => {
+      langCount[l.code] = (langCount[l.code] || 0) + 1;
+    });
+  });
+
+  const sel = document.getElementById('sel-lang');
+  sel.innerHTML = '<option value="">— select a language —</option>';
+
+  // Foreign languages (sorted by name)
+  const langs = Object.keys(langCount).sort((a,b) =>
+    (LANG_NAMES[a]||a).localeCompare(LANG_NAMES[b]||b)
+  );
+  langs.forEach(code => {
+    const opt = document.createElement('option');
+    opt.value = code;
+    const n = langCount[code];
+    opt.textContent = (LANG_NAMES[code] || code) + ' — ' + n + ' book' + (n !== 1 ? 's' : '');
+    sel.appendChild(opt);
+  });
+
+  // English — always available (all books have EN original)
+  const optEn = document.createElement('option');
+  optEn.value = 'en';
+  optEn.textContent = 'English — ' + books.length + ' books';
+  sel.appendChild(optEn);
+}
+
+// ══════════════════════════════════════════════════════
+// Fill-in: Step 2 — language selected → populate books
+// ══════════════════════════════════════════════════════
+document.getElementById('sel-lang').addEventListener('change', function() {
+  currentLang = this.value || null;
+  currentBook = null;
+
+  const bookSel = document.getElementById('sel-book');
+  bookSel.innerHTML = '<option value="">— select a book —</option>';
+
+  if (!currentLang) {
+    document.getElementById('direction-info-row').style.display = 'none';
+    document.getElementById('hint-lang-row').style.display = 'none';
+    return;
+  }
+
+  // Determine direction
+  if (currentLang === 'en') {
+    direction = 'learn-english';
+  } else {
+    direction = 'learn-foreign';
+  }
+
+  // Filter books
+  let eligible;
+  if (currentLang === 'en') {
+    // All books have EN original
+    eligible = books;
+  } else {
+    eligible = books.filter(b =>
+      (b.languages || []).some(l => l.code === currentLang)
+    );
+  }
+
+  eligible.forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b.id;
+    if (currentLang !== 'en') {
+      const langInfo = b.languages.find(l => l.code === currentLang);
+      const n = langInfo ? langInfo.sentences : 0;
+      opt.textContent = b.title + ' — ' + b.author + ' (' + n + ' sentences)';
+    } else {
+      opt.textContent = b.title + ' — ' + b.author;
+    }
+    bookSel.appendChild(opt);
+  });
+
+  // Show direction badge
+  const badge = document.getElementById('direction-badge');
+  if (currentLang === 'en') {
+    badge.innerHTML = 'You will see a <strong>translation</strong> as context and fill in <strong>English</strong>';
+  } else {
+    badge.innerHTML = 'You will see <strong>English</strong> as context and fill in <strong>' + (LANG_NAMES[currentLang] || currentLang) + '</strong>';
+  }
+  document.getElementById('hint-lang-row').style.display = 'none';
+  document.getElementById('sel-hint-lang').innerHTML = '<option value="">— select a book first —</option>';
+  document.getElementById('direction-info-row').style.display = 'block';
+});
+
+document.getElementById('sel-book').addEventListener('change', function() {
+  const bookId = parseInt(this.value);
+  currentBook = books.find(b => b.id === bookId) || null;
+  const hintRow = document.getElementById('hint-lang-row');
+  const hintSel = document.getElementById('sel-hint-lang');
+  if (currentLang === 'en' && currentBook) {
+    hintSel.innerHTML = '<option value="">— select hint language —</option>';
+    [...(currentBook.languages || [])]
+      .sort((a,b) => (LANG_NAMES[a.code]||a.code).localeCompare(LANG_NAMES[b.code]||b.code))
+      .forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l.code;
+        opt.textContent = (LANG_NAMES[l.code]||l.code) + ' (' + l.sentences + ' sentences)';
+        hintSel.appendChild(opt);
+      });
+    hintRow.style.display = 'block';
+  } else {
+    hintRow.style.display = 'none';
+    hintSel.innerHTML = '<option value="">— select a book first —</option>';
+  }
+});
+
+// Difficulty buttons
+document.querySelectorAll('.diff-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    difficulty = this.dataset.diff;
+  });
+});
+
+// ══════════════════════════════════════════════════════
+// Start game
+// ══════════════════════════════════════════════════════
+document.getElementById('start-btn').addEventListener('click', async function() {
+  if (!currentLang) { showToast('Please select a language.', 'info'); return; }
+  if (!currentBook) { showToast('Please select a book.', 'info'); return; }
+
+  this.textContent = 'Loading...';
+  this.disabled = true;
+  try {
+    await startGame();
+  } catch(e) {
+    showToast('Error loading data. Please try again.', 'bad');
+    console.error(e);
+  }
+  this.textContent = 'Start Game \u2192';
+  this.disabled = false;
+});
+
+async function startGame() {
+  const v = await fetchVersion();
+
+  let data;
+  if (direction === 'learn-english') {
+    // For learning English, we need a translated language as context
+    // Use the first available language of the book, or fetch orig
+    const langs = currentBook.languages || [];
+    if (langs.length === 0) {
+      // No translations — use EN original with EN context (not ideal but workable)
+      // Actually, for books with no translations we can't do learn-english meaningfully
+      showToast('This book has no translations yet — cannot learn English from it.', 'info');
+      return;
+    }
+    // Use hint language selected by user
+    const selHint = document.getElementById('sel-hint-lang').value;
+    if (!selHint) { showToast('Please select a hint language.', 'info'); return; }
+    const contextLang = selHint;
+    const res = await fetch('data/tr_' + currentBook.id + '_' + contextLang + '.json?v=' + v);
+    data = await res.json();
+    sentences = data.sentences.filter(s => s.translated);
+  } else {
+    const res = await fetch('data/tr_' + currentBook.id + '_' + currentLang + '.json?v=' + v);
+    data = await res.json();
+    sentences = data.sentences.filter(s => s.translated);
+  }
+
+  if (sentences.length < 10) {
+    showToast('Not enough translated sentences (' + sentences.length + '). Need at least 10.', 'info');
+    return;
+  }
+
+  gameSentences = shuffle(sentences).slice(0, 10);
+  currentSentIdx = 0;
+  score = 0; correct = 0; wrong = 0; hintsUsed = 0;
+
+  document.getElementById('score-val').textContent = '0';
+  document.getElementById('gm-book').textContent = currentBook.title;
+
+  const hintCode = direction === 'learn-english' ? document.getElementById('sel-hint-lang').value : null;
+  const dirLabel = direction === 'learn-english'
+    ? 'Learning English (hint: ' + (LANG_NAMES[hintCode] || hintCode || '') + ')'
+    : 'Learning ' + (LANG_NAMES[currentLang] || currentLang) + ' (hint: English)';
+  document.getElementById('gm-lang').textContent = dirLabel;
+  document.getElementById('gm-sent-total').textContent = gameSentences.length;
+
+  show('game-panel');
+  hide('setup-panel');
+  hide('results-panel');
+  renderSentence();
+}
+
+// ══════════════════════════════════════════════════════
+// Render sentence
+// ══════════════════════════════════════════════════════
+function renderSentence() {
+  checkedThisSentence = false;
+  openMC = null;
+
+  const sent = gameSentences[currentSentIdx];
+  const numBlanks = BLANKS_BY_DIFF[difficulty];
+
+  const targetText  = direction === 'learn-english' ? sent.original    : sent.translation;
+  const contextText = direction === 'learn-english' ? sent.translation : sent.original;
+
+  const tokens = tokenize(targetText);
+
+  const candidates = tokens
+    .map((t, i) => ({ i, t }))
+    .filter(x => x.t.word && x.t.word.length > 3 && /^[a-zA-Z\u00C0-\u024F\u010D\u0107\u0161\u017E\u0111\u010C\u0106\u0160\u017D\u0110]+$/.test(x.t.word));
+
+  const blankCount = Math.min(numBlanks, candidates.length);
+  const blankIdxs = new Set(shuffle(candidates).slice(0, blankCount).map(x => x.i));
+
+  const wrongPool = buildWrongPool(blankIdxs, tokens, blankCount);
+
+  let html = '';
+  const blanksData = [];
+
+  tokens.forEach((tok, i) => {
+    if (!blankIdxs.has(i)) {
+      html += escHtml(tok.word + tok.after);
+    } else {
+      const word = tok.word;
+      const bIdx = blanksData.length;
+      const inputW = Math.max(60, word.length * 11) + 'px';
+
+      const wrongs = wrongPool[bIdx] || [];
+      const options = shuffle([word, ...wrongs.slice(0, 3)]);
+
+      let mcHtml = '<div class="mc-popup" id="mc-' + bIdx + '">';
+      options.forEach(opt => {
+        mcHtml += '<button class="mc-option" data-blank="' + bIdx + '" data-word="' + escAttr(opt) + '">' + escHtml(opt) + '</button>';
+      });
+      mcHtml += '</div>';
+
+      html += '<span class="blank-wrap" id="bw-' + bIdx + '">'
+            + '<input class="blank-input" id="blank-' + bIdx + '" type="text" '
+            + 'style="width:' + inputW + '" '
+            + 'autocomplete="off" autocorrect="off" spellcheck="false" '
+            + 'data-answer="' + escAttr(word) + '" data-blank="' + bIdx + '" '
+            + 'placeholder="?" />'
+            + mcHtml
+            + '</span>'
+            + escHtml(tok.after);
+
+      blanksData.push({ answer: word, mcDone: false, typeDone: false });
+    }
+  });
+
+  const container = document.getElementById('sentences-container');
+  container.innerHTML = '<div class="sentence-block">'
+    + '<div class="context-label">Context</div>'
+    + '<div class="context-text">' + escHtml(contextText) + '</div>'
+    + '<div class="target-label">Fill in the blanks</div>'
+    + '<div class="target-text">' + html + '</div>'
+    + '</div>';
+
+  document.getElementById('gm-sent-num').textContent = currentSentIdx + 1;
+  document.getElementById('progress-bar').style.width = ((currentSentIdx / gameSentences.length) * 100) + '%';
+
+  document.getElementById('check-btn').style.display = '';
+  document.getElementById('hint-btn').style.display = '';
+  document.getElementById('next-btn').style.display = 'none';
+
+  attachBlankEvents(blanksData);
+}
+
+function attachBlankEvents(blanksData) {
+  document.querySelectorAll('.blank-input').forEach(inp => {
+    inp.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const bIdx = parseInt(this.dataset.blank);
+      if (blanksData[bIdx].mcDone || blanksData[bIdx].typeDone) return;
+      toggleMC(bIdx);
+    });
+    inp.addEventListener('input', function() {
+      const bIdx = parseInt(this.dataset.blank);
+      if (!blanksData[bIdx].mcDone) return;
+    });
+  });
+
+  document.querySelectorAll('.mc-option').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const bIdx = parseInt(this.dataset.blank);
+      const chosen = this.dataset.word;
+      const answer = blanksData[bIdx].answer;
+      const inp = document.getElementById('blank-' + bIdx);
+
+      blanksData[bIdx].mcDone = true;
+      closeMC(bIdx);
+
+      if (normalize(chosen) === normalize(answer)) {
+        inp.value = chosen;
+        inp.classList.add('correct');
+        inp.readOnly = true;
+        this.classList.add('correct-opt');
+        blanksData[bIdx].typeDone = true;
+        showToast('+' + PTS_CORRECT_MC + ' Correct!', 'good');
+      } else {
+        this.classList.add('wrong-opt');
+        inp.value = '';
+        inp.placeholder = 'Type it...';
+        inp.classList.remove('correct', 'incorrect');
+        inp.readOnly = false;
+        inp.focus();
+        showToast('Wrong — now type the correct word', 'bad');
+      }
+    });
+  });
+
+  document.addEventListener('click', function handler() {
+    if (openMC !== null) closeMC(openMC);
+    document.removeEventListener('click', handler);
+  });
+}
+
+function toggleMC(bIdx) {
+  if (openMC !== null && openMC !== bIdx) closeMC(openMC);
+  const popup = document.getElementById('mc-' + bIdx);
+  if (!popup) return;
+  popup.classList.toggle('open');
+  openMC = popup.classList.contains('open') ? bIdx : null;
+}
+
+function closeMC(bIdx) {
+  const popup = document.getElementById('mc-' + bIdx);
+  if (popup) popup.classList.remove('open');
+  if (openMC === bIdx) openMC = null;
+}
+
+// ══════════════════════════════════════════════════════
+// Check / Hint / Next
+// ══════════════════════════════════════════════════════
+document.getElementById('check-btn').addEventListener('click', function() {
+  if (checkedThisSentence) return;
+  checkedThisSentence = true;
+  let sentCorrect = 0, sentWrong = 0;
+  document.querySelectorAll('.blank-input').forEach(inp => {
+    if (inp.classList.contains('correct') || inp.classList.contains('revealed')) return;
+    const answer = inp.dataset.answer;
+    const given = inp.value.trim();
+    if (normalize(given) === normalize(answer)) {
+      inp.classList.add('correct'); inp.readOnly = true;
+      score += PTS_CORRECT_TYPE; correct++; sentCorrect++;
+    } else {
+      inp.classList.add('incorrect'); inp.readOnly = true;
+      wrong++; sentWrong++;
+    }
+  });
+  document.getElementById('score-val').textContent = score;
+  document.getElementById('check-btn').style.display = 'none';
+  document.getElementById('hint-btn').style.display = 'none';
+  document.getElementById('next-btn').style.display = '';
+  if (sentCorrect > 0 && sentWrong === 0) showToast('Perfect!', 'good');
+  else if (sentCorrect > 0) showToast(sentCorrect + ' correct, ' + sentWrong + ' wrong', 'info');
+  else showToast('Keep trying!', 'bad');
+});
+
+document.getElementById('hint-btn').addEventListener('click', function() {
+  const inputs = document.querySelectorAll('.blank-input');
+  let revealed = false;
+  for (let inp of inputs) {
+    if (!inp.classList.contains('correct') && !inp.classList.contains('revealed') && !inp.classList.contains('incorrect')) {
+      inp.value = inp.dataset.answer;
+      inp.classList.add('revealed');
+      inp.readOnly = true;
+      score += PTS_HINT;
+      if (score < 0) score = 0;
+      hintsUsed++;
+      document.getElementById('score-val').textContent = score;
+      showToast('Hint used (' + PTS_HINT + ' pts)', 'info');
+      revealed = true;
+      break;
+    }
+  }
+  if (!revealed) showToast('No more blanks to reveal.', 'info');
+});
+
+document.getElementById('next-btn').addEventListener('click', function() {
+  currentSentIdx++;
+  if (currentSentIdx >= gameSentences.length) showResults();
+  else renderSentence();
+});
+
+function showResults() {
+  document.getElementById('progress-bar').style.width = '100%';
+  hide('game-panel');
+  show('results-panel');
+  document.getElementById('res-score').textContent = score;
+  document.getElementById('res-correct').textContent = correct;
+  document.getElementById('res-wrong').textContent = wrong;
+  document.getElementById('res-hints').textContent = hintsUsed;
+}
+
+document.getElementById('play-again-btn').addEventListener('click', async function() {
+  hide('results-panel'); show('game-panel');
+  gameSentences = shuffle(sentences).slice(0, 10);
+  currentSentIdx = 0; score = 0; correct = 0; wrong = 0; hintsUsed = 0;
+  document.getElementById('score-val').textContent = '0';
+  renderSentence();
+});
+
+document.getElementById('new-game-btn').addEventListener('click', function() {
+  hide('results-panel'); show('setup-panel');
+});
+
+document.getElementById('quit-btn').addEventListener('click', function() {
+  hide('game-panel'); show('setup-panel');
+});
+
+// ══════════════════════════════════════════════════════
+// Helpers
+// ══════════════════════════════════════════════════════
+function tokenize(text) {
+  const tokens = [];
+  const re = /([a-zA-Z\u00C0-\u024F\u010D\u0107\u0161\u017E\u0111\u010C\u0106\u0160\u017D\u0110']+)([^a-zA-Z\u00C0-\u024F\u010D\u0107\u0161\u017E\u0111\u010C\u0106\u0160\u017D\u0110']*)/g;
+  let match, last = 0;
+  while ((match = re.exec(text)) !== null) {
+    if (match.index > last) tokens.push({ word: '', after: text.slice(last, match.index), punct: true });
+    tokens.push({ word: match[1], after: match[2] || '', punct: false });
+    last = match.index + match[0].length;
+  }
+  if (last < text.length) tokens.push({ word: '', after: text.slice(last), punct: true });
+  return tokens;
+}
+
+function buildWrongPool(blankIdxs, tokens, count) {
+  const pool = [];
+  const answers = [...blankIdxs].map(i => tokens[i].word.toLowerCase());
+  const allWords = [];
+  sentences.forEach(s => {
+    const text = direction === 'learn-english' ? s.original : s.translation;
+    tokenize(text).forEach(t => {
+      if (t.word && t.word.length > 3 && !answers.includes(t.word.toLowerCase())) allWords.push(t.word);
+    });
+  });
+  const shuffled = shuffle([...new Set(allWords)]);
+  for (let i = 0; i < count; i++) pool.push(shuffled.slice(i * 10, i * 10 + 10));
+  return pool;
+}
+
+function normalize(str) {
+  return str.trim().toLowerCase().replace(/['']/g,"'").replace(/[^a-zA-Z\u00C0-\u024F\u010D\u0107\u0161\u017E\u0111\u010C\u0106\u0160\u017D\u0110']/g,'');
+}
+
+function trunc(s,n){return s.length>n?s.slice(0,n)+'…':s;}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i>0; i--) { const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(str) { return escHtml(str); }
+
+function show(id) { document.getElementById(id).style.display = 'block'; }
+function hide(id) { document.getElementById(id).style.display = 'none'; }
+
+let toastTimer = null;
+function showToast(msg, type) {
+  const t = document.getElementById('feedback-toast');
+  t.textContent = msg; t.className = 'show ' + type;
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = ''; }, 1800);
+}
+
+// ══════════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════════
+document.querySelectorAll('.game-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.game-tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+    const which = this.dataset.tab;
+    document.getElementById('fillin-panels').style.display = 'none';
+    document.getElementById('match-panels').style.display = 'none';
+    document.getElementById('memory-panels').style.display = 'none';
+    document.getElementById('scrambled-panels').style.display = 'none';
+    setSubtitle(which);
+    if (which === 'fillin') {
+      document.getElementById('fillin-panels').style.display = 'block';
+    } else if (which === 'match') {
+      document.getElementById('match-panels').style.display = 'block';
+    } else if (which === 'memory') {
+      document.getElementById('memory-panels').style.display = 'block';
+    } else {
+      document.getElementById('scrambled-panels').style.display = 'block';
+    }
+  });
+});
+
+// ══════════════════════════════════════════════════════
+// MATCH GAME
+// ══════════════════════════════════════════════════════
+let matchBook = null;
+let matchLang = null;
+let matchSentences = [];
+let matchPairs = [];
+let matchSelected = null;
+let matchCorrect = 0;
+let matchWrong = 0;
+let matchScore = 0;
+let matchMatched = 0;
+let matchStartTime = null;
+
+const MATCH_PTS_CORRECT = 10;
+const MATCH_PTS_WRONG   = -2;
+
+function populateMatchLangDropdown() {
+  const langCount = {};
+  books.forEach(b => {
+    (b.languages || []).forEach(l => {
+      langCount[l.code] = (langCount[l.code] || 0) + 1;
+    });
+  });
+
+  const sel = document.getElementById('match-sel-lang');
+  sel.innerHTML = '<option value="">— select a language —</option>';
+
+  const langs = Object.keys(langCount).sort((a,b) =>
+    (LANG_NAMES[a]||a).localeCompare(LANG_NAMES[b]||b)
+  );
+  langs.forEach(code => {
+    const opt = document.createElement('option');
+    opt.value = code;
+    const n = langCount[code];
+    opt.textContent = (LANG_NAMES[code] || code) + ' — ' + n + ' book' + (n !== 1 ? 's' : '');
+    sel.appendChild(opt);
+  });
+}
+
+document.getElementById('match-sel-lang').addEventListener('change', function() {
+  matchLang = this.value || null;
+  matchBook = null;
+  const bookSel = document.getElementById('match-sel-book');
+  bookSel.innerHTML = '<option value="">— select a book —</option>';
+  if (!matchLang) return;
+
+  const eligible = books.filter(b =>
+    (b.languages || []).some(l => l.code === matchLang)
+  );
+  eligible.forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b.id;
+    const langInfo = b.languages.find(l => l.code === matchLang);
+    const n = langInfo ? langInfo.sentences : 0;
+    opt.textContent = b.title + ' — ' + b.author + ' (' + n + ' sentences)';
+    bookSel.appendChild(opt);
+  });
+});
+
+document.getElementById('match-sel-book').addEventListener('change', function() {
+  const bookId = parseInt(this.value);
+  matchBook = books.find(b => b.id === bookId) || null;
+});
+
+document.getElementById('match-start-btn').addEventListener('click', async function() {
+  if (!matchLang) { showToast('Please select a language.', 'info'); return; }
+  if (!matchBook) { showToast('Please select a book.', 'info'); return; }
+  this.textContent = 'Loading...';
+  this.disabled = true;
+  try { await startMatchGame(); }
+  catch(e) { showToast('Error loading data.', 'bad'); console.error(e); }
+  this.textContent = 'Start Match \u2192';
+  this.disabled = false;
+});
+
+async function startMatchGame() {
+  const v = await fetchVersion();
+  const res = await fetch('data/tr_' + matchBook.id + '_' + matchLang + '.json?v=' + v);
+  const data = await res.json();
+  const translated = data.sentences.filter(s => s.translated);
+  if (translated.length < 10) { showToast('Not enough translated sentences.', 'info'); return; }
+
+  const picked = shuffle(translated).slice(0, 10);
+  matchPairs = picked.map((s, i) => ({ id: i, en: s.original, tr: s.translation }));
+
+  matchCorrect = 0; matchWrong = 0; matchScore = 0; matchMatched = 0;
+  matchSelected = null; matchStartTime = Date.now();
+
+  document.getElementById('match-score-val').textContent = '0';
+  document.getElementById('mg-book').textContent = matchBook.title;
+  document.getElementById('mg-pairs').textContent = '0';
+  document.getElementById('mg-lang').textContent = LANG_NAMES[matchLang] || matchLang;
+  document.getElementById('match-col-left-label').textContent = 'English';
+  document.getElementById('match-col-right-label').textContent = LANG_NAMES[matchLang] || matchLang;
+  document.getElementById('match-progress-bar').style.width = '0%';
+
+  document.getElementById('match-panel').style.display = 'none';
+  document.getElementById('match-game-panel').style.display = 'block';
+  document.getElementById('match-results-panel').style.display = 'none';
+
+  renderMatchBoard();
+}
+
+function renderMatchBoard() {
+  const leftCol  = document.getElementById('match-col-left');
+  const rightCol = document.getElementById('match-col-right');
+  const leftOrder  = shuffle([...matchPairs]);
+  const rightOrder = shuffle([...matchPairs]);
+  leftCol.innerHTML = '';
+  rightCol.innerHTML = '';
+  leftOrder.forEach(pair => {
+    const el = document.createElement('div');
+    el.className = 'match-item'; el.dataset.id = pair.id; el.dataset.side = 'left';
+    el.textContent = pair.en; el.addEventListener('click', onMatchClick);
+    leftCol.appendChild(el);
+  });
+  rightOrder.forEach(pair => {
+    const el = document.createElement('div');
+    el.className = 'match-item'; el.dataset.id = pair.id; el.dataset.side = 'right';
+    el.textContent = pair.tr; el.addEventListener('click', onMatchClick);
+    rightCol.appendChild(el);
+  });
+}
+
+function onMatchClick(e) {
+  const el = e.currentTarget;
+  const side = el.dataset.side;
+  const id = parseInt(el.dataset.id);
+  if (el.classList.contains('correct') || el.classList.contains('disabled')) return;
+  if (!matchSelected) { el.classList.add('selected'); matchSelected = { side, id, el }; return; }
+  if (matchSelected.side === side) {
+    matchSelected.el.classList.remove('selected');
+    if (matchSelected.id === id) { matchSelected = null; return; }
+    el.classList.add('selected'); matchSelected = { side, id, el }; return;
+  }
+  el.classList.add('selected');
+  const prevEl = matchSelected.el; const prevId = matchSelected.id; matchSelected = null;
+  if (prevId === id) {
+    el.classList.remove('selected'); el.classList.add('correct');
+    prevEl.classList.remove('selected'); prevEl.classList.add('correct');
+    matchScore += MATCH_PTS_CORRECT; matchCorrect++; matchMatched++;
+    document.getElementById('match-score-val').textContent = matchScore;
+    document.getElementById('mg-pairs').textContent = matchMatched;
+    document.getElementById('match-progress-bar').style.width = (matchMatched/10*100) + '%';
+    showToast('+' + MATCH_PTS_CORRECT + ' Match!', 'good');
+    if (matchMatched === 10) setTimeout(showMatchResults, 600);
+  } else {
+    el.classList.remove('selected'); el.classList.add('wrong');
+    prevEl.classList.remove('selected'); prevEl.classList.add('wrong');
+    matchScore = Math.max(0, matchScore + MATCH_PTS_WRONG); matchWrong++;
+    document.getElementById('match-score-val').textContent = matchScore;
+    showToast(MATCH_PTS_WRONG + ' Wrong pair!', 'bad');
+    setTimeout(() => { el.classList.remove('wrong'); prevEl.classList.remove('wrong'); }, 600);
+  }
+}
+
+function showMatchResults() {
+  const elapsed = Math.round((Date.now() - matchStartTime) / 1000);
+  document.getElementById('match-game-panel').style.display = 'none';
+  document.getElementById('match-results-panel').style.display = 'block';
+  document.getElementById('match-res-score').textContent = matchScore;
+  document.getElementById('match-res-correct').textContent = matchCorrect;
+  document.getElementById('match-res-wrong').textContent = matchWrong;
+  document.getElementById('match-res-time').textContent = elapsed;
+}
+
+document.getElementById('match-play-again-btn').addEventListener('click', async function() {
+  document.getElementById('match-results-panel').style.display = 'none';
+  document.getElementById('match-game-panel').style.display = 'block';
+  matchCorrect = 0; matchWrong = 0; matchScore = 0; matchMatched = 0;
+  matchSelected = null; matchStartTime = Date.now();
+  document.getElementById('match-score-val').textContent = '0';
+  document.getElementById('mg-pairs').textContent = '0';
+  document.getElementById('match-progress-bar').style.width = '0%';
+  renderMatchBoard();
+});
+
+document.getElementById('match-new-game-btn').addEventListener('click', function() {
+  document.getElementById('match-results-panel').style.display = 'none';
+  document.getElementById('match-game-panel').style.display = 'none';
+  document.getElementById('match-panel').style.display = 'block';
+});
+
+document.getElementById('match-quit-btn').addEventListener('click', function() {
+  document.getElementById('match-game-panel').style.display = 'none';
+  document.getElementById('match-panel').style.display = 'block';
+});
+
+
+// ══════════════════════════════════════════════════════
+// MEMORY GAME
+// ══════════════════════════════════════════════════════
+let memBook = null;
+let memLang = null;
+let memCards = [];        // [{id, side:'en'|'tr', text, pairId}]
+let memFlipped = [];      // currently flipped (max 2)
+let memMatched = 0;
+let memAttempts = 0;
+let memLocked = false;    // block clicks during flip-back animation
+
+function populateMemLangDropdown() {
+  const langCount = {};
+  books.forEach(b => {
+    (b.languages || []).forEach(l => {
+      langCount[l.code] = (langCount[l.code] || 0) + 1;
+    });
+  });
+  const sel = document.getElementById('mem-sel-lang');
+  sel.innerHTML = '<option value="">— select a language —</option>';
+  const langs = Object.keys(langCount).sort((a,b) =>
+    (LANG_NAMES[a]||a).localeCompare(LANG_NAMES[b]||b)
+  );
+  langs.forEach(code => {
+    const opt = document.createElement('option');
+    opt.value = code;
+    const n = langCount[code];
+    opt.textContent = (LANG_NAMES[code] || code) + ' — ' + n + ' book' + (n !== 1 ? 's' : '');
+    sel.appendChild(opt);
+  });
+}
+
+document.getElementById('mem-sel-lang').addEventListener('change', function() {
+  memLang = this.value || null;
+  memBook = null;
+  const bookSel = document.getElementById('mem-sel-book');
+  bookSel.innerHTML = '<option value="">— select a book —</option>';
+  if (!memLang) return;
+  const eligible = books.filter(b => (b.languages || []).some(l => l.code === memLang));
+  eligible.forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b.id;
+    const langInfo = b.languages.find(l => l.code === memLang);
+    const n = langInfo ? langInfo.sentences : 0;
+    opt.textContent = b.title + ' — ' + b.author + ' (' + n + ' sentences)';
+    bookSel.appendChild(opt);
+  });
+});
+
+document.getElementById('mem-sel-book').addEventListener('change', function() {
+  const bookId = parseInt(this.value);
+  memBook = books.find(b => b.id === bookId) || null;
+});
+
+document.getElementById('mem-start-btn').addEventListener('click', async function() {
+  if (!memLang) { showToast('Please select a language.', 'info'); return; }
+  if (!memBook) { showToast('Please select a book.', 'info'); return; }
+  this.textContent = 'Loading...';
+  this.disabled = true;
+  try { await startMemoryGame(); }
+  catch(e) { showToast('Error loading data.', 'bad'); console.error(e); }
+  this.textContent = 'Start Memory →';
+  this.disabled = false;
+});
+
+async function startMemoryGame() {
+  const v = await fetchVersion();
+  const res = await fetch('data/tr_' + memBook.id + '_' + memLang + '.json?v=' + v);
+  const data = await res.json();
+  const translated = data.sentences.filter(s => s.translated);
+  if (translated.length < 5) {
+    showToast('Not enough translated sentences (need at least 5).', 'info');
+    return;
+  }
+
+  // Pick 5 random pairs
+  const picked = shuffle(translated).slice(0, 5);
+
+  // Build 10 cards: 5 EN + 5 TR, shuffled
+  memCards = [];
+  picked.forEach((s, i) => {
+    memCards.push({ id: 'en-' + i, pairId: i, side: 'en', text: s.original });
+    memCards.push({ id: 'tr-' + i, pairId: i, side: 'tr', text: s.translation });
+  });
+  memCards = shuffle(memCards);
+
+  memFlipped = [];
+  memMatched = 0;
+  memAttempts = 0;
+  memLocked = false;
+
+  document.getElementById('mem-book').textContent = memBook.title;
+  document.getElementById('mem-lang-label').textContent = LANG_NAMES[memLang] || memLang;
+  document.getElementById('mem-matched').textContent = '0';
+  document.getElementById('mem-attempts').textContent = '0';
+  document.getElementById('mem-progress-bar').style.width = '0%';
+
+  document.getElementById('memory-setup-panel').style.display = 'none';
+  document.getElementById('memory-game-panel').style.display = 'block';
+  document.getElementById('memory-results-panel').style.display = 'none';
+
+  renderMemoryBoard();
+}
+
+function renderMemoryBoard() {
+  const board = document.getElementById('memory-board');
+  board.innerHTML = '';
+  memCards.forEach((card, idx) => {
+    const el = document.createElement('div');
+    el.className = 'mem-card';
+    el.dataset.idx = idx;
+    el.innerHTML =
+      '<div class="mem-card-inner">' +
+        '<div class="mem-card-front">?</div>' +
+        '<div class="mem-card-back">' +
+          '<span class="card-lang-badge">' + (card.side === 'en' ? 'EN' : (LANG_NAMES[memLang] || memLang).substring(0,3).toUpperCase()) + '</span>' +
+          escHtml(trunc(card.text,80)) +
+        '</div>' +
+      '</div>';
+    el.addEventListener('click', onMemCardClick);
+    board.appendChild(el);
+  });
+}
+
+function onMemCardClick(e) {
+  if (memLocked) return;
+  const el = e.currentTarget;
+  const idx = parseInt(el.dataset.idx);
+
+  // Ignore already matched or already flipped
+  if (el.classList.contains('matched')) return;
+  if (memFlipped.length === 1 && memFlipped[0].idx === idx) return;
+  if (el.classList.contains('flipped')) return;
+
+  el.classList.add('flipped');
+  memFlipped.push({ idx, el, card: memCards[idx] });
+
+  if (memFlipped.length < 2) return;
+
+  // Two cards flipped — check pair
+  memAttempts++;
+  document.getElementById('mem-attempts').textContent = memAttempts;
+
+  const [a, b] = memFlipped;
+  memFlipped = [];
+
+  if (a.card.pairId === b.card.pairId && a.card.side !== b.card.side) {
+    // MATCH
+    a.el.classList.add('matched');
+    b.el.classList.add('matched');
+    memMatched++;
+    document.getElementById('mem-matched').textContent = memMatched;
+    document.getElementById('mem-progress-bar').style.width = (memMatched / 5 * 100) + '%';
+    showToast('Match! ✓', 'good');
+    if (memMatched === 5) setTimeout(showMemoryResults, 600);
+  } else {
+    // NO MATCH — flash red, flip back
+    memLocked = true;
+    a.el.querySelector('.mem-card-back').style.borderColor = '#c62828';
+    a.el.querySelector('.mem-card-back').style.background = 'rgba(198,40,40,0.07)';
+    b.el.querySelector('.mem-card-back').style.borderColor = '#c62828';
+    b.el.querySelector('.mem-card-back').style.background = 'rgba(198,40,40,0.07)';
+    setTimeout(() => {
+      a.el.querySelector('.mem-card-back').style.borderColor = '';
+      a.el.querySelector('.mem-card-back').style.background = '';
+      b.el.querySelector('.mem-card-back').style.borderColor = '';
+      b.el.querySelector('.mem-card-back').style.background = '';
+      a.el.classList.remove('flipped');
+      b.el.classList.remove('flipped');
+      memLocked = false;
+    }, 900);
+  }
+}
+
+function showMemoryResults() {
+  document.getElementById('memory-game-panel').style.display = 'none';
+  document.getElementById('memory-results-panel').style.display = 'block';
+  document.getElementById('mem-res-attempts').textContent = memAttempts;
+  document.getElementById('mem-res-pairs').textContent = memMatched;
+}
+
+document.getElementById('mem-play-again-btn').addEventListener('click', async function() {
+  document.getElementById('memory-results-panel').style.display = 'none';
+  document.getElementById('memory-game-panel').style.display = 'block';
+  // Same book/lang, new random cards
+  const v = await fetchVersion();
+  const res = await fetch('data/tr_' + memBook.id + '_' + memLang + '.json?v=' + v);
+  const data = await res.json();
+  const translated = data.sentences.filter(s => s.translated);
+  const picked = shuffle(translated).slice(0, 5);
+  memCards = [];
+  picked.forEach((s, i) => {
+    memCards.push({ id: 'en-' + i, pairId: i, side: 'en', text: s.original });
+    memCards.push({ id: 'tr-' + i, pairId: i, side: 'tr', text: s.translation });
+  });
+  memCards = shuffle(memCards);
+  memFlipped = []; memMatched = 0; memAttempts = 0; memLocked = false;
+  document.getElementById('mem-matched').textContent = '0';
+  document.getElementById('mem-attempts').textContent = '0';
+  document.getElementById('mem-progress-bar').style.width = '0%';
+  renderMemoryBoard();
+});
+
+document.getElementById('mem-new-game-btn').addEventListener('click', function() {
+  document.getElementById('memory-results-panel').style.display = 'none';
+  document.getElementById('memory-game-panel').style.display = 'none';
+  document.getElementById('memory-setup-panel').style.display = 'block';
+});
+
+document.getElementById('mem-quit-btn').addEventListener('click', function() {
+  document.getElementById('memory-game-panel').style.display = 'none';
+  document.getElementById('memory-setup-panel').style.display = 'block';
+});
+
+
+// ══════════════════════════════════════════════════════
+// SCRAMBLED SENTENCE
+// ══════════════════════════════════════════════════════
+let scrBook = null;
+let scrLang = null;
+let scrSentences = [];     // pool of 5 sentences
+let scrIdx = 0;            // current sentence index
+let scrScore = 0;
+let scrCorrectFirst = 0;
+let scrCorrectPartial = 0;
+let scrWrong = 0;
+let scrAnswer = [];        // words in answer area (in order)
+let scrWords = [];         // all words for current sentence (shuffled)
+let scrMovesMade = 0;      // rearrangements made before Check
+let scrChecked = false;
+
+function populateScrLangDropdown() {
+  const langCount = {};
+  books.forEach(b => {
+    (b.languages || []).forEach(l => {
+      langCount[l.code] = (langCount[l.code] || 0) + 1;
+    });
+  });
+  const sel = document.getElementById('scr-sel-lang');
+  sel.innerHTML = '<option value="">— select a language —</option>';
+  const langs = Object.keys(langCount).sort((a,b) =>
+    (LANG_NAMES[a]||a).localeCompare(LANG_NAMES[b]||b)
+  );
+  langs.forEach(code => {
+    const opt = document.createElement('option');
+    opt.value = code;
+    const n = langCount[code];
+    opt.textContent = (LANG_NAMES[code] || code) + ' — ' + n + ' book' + (n !== 1 ? 's' : '');
+    sel.appendChild(opt);
+  });
+}
+
+document.getElementById('scr-sel-lang').addEventListener('change', function() {
+  scrLang = this.value || null;
+  scrBook = null;
+  const bookSel = document.getElementById('scr-sel-book');
+  bookSel.innerHTML = '<option value="">— select a book —</option>';
+  if (!scrLang) return;
+  const eligible = books.filter(b => (b.languages || []).some(l => l.code === scrLang));
+  eligible.forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b.id;
+    const langInfo = b.languages.find(l => l.code === scrLang);
+    const n = langInfo ? langInfo.sentences : 0;
+    opt.textContent = b.title + ' — ' + b.author + ' (' + n + ' sentences)';
+    bookSel.appendChild(opt);
+  });
+});
+
+document.getElementById('scr-sel-book').addEventListener('change', function() {
+  const bookId = parseInt(this.value);
+  scrBook = books.find(b => b.id === bookId) || null;
+});
+
+document.getElementById('scr-start-btn').addEventListener('click', async function() {
+  if (!scrLang) { showToast('Please select a language.', 'info'); return; }
+  if (!scrBook) { showToast('Please select a book.', 'info'); return; }
+  this.textContent = 'Loading...';
+  this.disabled = true;
+  try { await startScrGame(); }
+  catch(e) { showToast('Error loading data.', 'bad'); console.error(e); }
+  this.textContent = 'Start Scrambled →';
+  this.disabled = false;
+});
+
+async function startScrGame() {
+  const v = await fetchVersion();
+  const res = await fetch('data/tr_' + scrBook.id + '_' + scrLang + '.json?v=' + v);
+  const data = await res.json();
+  const translated = data.sentences.filter(s => s.translated && s.translation && s.translation.trim().split(/\s+/).length >= 4);
+  if (translated.length < 5) {
+    showToast('Not enough sentences (need at least 5 with 4+ words).', 'info');
+    return;
+  }
+  scrSentences = shuffle(translated).slice(0, 5);
+  scrIdx = 0;
+  scrScore = 0; scrCorrectFirst = 0; scrCorrectPartial = 0; scrWrong = 0;
+
+  document.getElementById('scr-book').textContent = scrBook.title;
+  document.getElementById('scr-lang-label').textContent = LANG_NAMES[scrLang] || scrLang;
+  document.getElementById('scr-score-val').textContent = '0';
+  document.getElementById('scr-progress-bar').style.width = '0%';
+
+  document.getElementById('scrambled-setup-panel').style.display = 'none';
+  document.getElementById('scrambled-game-panel').style.display = 'block';
+  document.getElementById('scrambled-results-panel').style.display = 'none';
+
+  renderScrSentence();
+}
+
+function renderScrSentence() {
+  scrChecked = false;
+  scrAnswer = [];
+  scrMovesMade = 0;
+
+  const sent = scrSentences[scrIdx];
+  document.getElementById('scr-context-text').textContent = sent.original;
+  document.getElementById('scr-sent-num').textContent = scrIdx + 1;
+  document.getElementById('scr-progress-bar').style.width = (scrIdx / 5 * 100) + '%';
+
+  // Tokenize translation into words (preserve punctuation attached to words)
+  const rawWords = sent.translation.trim().split(/\s+/);
+  scrWords = shuffle([...rawWords]);
+
+  // Reset answer area
+  const answerArea = document.getElementById('scr-answer-area');
+  answerArea.className = 'scrambled-answer-area';
+  answerArea.innerHTML = '<span class="scrambled-answer-placeholder" id="scr-placeholder">Click words below to build the sentence...</span>';
+
+  // Reset correct answer display
+  const correctEl = document.getElementById('scr-correct-answer');
+  correctEl.style.display = 'none';
+  correctEl.textContent = '';
+
+  // Render pool
+  const pool = document.getElementById('scr-pool');
+  pool.innerHTML = '';
+  scrWords.forEach((w, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'scr-word';
+    btn.dataset.widx = i;
+    btn.textContent = w;
+    btn.addEventListener('click', onPoolWordClick);
+    pool.appendChild(btn);
+  });
+
+  // Buttons
+  document.getElementById('scr-check-btn').style.display = '';
+  document.getElementById('scr-clear-btn').style.display = '';
+  document.getElementById('scr-peek-btn').style.display = '';
+  document.getElementById('scr-hint-reveal').style.display = 'none';
+  document.getElementById('scr-next-btn').style.display = 'none';
+}
+
+function onPoolWordClick(e) {
+  if (scrChecked) return;
+  const btn = e.currentTarget;
+  const widx = parseInt(btn.dataset.widx);
+
+  if (btn.classList.contains('in-answer')) {
+    // Remove from answer
+    scrAnswer = scrAnswer.filter(x => x !== widx);
+    btn.classList.remove('in-answer');
+    scrMovesMade++;
+  } else {
+    // Add to answer
+    scrAnswer.push(widx);
+    btn.classList.add('in-answer');
+  }
+  updateAnswerArea();
+}
+
+function updateAnswerArea() {
+  const area = document.getElementById('scr-answer-area');
+  area.className = 'scrambled-answer-area';
+
+  if (scrAnswer.length === 0) {
+    area.innerHTML = '<span class="scrambled-answer-placeholder" id="scr-placeholder">Click words below to build the sentence...</span>';
+    return;
+  }
+
+  area.innerHTML = '';
+  scrAnswer.forEach(widx => {
+    const btn = document.createElement('button');
+    btn.className = 'scr-word in-answer';
+    btn.dataset.widx = widx;
+    btn.textContent = scrWords[widx];
+    btn.addEventListener('click', onPoolWordClick);
+    area.appendChild(btn);
+  });
+}
+
+document.getElementById('scr-clear-btn').addEventListener('click', function() {
+  if (scrChecked) return;
+  scrAnswer = [];
+  scrMovesMade++;
+  // Reset all pool buttons
+  document.querySelectorAll('#scr-pool .scr-word').forEach(btn => btn.classList.remove('in-answer'));
+  updateAnswerArea();
+});
+
+document.getElementById('scr-check-btn').addEventListener('click', function() {
+  if (scrChecked) return;
+  if (scrAnswer.length === 0) { showToast('Build the sentence first.', 'info'); return; }
+
+  scrChecked = true;
+  const sent = scrSentences[scrIdx];
+  const correct = sent.translation.trim();
+  const given = scrAnswer.map(i => scrWords[i]).join(' ');
+
+  const area = document.getElementById('scr-answer-area');
+  const correctEl = document.getElementById('scr-correct-answer');
+
+  if (given.trim().toLowerCase() === correct.trim().toLowerCase()) {
+    // Correct
+    area.classList.add('correct-area');
+    if (scrMovesMade === 0) {
+      scrScore += 10; scrCorrectFirst++;
+      showToast('+10 Perfect!', 'good');
+    } else {
+      scrScore += 5; scrCorrectPartial++;
+      showToast('+5 Correct!', 'good');
+    }
+  } else {
+    // Wrong
+    area.classList.add('wrong-area');
+    scrWrong++;
+    correctEl.textContent = 'Correct: ' + correct;
+    correctEl.style.display = 'block';
+    showToast('Wrong answer', 'bad');
+  }
+
+  document.getElementById('scr-score-val').textContent = scrScore;
+  document.getElementById('scr-check-btn').style.display = 'none';
+  document.getElementById('scr-clear-btn').style.display = 'none';
+  document.getElementById('scr-peek-btn').style.display = 'none';
+  document.getElementById('scr-hint-reveal').style.display = 'none';
+  document.getElementById('scr-next-btn').style.display = '';
+  // Disable pool clicks
+  document.querySelectorAll('#scr-pool .scr-word, #scr-answer-area .scr-word').forEach(b => b.style.pointerEvents = 'none');
+});
+
+document.getElementById('scr-next-btn').addEventListener('click', function() {
+  scrIdx++;
+  if (scrIdx >= 5) {
+    showScrResults();
+  } else {
+    renderScrSentence();
+  }
+});
+
+function showScrResults() {
+  document.getElementById('scr-progress-bar').style.width = '100%';
+  document.getElementById('scrambled-game-panel').style.display = 'none';
+  document.getElementById('scrambled-results-panel').style.display = 'block';
+  document.getElementById('scr-res-score').textContent = scrScore;
+  document.getElementById('scr-res-correct').textContent = scrCorrectFirst;
+  document.getElementById('scr-res-partial').textContent = scrCorrectPartial;
+  document.getElementById('scr-res-wrong').textContent = scrWrong;
+}
+
+document.getElementById('scr-play-again-btn').addEventListener('click', async function() {
+  document.getElementById('scrambled-results-panel').style.display = 'none';
+  document.getElementById('scrambled-game-panel').style.display = 'block';
+  // Same book/lang, new random sentences
+  const v = await fetchVersion();
+  const res = await fetch('data/tr_' + scrBook.id + '_' + scrLang + '.json?v=' + v);
+  const data = await res.json();
+  const translated = data.sentences.filter(s => s.translated && s.translation && s.translation.trim().split(/\s+/).length >= 4);
+  scrSentences = shuffle(translated).slice(0, 5);
+  scrIdx = 0; scrScore = 0; scrCorrectFirst = 0; scrCorrectPartial = 0; scrWrong = 0;
+  document.getElementById('scr-score-val').textContent = '0';
+  document.getElementById('scr-progress-bar').style.width = '0%';
+  renderScrSentence();
+});
+
+document.getElementById('scr-new-game-btn').addEventListener('click', function() {
+  document.getElementById('scrambled-results-panel').style.display = 'none';
+  document.getElementById('scrambled-game-panel').style.display = 'none';
+  document.getElementById('scrambled-setup-panel').style.display = 'block';
+});
+
+document.getElementById('scr-quit-btn').addEventListener('click', function() {
+  document.getElementById('scrambled-game-panel').style.display = 'none';
+  document.getElementById('scrambled-setup-panel').style.display = 'block';
+});
+
+// Scrambled: hold-to-peek hint
+function peekShow() {
+  if (scrChecked) return;
+  var sent = scrSentences[scrIdx];
+  var el = document.getElementById('scr-hint-reveal');
+  if (sent && el) { el.textContent = sent.translation; el.style.display = 'block'; }
+}
+function peekHide() {
+  var el = document.getElementById('scr-hint-reveal');
+  if (el) el.style.display = 'none';
+}
+(function() {
+  var btn = document.getElementById('scr-peek-btn');
+  if (!btn) return;
+  btn.addEventListener('mousedown', peekShow);
+  btn.addEventListener('touchstart', function(e){ e.preventDefault(); peekShow(); }, {passive:false});
+  document.addEventListener('mouseup', peekHide);
+  btn.addEventListener('touchend', peekHide);
+  btn.addEventListener('touchcancel', peekHide);
+})();
+
+// ══════════════════════════════════════════════════════
+// Init
+// ══════════════════════════════════════════════════════
+// Overview card play buttons
+document.querySelectorAll('.game-card-play').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var game=this.closest('.game-card').dataset.game;
+    document.getElementById('overview-panel').style.display='none';
+    document.getElementById('games-container').style.display='block';
+    document.querySelectorAll('.game-tab').forEach(function(t){t.classList.remove('active');});
+    var tab=document.querySelector('.game-tab[data-tab="'+game+'"]');
+    if(tab)tab.classList.add('active');
+    ['fillin','match','memory','scrambled'].forEach(function(g){
+      document.getElementById(g+'-panels').style.display=(g===game)?'block':'none';
+    });
+    setSubtitle(game);
+  });
+});
+
+loadBooks();
+</script>
+<div id="bb-footer">
+  <div style="max-width:1200px; margin:0 auto; padding:0 16px;">
+    Buchenberg · Open-source MT pipeline ·
+    <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a> ·
+    <a href="https://github.com/fladroid" target="_blank">GitHub</a>
+  </div>
+</div>
+</body>
+</html>
