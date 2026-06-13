@@ -1,7 +1,7 @@
 (function() {
 
 // ── Verzija portala — bump na kraju svake sesije ──
-const BB_VERSION = 's74';
+const BB_VERSION = 's75';
 const BB_VERSION_DATE = '13 Jun 2026';
 
 const NAV_I18N = {
@@ -108,6 +108,43 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
+
+  // Key Concepts — about, geometry, art, nlp
+  (function() {
+    const CONCEPT_PAGES = ['about', 'geometry', 'art', 'nlp'];
+    const page = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
+    if (!CONCEPT_PAGES.includes(page)) return;
+    const footer = document.getElementById('bb-footer');
+    if (!footer) return;
+    fetch('data/concepts.json?t=' + Date.now())
+      .then(r => r.json())
+      .then(data => {
+        const concepts = data[page];
+        if (!concepts || !concepts.length) return;
+        const section = document.createElement('section');
+        section.id = 'bb-key-concepts';
+        const title = document.createElement('div');
+        title.className = 'bb-concepts-title';
+        title.textContent = 'Key Concepts';
+        section.appendChild(title);
+        const grid = document.createElement('div');
+        grid.className = 'bb-concepts-grid';
+        concepts.forEach(function(c) {
+          const card = document.createElement('div');
+          card.className = 'bb-concept-card';
+          card.innerHTML =
+            '<span class="bb-concept-icon">' + c.icon + '</span>' +
+            '<div class="bb-concept-body">' +
+              '<a class="bb-concept-name" href="https://en.wikipedia.org/wiki/' + c.wiki + '" target="_blank" rel="noopener">' + c.name + '</a>' +
+              '<span class="bb-concept-desc">' + c.description + '</span>' +
+            '</div>';
+          grid.appendChild(card);
+        });
+        section.appendChild(grid);
+        footer.parentNode.insertBefore(section, footer);
+      })
+      .catch(function() {});
+  })();
 
   // Footer: autorstvo + verzija — na svim stranicama
   const footer = document.getElementById('bb-footer');

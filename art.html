@@ -119,7 +119,7 @@
   .tap-mode-btn.active, .tap-scale-btn.active {
     color: var(--accent); border-color: var(--accent); font-weight: bold;
   }
-  #tap-canvas-wrap { width: 100%; margin-bottom: 10px; }
+  #tap-canvas-wrap { width: 100%; margin-bottom: 10px; padding: 14px; background: #1c1c1c; border-radius: 6px; box-shadow: 0 4px 24px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.06); }
   #tap-canvas { display: block; cursor: crosshair; }
   #tap-tooltip {
     position: fixed; display: none; z-index: 50; pointer-events: none;
@@ -418,6 +418,7 @@
   const GAP = 1;
   let books = [], cur = null, mode = 'score', scale = 'rel', cols = 0, sortedFS = [];
   let cellSize = 8, tapCount = 64, tapSlice = [];
+  let lastRowOffset = 0, totalRows = 0;
   // fixed-grid layout: 64 -> 2x32, 256 -> 4x64, 1024 -> 8x128 (aspect 1:16), cells fill width
   function layout(w){
     if(!tapCount){ const cell=8; return {cell, cols:Math.max(1,Math.floor(w/cell))}; }
@@ -503,24 +504,27 @@
 
   function render(){
     if (!cur) return;
-    tapSlice = tapCount ? cur.sentences.slice(0, tapCount) : cur.sentences;
+    const translated = cur.sentences.filter(s => s.translated);
+    tapSlice = tapCount ? translated.slice(0, tapCount) : translated;
     const cv = $('tap-canvas');
-    const w = $('tap-canvas-wrap').clientWidth;
+    const w = $('tap-canvas-wrap').clientWidth - 28; // subtract tap-canvas-wrap padding (14px * 2)
     const L = layout(w); cols = L.cols; cellSize = L.cell;
     const n = tapSlice.length;
-    const rows = Math.ceil(n / cols);
+    if (n <= cols) cols = n;
+    const remainder = n % cols;
+    lastRowOffset = remainder > 0 ? Math.floor((cols - remainder) / 2) : 0;
+    totalRows = Math.ceil(n / cols);
     cv.width = cols * cellSize;
-    cv.height = rows * cellSize;
+    cv.height = totalRows * cellSize;
     cv.style.display = 'block'; cv.style.margin = '0 auto';
     const ctx = cv.getContext('2d');
     ctx.clearRect(0, 0, cv.width, cv.height);
     tapSlice.forEach((s, i) => {
-      const x = (i % cols) * cellSize, y = Math.floor(i / cols) * cellSize;
-      let c = UNWOVEN;
-      if (s.translated) {
-        c = mode === 'score' ? scoreColor(finalScore(s))
-                             : (MODEL_COLORS[modelKey(s)] || '#888');
-      }
+      const row = Math.floor(i / cols), col = i % cols;
+      const xOff = (row === totalRows - 1 && lastRowOffset > 0) ? lastRowOffset * cellSize : 0;
+      const x = col * cellSize + xOff, y = row * cellSize;
+      const c = mode === 'score' ? scoreColor(finalScore(s))
+                                 : (MODEL_COLORS[modelKey(s)] || '#888');
       ctx.fillStyle = c;
       ctx.fillRect(x, y, cellSize - GAP, cellSize - GAP);
     });
@@ -561,9 +565,10 @@
     const r = e.target.getBoundingClientRect();
     const col = Math.floor((e.clientX - r.left) / cellSize);
     const row = Math.floor((e.clientY - r.top) / cellSize);
-    const i = row * cols + col;
+    const adjCol = (row === totalRows - 1 && lastRowOffset > 0) ? col - lastRowOffset : col;
+    const i = row * cols + adjCol;
     const s = tapSlice[i];
-    if (!s) { tt().style.display = 'none'; return; }
+    if (!s || adjCol < 0) { tt().style.display = 'none'; return; }
     let body = '<strong>#' + s.pos + '</strong> ';
     if (s.translated) {
       body += '<span class="tt-score">' + finalScore(s).toFixed(3) + '</span>' +
