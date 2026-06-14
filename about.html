@@ -17,32 +17,18 @@
 
     <!-- MAIN PROSE -->
     <div>
-      <h1 class="bb-section-title">About Buchenberg</h1>
+      <h1 class="bb-section-title" id="about-title"></h1>
 
       <div class="bb-prose">
 
-        <h2>The name</h2>
-        <p>
-          <strong>Buchenberg</strong> is a deliberate echo of <strong>Gutenberg</strong> —
-          the project that made millions of public-domain books freely available to anyone
-          with an internet connection. <em>Buch</em> is German for <em>book</em>.
-          The suffix <em>-enberg</em> is a direct tie to our source and a nod to
-          Johannes Gutenberg, whose printing press democratised access to the written word.
-          Buchenberg tries to do the same for translation.
-        </p>
+        <h2 id="about-h-name"></h2>
+        <p id="about-p-name"></p>
 
-        <h2>The problem</h2>
-        <p>
-          How do you evaluate machine translation quality when you don't speak the target language?
-          Standard metrics like BLEU require human reference translations, which are expensive and
-          unavailable for most language pairs. Buchenberg uses a different approach:
-          <strong>back-translation scoring</strong> combined with a <strong>blind LLM judge</strong>.
-        </p>
+        <h2 id="about-h-problem"></h2>
+        <p id="about-p-problem"></p>
 
-        <h2>The pipeline</h2>
-        <p>
-          Each sentence goes through the following stages:
-        </p>
+        <h2 id="about-h-pipeline"></h2>
+        <p id="about-pipeline-intro"></p>
 
         <pre><code>EN original  ──►  model  ──►  target language (RF)
                                │
@@ -55,105 +41,53 @@
               judge = Gemma4:31b blind evaluation      ← grammar / naturalness / fidelity
               final = 0.4 × composite + 0.6 × judge</code></pre>
 
-        <p>
-          The same process is repeated with multiple models and temperatures.
-          The winner for each sentence is the candidate with the highest <code>final_score</code>.
-          The exported document is a hybrid — the best translation per sentence,
-          regardless of which model produced it.
-        </p>
+        <p id="about-pipeline-outro"></p>
 
-        <h2>Models</h2>
+        <h2 id="about-h-models"></h2>
         <table>
-          <tr><th>Model</th><th>Role</th><th>Engine</th></tr>
-          <tr><td><code>gemma3:12b</code></td><td>Translation</td><td>Ollama Cloud</td></tr>
-          <tr><td><code>ministral-3:14b</code></td><td>Translation</td><td>Ollama Cloud</td></tr>
-          <tr><td><code>nllb-600M</code></td><td>Translation</td><td>Local CPU</td></tr>
-          <tr><td><code>gemma4:31b</code></td><td>Judge only</td><td>Ollama Cloud</td></tr>
+          <tr><th id="about-th-model"></th><th id="about-th-role"></th><th id="about-th-engine"></th></tr>
+          <tr><td><code>gemma3:12b</code></td><td class="about-role-translation"></td><td>Ollama Cloud</td></tr>
+          <tr><td><code>ministral-3:14b</code></td><td class="about-role-translation"></td><td>Ollama Cloud</td></tr>
+          <tr><td><code>nllb-600M</code></td><td class="about-role-translation"></td><td class="about-role-local"></td></tr>
+          <tr><td><code>gemma4:31b</code></td><td class="about-role-judge"></td><td>Ollama Cloud</td></tr>
         </table>
 
-        <h3 style="font-size:15px;margin:18px 0 8px;">LLM vs. NLLB &mdash; two different kinds of machine</h3>
-        <p>
-          Gemma and Ministral are <strong>LLMs</strong> &mdash; general-purpose language models
-          with billions of parameters, trained on a broad slice of human text. Translation is
-          just one of many things they can do. They generate text word by word, and the
-          temperature setting controls how adventurous they are: higher values produce freer,
-          more natural phrasing &mdash; at the risk of drifting from the original.
-        </p>
-        <p>
-          <strong>NLLB</strong> is the opposite: a specialist. Built by Meta specifically for
-          translation between 200 languages, it does nothing else. It is 20&times; smaller
-          (600M parameters), runs on an ordinary CPU, and at temperature 0.0 is fully
-          deterministic &mdash; the same sentence always yields the same translation,
-          usually a very literal one.
-        </p>
-        <p>
-          This is why the competition works: the LLMs bring naturalness and fluency, NLLB
-          brings reliability and literal fidelity. The judge decides, sentence by sentence,
-          which virtue matters more.
-        </p>
+        <h3 style="font-size:15px;margin:18px 0 8px;" id="about-h-llm-nllb"></h3>
+        <p id="about-p-llm1"></p>
+        <p id="about-p-llm2"></p>
+        <p id="about-p-llm3"></p>
 
-        <h2>Embeddings</h2>
-        <p>
-          Cosine similarity is computed using
-          <strong>multilingual-e5-large</strong> (1024 dimensions),
-          a multilingual sentence embedding model that works across all target languages.
-          An earlier version used MiniLM-L12, but this was found to be biased toward
-          literal translations, systematically favouring NLLB over more natural outputs.
-          e5-large produces more balanced rankings.
-        </p>
+        <h2 id="about-h-embeddings"></h2>
+        <p id="about-p-embeddings"></p>
 
-        <h2>Scoring</h2>
+        <h2 id="about-h-scoring"></h2>
         <table>
-          <tr><th>Metric</th><th>Formula</th><th>Weight</th></tr>
+          <tr><th id="about-th-metric"></th><th id="about-th-formula"></th><th id="about-th-weight"></th></tr>
           <tr><td><code>score</code></td><td>cosine(EN, back_EN)</td><td>—</td></tr>
           <tr><td><code>translation_score</code></td><td>cosine(EN, translated)</td><td>—</td></tr>
           <tr><td><code>composite</code></td><td>(score + translation_score) / 2</td><td>40%</td></tr>
           <tr><td><code>judge_avg</code></td><td>(grammar + naturalness + fidelity) / 3</td><td>60%</td></tr>
-          <tr><td><code>final_score</code></td><td>0.4 × composite + 0.6 × judge_avg</td><td>winner</td></tr>
+          <tr><td><code>final_score</code></td><td>0.4 × composite + 0.6 × judge_avg</td><td id="about-score-winner"></td></tr>
         </table>
 
-        <h2>Infrastructure</h2>
-        <p>
-          The pipeline runs on two home servers: <strong>foxuno</strong> (development, Python scripts,
-          git) and <strong>balsam</strong> (PostgreSQL in Docker). No GPU is required —
-          all cloud inference goes through Ollama Cloud; NLLB runs on CPU locally.
-          This is intentional: Buchenberg is designed to work without expensive hardware.
-        </p>
+        <h2 id="about-h-infrastructure"></h2>
+        <p id="about-p-infrastructure"></p>
 
-        <h2>Source material</h2>
-        <p>
-          All books are sourced from
-          <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a>,
-          which provides free access to over 70,000 public-domain works.
-          Buchenberg uses only books whose copyright has expired — the translations
-          produced by the pipeline are therefore also freely distributable.
-        </p>
+        <h2 id="about-h-source"></h2>
+        <p id="about-p-source"></p>
 
-        <h2>Key learnings</h2>
-        <p>
-          Several non-obvious findings emerged during development:
-        </p>
+        <h2 id="about-h-learnings"></h2>
+        <p id="about-p-learnings-intro"></p>
         <ul style="margin: 8px 0 12px 20px; line-height:2">
-          <li><strong>Metric ≠ quality.</strong> DeepL-style natural translations scored lower than
-              literal ones under MiniLM. The metric was measuring literalness, not quality.</li>
-          <li><strong>Model patterns are book-dependent.</strong> The optimal model/temperature
-              combination differs between books and languages — no single setting dominates.</li>
-          <li><strong>s1–s3 are always metadata</strong> (title, subtitle, author) and should be
-              excluded from meaningful score analysis.</li>
-          <li><strong>Batch processing requires careful fallback.</strong> LLMs sometimes return
-              the wrong number of segments; a single-sentence fallback is essential.</li>
+          <li id="about-li-metric"></li>
+          <li id="about-li-patterns"></li>
+          <li id="about-li-metadata"></li>
+          <li id="about-li-batch"></li>
         </ul>
 
-        <h2>Lineage &mdash; from the Tractatus to Buchenberg</h2>
+        <h2 id="about-h-lineage"></h2>
         <p>
-          Two theories of meaning produced two histories of machine translation.
-          The early Wittgenstein held that meaning is <strong>form</strong> &mdash; language
-          mirrors reality &mdash; a view that led through Chomsky&rsquo;s universal grammar to
-          rule-based MT, and crashed with the ALPAC report in 1966. The late Wittgenstein
-          held that meaning is <strong>use</strong> &mdash; a view that led through Firth&rsquo;s
-          distributional semantics to word2vec, attention, and NLLB. Buchenberg works at
-          their intersection: a distributional engine, judged for competence in the
-          language game of each target language. Click any node.
+          <span id="about-p-lineage"></span>
         </p>
 
         <div id="lineage-wrap" style="background:var(--surface);border:1px solid var(--border-light);border-radius:6px;padding:16px;margin:16px 0 8px;">
@@ -282,6 +216,7 @@
         render();
         })();
         </script>
+        <script>applyPageI18n();</script>
 
       </div>
     </div>
@@ -289,9 +224,9 @@
     <!-- SIDEBAR INFOBOX -->
     <div>
       <div class="bb-infobox" style="float:none; width:100%; margin:0 0 16px 0;">
-        <div class="bb-infobox-title">Project info</div>
+        <div class="bb-infobox-title" id="about-sidebar-project-info"></div>
         <table>
-          <tr><td>Status</td><td>Active development</td></tr>
+          <tr><td id="about-sidebar-status"></td><td id="about-sidebar-active"></td></tr>
           <tr><td>Started</td><td>2026</td></tr>
           <tr><td>Author</td><td>Flavio</td></tr>
           <tr><td>Pipeline</td><td>bb v2</td></tr>
@@ -304,48 +239,28 @@
       </div>
 
       <div class="bb-infobox" style="float:none; width:100%; margin:0 0 16px 0;">
-        <div class="bb-infobox-title">Target languages</div>
+        <div class="bb-infobox-title" id="about-sidebar-target-langs"></div>
         <table>
-          <tr><td>South Slavic</td><td>hr, bs, sr, sl, mk, bg</td></tr>
-          <tr><td>West Germanic</td><td>de, nl, af</td></tr>
-          <tr><td>Romance</td><td>fr, it, es, pt, ro</td></tr>
+          <tr><td id="about-sidebar-south-slavic"></td><td>hr, bs, sr, sl, mk, bg</td></tr>
+          <tr><td id="about-sidebar-west-germanic"></td><td>de, nl, af</td></tr>
+          <tr><td id="about-sidebar-romance"></td><td>fr, it, es, pt, ro</td></tr>
         </table>
       </div>
 
       <div class="bb-infobox" style="float:none; width:100%; margin:0 0 16px 0;">
-        <div class="bb-infobox-title">Philosophy</div>
+        <div class="bb-infobox-title" id="about-sidebar-philosophy"></div>
         <table>
           <tr><td colspan="2" style="font-style:italic; color:var(--text-muted); line-height:1.7; padding:8px;">
-            The path matters more than the destination.
-            The pipeline we are building is generic and applicable far beyond book translation.
-            <br><br>
-            Buchenberg is a practical implementation of the author&rsquo;s
-            <strong>X-Ray attitude</strong>: refusing to treat machine translation as a
-            black box, and building windows into it &mdash; layer by layer, score by score.
-            <br><br>
-            &mdash; Flavio
+            <span id="about-sidebar-philosophy-text"></span>
           </td></tr>
         </table>
       </div>
 
       <div class="bb-infobox" style="float:none; width:100%; margin:0;">
-        <div class="bb-infobox-title">Authorship &amp; Collaboration</div>
+        <div class="bb-infobox-title" id="about-sidebar-authorship"></div>
         <table>
           <tr><td colspan="2" style="line-height:1.7; padding:8px;">
-            Buchenberg is conceived, designed and maintained by <strong>Flavio</strong> (fladroid).
-            The project&rsquo;s philosophy, methodology, architecture and all final design
-            decisions are his &mdash; and remain his sole responsibility.
-            <br><br>
-            The project is built in ongoing collaboration with
-            <strong><a href="https://claude.ai" target="_blank">Claude</a></strong> (Anthropic) &mdash;
-            not as a code-completion tool, but as a working partner across more than 60
-            documented sessions: implementation, debugging, analysis, and the conceptual
-            dialogue that shaped pages like <em>Geometry of Meaning</em> and <em>Art</em>.
-            Every session is recorded in <code>docs/sessions/</code>, where both names
-            appear &mdash; a deliberate choice, in the spirit of this project&rsquo;s
-            X-Ray attitude: the process of building should be as transparent as the thing built.
-            <br><br>
-            <em>Flavio &amp; Claude · Buchenberg · 2026</em>
+            <span id="about-sidebar-authorship-text"></span>
           </td></tr>
         </table>
       </div>
@@ -358,9 +273,62 @@
 <div id="bb-footer"></div>
 
 <script>
-// i18n infrastruktura — sadržajni prijevodi TODO (buduća sesija)
-// BB_NAV upravlja nav labelama automatski
-BB_NAV.onLangChange = function() {};
+function applyPageI18n() {
+  const t = (k) => BB_NAV.t('about_' + k) || BB_NAV.t(k) || k;
+  const ti = (id, k) => { const el = document.getElementById(id); if (el) el.innerHTML = t(k); };
+  const tc = (cls, k) => document.querySelectorAll('.' + cls).forEach(el => el.innerHTML = t(k));
+
+  ti('about-title',              'title');
+  ti('about-h-name',             'h_name');
+  ti('about-h-problem',          'h_problem');
+  ti('about-h-pipeline',         'h_pipeline');
+  ti('about-h-models',           'h_models');
+  ti('about-h-llm-nllb',         'h_llm_nllb');
+  ti('about-h-embeddings',       'h_embeddings');
+  ti('about-h-scoring',          'h_scoring');
+  ti('about-h-infrastructure',   'h_infrastructure');
+  ti('about-h-source',           'h_source');
+  ti('about-h-learnings',        'h_learnings');
+  ti('about-h-lineage',          'h_lineage');
+  ti('about-pipeline-intro',     'pipeline_intro');
+  ti('about-pipeline-outro',     'pipeline_outro');
+  ti('about-p-name',             'p_name');
+  ti('about-p-problem',          'p_problem');
+  ti('about-p-llm1',             'p_llm1');
+  ti('about-p-llm2',             'p_llm2');
+  ti('about-p-llm3',             'p_llm3');
+  ti('about-p-embeddings',       'p_embeddings');
+  ti('about-p-infrastructure',   'p_infrastructure');
+  ti('about-p-source',           'p_source');
+  ti('about-p-learnings-intro',  'p_learnings_intro');
+  ti('about-li-metric',          'li_metric');
+  ti('about-li-patterns',        'li_patterns');
+  ti('about-li-metadata',        'li_metadata');
+  ti('about-li-batch',           'li_batch');
+  ti('about-p-lineage',          'p_lineage');
+  ti('about-th-model',           'th_model');
+  ti('about-th-role',            'th_role');
+  ti('about-th-engine',          'th_engine');
+  ti('about-th-metric',          'th_metric');
+  ti('about-th-formula',         'th_formula');
+  ti('about-th-weight',          'th_weight');
+  ti('about-score-winner',       'score_winner');
+  ti('about-sidebar-project-info',      'sidebar_project_info');
+  ti('about-sidebar-status',            'sidebar_status');
+  ti('about-sidebar-active',            'sidebar_active');
+  ti('about-sidebar-target-langs',      'sidebar_target_langs');
+  ti('about-sidebar-south-slavic',      'sidebar_south_slavic');
+  ti('about-sidebar-west-germanic',     'sidebar_west_germanic');
+  ti('about-sidebar-romance',           'sidebar_romance');
+  ti('about-sidebar-philosophy',        'sidebar_philosophy');
+  ti('about-sidebar-philosophy-text',   'sidebar_philosophy_text');
+  ti('about-sidebar-authorship',        'sidebar_authorship');
+  ti('about-sidebar-authorship-text',   'sidebar_authorship_text');
+  tc('about-role-translation',          'role_translation');
+  tc('about-role-judge',                'role_judge');
+  tc('about-role-local',                'role_local');
+}
+BB_NAV.onLangChange = applyPageI18n;
 </script>
 </body>
 </html>
