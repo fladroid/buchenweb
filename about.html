@@ -216,7 +216,6 @@
         render();
         })();
         </script>
-        <script>applyPageI18n();</script>
 
       </div>
     </div>
@@ -329,6 +328,7 @@ function applyPageI18n() {
   tc('about-role-local',                'role_local');
 }
 BB_NAV.onLangChange = applyPageI18n;
+document.addEventListener("DOMContentLoaded", applyPageI18n);
 </script>
 </body>
 </html>
