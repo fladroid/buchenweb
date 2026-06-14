@@ -22,6 +22,7 @@ const NAV_I18N = {
         stats_col_model:"Model", stats_col_wins:"Wins", stats_col_dist:"Distribution",
         stats_col_book:"Book", stats_col_lang:"Language", stats_col_sent:"Sentences",
         stats_col_avg_ts:"Avg translation score", stats_col_avg_j:"Avg judge score",
+        stats_warning:"⚠ Statistics are computed client-side from the same JSON files used by the Reader. Winner model information requires judge data (judge_avg) to be present. Sentences without judge data are excluded from judge averages.",
         books_title:"Library",
         books_subtitle:"All books are sourced from Project Gutenberg (public domain). Each translation is a sentence-level hybrid produced by the Buchenberg pipeline.",
         books_lbl_sentences:"sentences", books_lbl_languages:"languages",
@@ -60,7 +61,7 @@ const NAV_I18N = {
         index_opensource:`<strong>100% open source.</strong> All models used are freely available. No proprietary APIs, no cloud translation services.
       Source books are from <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a> — public domain, freely distributable.
       The pipeline runs on commodity hardware with a PostgreSQL backend and
-      <a href="https://ollama.com" target="_blank">Ollama</a> for local and cloud LLM inference.` },
+      <a href="https://ollama.com" target="_blank">Ollama</a> for local and cloud LLM inference.`,
         nlp_title:"Natural Language Processing",
         nlp_subtitle:"Word cloud and named entity analysis of original English texts.",
         nlp_book_label:"Book:",
@@ -89,6 +90,7 @@ const NAV_I18N = {
         stats_col_model:"Modell", stats_col_wins:"Siege", stats_col_dist:"Verteilung",
         stats_col_book:"Buch", stats_col_lang:"Sprache", stats_col_sent:"Sätze",
         stats_col_avg_ts:"Ø Übersetzungsscore", stats_col_avg_j:"Ø Richter-Score",
+        stats_warning:"⚠ Statistiken werden clientseitig aus denselben JSON-Dateien berechnet wie im Reader. Gewinnermodell-Informationen erfordern Richter-Daten (judge_avg). Sätze ohne Richter-Daten werden von den Richter-Durchschnittswerten ausgeschlossen.",
         books_title:"Übersetzte Bücher",
         books_subtitle:"Alle Bücher stammen aus dem Project Gutenberg (gemeinfrei). Jede Übersetzung ist ein satzweises Hybrid der Buchenberg-Pipeline.",
         books_lbl_sentences:"Sätze", books_lbl_languages:"Sprachen",
@@ -123,7 +125,7 @@ const NAV_I18N = {
         index_opensource:`<strong>100% Open Source.</strong> Alle verwendeten Modelle sind frei verfügbar. Keine proprietären APIs, keine Cloud-Übersetzungsdienste.
       Quellbücher stammen von <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a> — gemeinfrei und frei verteilbar.
       Die Pipeline läuft auf handelsüblicher Hardware mit einem PostgreSQL-Backend und
-      <a href="https://ollama.com" target="_blank">Ollama</a> für lokale und Cloud-LLM-Inferenz.` },
+      <a href="https://ollama.com" target="_blank">Ollama</a> für lokale und Cloud-LLM-Inferenz.`,
         nlp_title:"Natürliche Sprachverarbeitung",
         nlp_subtitle:"Wortwolke und Named-Entity-Analyse der englischen Originaltexte.",
         nlp_book_label:"Buch:",
@@ -152,6 +154,7 @@ const NAV_I18N = {
         stats_col_model:"Modello", stats_col_wins:"Vittorie", stats_col_dist:"Distribuzione",
         stats_col_book:"Libro", stats_col_lang:"Lingua", stats_col_sent:"Frasi",
         stats_col_avg_ts:"Punteggio medio di traduzione", stats_col_avg_j:"Punteggio medio del giudice",
+        stats_warning:"⚠ Le statistiche sono calcolate lato client dagli stessi file JSON usati dal Reader. Le informazioni sul modello vincitore richiedono i dati del giudice (judge_avg). Le frasi senza dati del giudice sono escluse dalle medie.",
         books_title:"Libri tradotti",
         books_subtitle:"Tutti i libri provengono da Project Gutenberg (pubblico dominio). Ogni traduzione è un ibrido a livello di frase prodotto dalla pipeline Buchenberg.",
         books_lbl_sentences:"frasi", books_lbl_languages:"lingue",
@@ -187,7 +190,7 @@ const NAV_I18N = {
         index_opensource:`<strong>100% open source.</strong> Tutti i modelli usati sono liberamente disponibili. Nessuna API proprietaria, nessun servizio di traduzione cloud.
       I libri sorgente provengono da <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a> — pubblico dominio, liberamente distribuibili.
       La pipeline gira su hardware comune con un backend PostgreSQL e
-      <a href="https://ollama.com" target="_blank">Ollama</a> per l'inferenza LLM locale e cloud.` },
+      <a href="https://ollama.com" target="_blank">Ollama</a> per l'inferenza LLM locale e cloud.`,
         nlp_title:"Elaborazione del linguaggio naturale",
         nlp_subtitle:"Nuvola di parole e analisi delle entità nei testi originali inglesi.",
         nlp_book_label:"Libro:",
@@ -216,6 +219,7 @@ const NAV_I18N = {
         stats_col_model:"Model", stats_col_wins:"Pobjede", stats_col_dist:"Distribucija",
         stats_col_book:"Knjiga", stats_col_lang:"Jezik", stats_col_sent:"Rečenice",
         stats_col_avg_ts:"Prosječni score prijevoda", stats_col_avg_j:"Prosječni score sudije",
+        stats_warning:"⚠ Statistike se računaju na strani klijenta iz istih JSON datoteka koje koristi Reader. Informacije o pobjedničkom modelu zahtijevaju podatke sudije (judge_avg). Rečenice bez podataka sudije isključene su iz prosjeka.",
         books_title:"Prevedene knjige",
         books_subtitle:"Sve knjige dolaze s Project Gutenberga (javna domena). Svaki prijevod je hibrid na razini rečenica, proizveden Buchenberg pipelineom.",
         books_lbl_sentences:"rečenica", books_lbl_languages:"jezika",
@@ -251,7 +255,7 @@ const NAV_I18N = {
         index_opensource:`<strong>100% open source.</strong> Svi korišteni modeli su slobodno dostupni. Bez vlasničkih API-ja, bez cloud usluga prevođenja.
       Izvorne knjige dolaze s <a href="https://www.gutenberg.org" target="_blank">Project Gutenberga</a> — javna domena, slobodno distribuirane.
       Pipeline radi na standardnom hardveru s PostgreSQL backendom i
-      <a href="https://ollama.com" target="_blank">Ollama</a> za lokalnu i cloud LLM inferenciju.` },
+      <a href="https://ollama.com" target="_blank">Ollama</a> za lokalnu i cloud LLM inferenciju.`,
         nlp_title:"Obrada prirodnog jezika",
         nlp_subtitle:"Oblak riječi i analiza imenovanih entiteta originalnih engleskih tekstova.",
         nlp_book_label:"Knjiga:",
@@ -280,15 +284,16 @@ const NAV_I18N = {
         stats_col_model:"Модел", stats_col_wins:"Победе", stats_col_dist:"Дистрибуција",
         stats_col_book:"Књига", stats_col_lang:"Језик", stats_col_sent:"Реченице",
         stats_col_avg_ts:"Просечни скор превода", stats_col_avg_j:"Просечни скор судије",
-        books_title:"Prevedene knjige",
-        books_subtitle:"Sve knjige potiču sa Project Gutenberga (javna domena). Svaki prevod je hibrid na nivou rečenica, proizveden Buchenberg pipelineom.",
-        books_lbl_sentences:"rečenica", books_lbl_languages:"jezika",
-        books_btn_read:"Čitaj", books_btn_gutenberg:"Gutenberg", books_btn_ner:"NER", books_btn_wordcloud:"Oblak reči",
-        books_coming_soon:"uskoro",
-        books_wc_compare:"Uporedi s:", books_wc_loading:"Gradim oblak…",
-        books_wc_coverage:"{n} od {total} rečenica prevedeno ({pct}%) — oblak prikazuje samo prevedeni uzorak",
-        books_wc_en_full:"EN — Ceo tekst ({n} rečenica)",
-        books_wc_tr_sample:"{lang} — {n} prevedenih rečenica",
+        stats_warning:"⚠ Статистике се рачунају на страни клијента из истих JSON датотека које користи Reader. Информације о побједничком моделу захтијевају податке судије (judge_avg). Реченице без података судије искључене су из просјека.",
+        books_title:"Преведене књиге",
+        books_subtitle:"Све књиге потичу са Project Gutenberga (јавна домена). Сваки превод је хибрид на нивоу реченица, произведен Buchenberg пипелајном.",
+        books_lbl_sentences:"реченица", books_lbl_languages:"језика",
+        books_btn_read:"Читај", books_btn_gutenberg:"Gutenberg", books_btn_ner:"NER", books_btn_wordcloud:"Облак речи",
+        books_coming_soon:"ускоро",
+        books_wc_compare:"Упореди с:", books_wc_loading:"Градим облак…",
+        books_wc_coverage:"{n} од {total} реченица преведено ({pct}%) — облак приказује само преведени узорак",
+        books_wc_en_full:"EN — Цео текст ({n} реченица)",
+        books_wc_tr_sample:"{lang} — {n} преведених реченица",
         index_tagline:"Open-source pipeline за машинско превођење класичне књижевности",
         index_hero_desc:`Buchenberg је истраживачки пројекат који преводи књиге из јавног домена са
       <a href="https://www.gutenberg.org" target="_blank">Project Gutenberga</a> на више језика
@@ -296,7 +301,7 @@ const NAV_I18N = {
       Назив <strong>Buchenberg</strong> је намјерни одјек <strong>Gutenberga</strong> —
       у духу оригиналног пројекта, прошириен у доба машинског превођења.
       <em>Buch</em> је на њемачком књига; суфикс <em>-enberg</em> везује нас за наш извор.`,
-        index_sec_how:"Kako funkcioniše",
+        index_sec_how:"Како функционише",
         index_how_desc:`Свака реченица изворне књиге преводи се помоћу три модела —
       <strong>Gemma 3 12B</strong>, <strong>Ministral 3 14B</strong> и <strong>NLLB-600M</strong> —
       при различитим температурама. Преводи се затим back-transliraju на енглески и пореде с оригиналом
@@ -308,25 +313,25 @@ const NAV_I18N = {
         index_pillar_bt:"Преведи на циљни језик, затим назад на енглески. Измјери косинусну сличност између оригинала и back-transliranog текста. Висок скор значи да је значење сачувано.",
         index_pillar_judge:"Gemma 4 31B оцјењује сваки превод слијепо по три осе: граматика, природност и вјерност оригиналу. Скор судије носи 60% тежине у финалном рангирању.",
         index_pillar_winner:"Ниједан модел не побјеђује у свакој реченици. Коначни документ комбинује превод с највишим скором по реченици — хибрид који надмашује сваки појединачни модел.",
-        index_sec_status:"Trenutno stanje",
-        index_lbl_books:"Knjige u korpusu", index_lbl_langs:"Ciljni jezici",
-        index_lbl_sentences:"Prevedenih rečenica", index_lbl_models:"Modeli prevođenja",
-        index_cta_books:"Prelistaj biblioteku", index_cta_about:"O projektu", index_cta_stats:"X-Ray statistike",
+        index_sec_status:"Тренутно стање",
+        index_lbl_books:"Књиге у корпусу", index_lbl_langs:"Циљни језици",
+        index_lbl_sentences:"Преведених реченица", index_lbl_models:"Модели превођења",
+        index_cta_books:"Прелистај библиотеку", index_cta_about:"О пројекту", index_cta_stats:"X-Ray статистике",
         index_opensource:`<strong>100% open source.</strong> Сви коришћени модели су слободно доступни. Без власничких API-ja, без cloud услуга превођења.
       Изворне књиге долазе са <a href="https://www.gutenberg.org" target="_blank">Project Gutenberga</a> — јавна домена, слободно дистрибуиране.
       Pipeline ради на стандардном хардверу с PostgreSQL backendom и
-      <a href="https://ollama.com" target="_blank">Ollama</a> за локалну и cloud LLM inferenciju.` },
-        nlp_title:"Obrada prirodnog jezika",
-        nlp_subtitle:"Oblak reči i analiza imenovanih entiteta originalnih engleskih tekstova.",
-        nlp_book_label:"Knjiga:",
-        nlp_wc_title:"Oblak reči — EN Original",
-        nlp_ner_title:"Imenovani entiteti", nlp_text_title:"Originalni tekst",
-        nlp_net_title:"Mreža entiteta", nlp_click_hint:"Klikni entitet za isticanje rečenica",
-        nlp_links_title:"Veze između entiteta", nlp_conflicts_title:"Konflikti tipova",
-        nlp_conflicts_sub:"Entiteti s više klasificiranih tipova",
-        nlp_th_from:"Od", nlp_th_to:"Do", nlp_th_weight:"Veze",
-        nlp_th_entity:"Entitet", nlp_th_types:"Tipovi",
-        nlp_tip_all:"Sve", nlp_tip_person:"Osoba", nlp_tip_place:"Mesto", nlp_tip_org:"Org" },
+      <a href="https://ollama.com" target="_blank">Ollama</a> за локалну и cloud LLM inferenciju.`,
+        nlp_title:"Обрада природног језика",
+        nlp_subtitle:"Облак речи и анализа именованих ентитета оригиналних енглеских текстова.",
+        nlp_book_label:"Књига:",
+        nlp_wc_title:"Облак речи — EN Original",
+        nlp_ner_title:"Именовани ентитети", nlp_text_title:"Оригинални текст",
+        nlp_net_title:"Мрежа ентитета", nlp_click_hint:"Кликни ентитет за истицање реченица",
+        nlp_links_title:"Везе између ентитета", nlp_conflicts_title:"Конфликти типова",
+        nlp_conflicts_sub:"Ентитети с више класификованих типова",
+        nlp_th_from:"Од", nlp_th_to:"До", nlp_th_weight:"Везе",
+        nlp_th_entity:"Ентитет", nlp_th_types:"Типови",
+        nlp_tip_all:"Све", nlp_tip_person:"Особа", nlp_tip_place:"Место", nlp_tip_org:"Орг" },
 };
 
 const NAV_LINKS = [

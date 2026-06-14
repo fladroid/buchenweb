@@ -74,11 +74,7 @@
     <div class="bb-loading">Loading…</div>
   </div>
 
-  <p style="font-size:12px; color:var(--text-light); margin-top:24px;">
-    ⚠ Statistics are computed client-side from the same JSON files used by the Reader.
-    Winner model information requires judge data (<code>judge_avg</code>) to be present.
-    Sentences without judge data are excluded from judge averages.
-  </p>
+  <p id="stats-warning" style="font-size:12px; color:var(--text-light); margin-top:24px;"></p>
 
 </div>
 
@@ -110,6 +106,7 @@ function applyPageI18n() {
   document.getElementById('stats-coverage-sub').textContent  = t('stats_coverage_sub');
   document.getElementById('stats-score-title').textContent   = t('stats_score_title');
   document.getElementById('stats-score-sub').textContent     = t('stats_score_sub');
+  document.getElementById('stats-warning').textContent       = t('stats_warning');
   if (window._winnerRows)   renderWinnerTable();
   if (window._coverageRows) renderCoverageTable();
   if (window._scoreRows)    renderScoreTable();
