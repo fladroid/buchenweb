@@ -463,119 +463,31 @@ const TIP_COLOR = { PERSON: "#b8860b", GPE: "#2e7d32", ORG: "#6a1b9a" };
 const TIP_COLOR_DARK = { PERSON: "#f0c040", GPE: "#66bb6a", ORG: "#ce93d8" };
 
 // ── i18n ─────────────────────────────────────────────────────
-const I18N = {
-  en: {
-    nav_home:"Home", nav_about:"About", nav_stats:"X-Ray Stats",
-    nav_books:"Library", nav_nlp:"NLP", nav_reader:"Reader",
-    nlp_title:"Natural Language Processing",
-    nlp_subtitle:"Word cloud and named entity analysis of original English texts.",
-    nlp_book_label:"Book:",
-    nlp_wc_title:"Word Cloud — EN Original",
-    nlp_ner_title:"Named Entities",
-    nlp_text_title:"Original Text",
-    nlp_net_title:"Entity Network", nlp_click_hint:"Click an entity to highlight sentences", nlp_links_title:"Entity Links", nlp_conflicts_title:"Type Conflicts", nlp_conflicts_sub:"Entities classified under multiple types", nlp_th_from:"From", nlp_th_to:"To", nlp_th_weight:"Links", nlp_th_entity:"Entity", nlp_th_types:"Types",
-    tip_all:"All", tip_person:"Person", tip_place:"Place", tip_org:"Org",
-  },
-  de: {
-    nav_home:"Startseite", nav_about:"Über", nav_stats:"X-Ray Statistik",
-    nav_books:"Bücher", nav_nlp:"NLP", nav_reader:"Leser",
-    nlp_title:"Natürliche Sprachverarbeitung",
-    nlp_subtitle:"Wortwolke und Named-Entity-Analyse der englischen Originaltexte.",
-    nlp_book_label:"Buch:",
-    nlp_wc_title:"Wortwolke — EN Original",
-    nlp_ner_title:"Benannte Entitäten",
-    nlp_text_title:"Originaltext",
-    nlp_net_title:"Entitätsnetzwerk", nlp_click_hint:"Entität anklicken zum Hervorheben",
-    tip_all:"Alle", tip_person:"Person", tip_place:"Ort", tip_org:"Org",
-  },
-  it: {
-    nav_home:"Home", nav_about:"Informazioni", nav_stats:"Statistiche X-Ray",
-    nav_books:"Libri", nav_nlp:"NLP", nav_reader:"Lettore",
-    nlp_title:"Elaborazione del linguaggio naturale",
-    nlp_subtitle:"Nuvola di parole e analisi delle entità nei testi originali inglesi.",
-    nlp_book_label:"Libro:",
-    nlp_wc_title:"Nuvola di parole — EN Originale",
-    nlp_ner_title:"Entità nominate",
-    nlp_text_title:"Testo originale",
-    nlp_net_title:"Rete di entità", nlp_click_hint:"Clicca un'entità per evidenziare le frasi",
-    tip_all:"Tutte", tip_person:"Persona", tip_place:"Luogo", tip_org:"Org",
-  },
-  hr: {
-    nav_home:"Početna", nav_about:"O projektu", nav_stats:"X-Ray Statistike",
-    nav_books:"Knjige", nav_nlp:"NLP", nav_reader:"Čitač",
-    nlp_title:"Obrada prirodnog jezika",
-    nlp_subtitle:"Oblak riječi i analiza imenovanih entiteta originalnih engleskih tekstova.",
-    nlp_book_label:"Knjiga:",
-    nlp_wc_title:"Oblak riječi — EN Original",
-    nlp_ner_title:"Imenovani entiteti",
-    nlp_text_title:"Originalni tekst",
-    nlp_net_title:"Mreža entiteta", nlp_click_hint:"Klikni entitet za isticanje rečenica",
-    tip_all:"Sve", tip_person:"Osoba", tip_place:"Mjesto", tip_org:"Org",
-  },
-  sr: {
-    nav_home:"Почетна", nav_about:"О пројекту", nav_stats:"X-Ray Статистике",
-    nav_books:"Књиге", nav_nlp:"NLP", nav_reader:"Читач",
-    nlp_title:"Obrada prirodnog jezika",
-    nlp_subtitle:"Oblak reči i analiza imenovanih entiteta originalnih engleskih tekstova.",
-    nlp_book_label:"Knjiga:",
-    nlp_wc_title:"Oblak reči — EN Original",
-    nlp_ner_title:"Imenovani entiteti",
-    nlp_text_title:"Originalni tekst",
-    nlp_net_title:"Mreža entiteta", nlp_click_hint:"Klikni entitet za isticanje rečenica",
-    tip_all:"Sve", tip_person:"Osoba", tip_place:"Mesto", tip_org:"Org",
-  },
-};
+// ── i18n via BB_NAV ──────────────────────────────────────────
+function t(key) { return BB_NAV.t('nlp_' + key) || BB_NAV.t(key) || key; }
 
-// ── Theme ─────────────────────────────────────────────────────
-const savedTheme = localStorage.getItem('bb-theme') || 'light';
-document.documentElement.setAttribute('data-theme', savedTheme);
-function updateThemeBtn() {
-  document.getElementById('bb-theme-toggle').textContent =
-    document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+function applyPageI18n() {
+  document.getElementById('nlp-title').textContent    = BB_NAV.t('nlp_title');
+  document.getElementById('nlp-subtitle').textContent = BB_NAV.t('nlp_subtitle');
+  document.getElementById('nlp-book-label').textContent = BB_NAV.t('nlp_book_label');
+  document.getElementById('nlp-wc-title').textContent = BB_NAV.t('nlp_wc_title');
+  document.getElementById('nlp-ner-title').textContent = BB_NAV.t('nlp_ner_title');
+  document.getElementById('nlp-text-title').textContent = BB_NAV.t('nlp_text_title');
+  document.querySelector('[data-tip="ALL"]').textContent  = BB_NAV.t('nlp_tip_all');
+  document.querySelector('[data-tip="PERSON"]').textContent = BB_NAV.t('nlp_tip_person');
+  document.querySelector('[data-tip="GPE"]').textContent  = BB_NAV.t('nlp_tip_place');
+  document.querySelector('[data-tip="ORG"]').textContent  = BB_NAV.t('nlp_tip_org');
+  const hint = document.getElementById('nlp-active-entity');
+  if (hint && !hint.textContent) hint.textContent = BB_NAV.t('nlp_click_hint');
+  const netTitle = document.getElementById('nlp-net-title');
+  if (netTitle) netTitle.textContent = BB_NAV.t('nlp_net_title');
 }
-updateThemeBtn();
-// theme toggle: centralizovano u nav.js; redraw na promjenu teme
+BB_NAV.onLangChange = applyPageI18n;
+
+// MutationObserver za redraw na promjenu teme (ostaje)
 new MutationObserver(() => {
   if (window._origData) { drawWC(window._origData); drawNetwork(); }
 }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-
-// ── UI Language ───────────────────────────────────────────────
-let uiLang = localStorage.getItem('bb-ui-lang') || 'en';
-function t(key) { return (I18N[uiLang] || {})[key] || I18N.en[key] || key; }
-
-function applyI18n() {
-  const navLinks = document.querySelectorAll('.bb-nav-link');
-  navLinks[0].textContent = t('nav_home');
-  navLinks[1].textContent = t('nav_about');
-  navLinks[2].textContent = t('nav_stats');
-  navLinks[3].textContent = t('nav_books');
-  navLinks[4].textContent = t('nav_nlp');
-  navLinks[5].textContent = t('nav_reader');
-  document.getElementById('nlp-title').textContent = t('nlp_title');
-  document.getElementById('nlp-subtitle').textContent = t('nlp_subtitle');
-  document.getElementById('nlp-book-label').textContent = t('nlp_book_label');
-  document.getElementById('nlp-wc-title').textContent = t('nlp_wc_title');
-  document.getElementById('nlp-ner-title').textContent = t('nlp_ner_title');
-  document.getElementById('nlp-text-title').textContent = t('nlp_text_title');
-  document.querySelector('[data-tip="ALL"]').textContent = t('tip_all');
-  document.querySelector('[data-tip="PERSON"]').textContent = t('tip_person');
-  document.querySelector('[data-tip="GPE"]').textContent = t('tip_place');
-  document.querySelector('[data-tip="ORG"]').textContent = t('tip_org');
-  document.querySelectorAll('.bb-lang-btn').forEach(b =>
-    b.classList.toggle('active', b.dataset.lang === uiLang));
-  if (!document.getElementById('nlp-active-entity').textContent)
-    document.getElementById('nlp-active-entity').textContent = t('nlp_click_hint');
-  const netTitleEl = document.getElementById('nlp-net-title');
-  if (netTitleEl) netTitleEl.textContent = t('nlp_net_title') || 'Entity Network';
-}
-
-document.querySelectorAll('.bb-lang-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    uiLang = btn.dataset.lang;
-    localStorage.setItem('bb-ui-lang', uiLang);
-    applyI18n();
-  });
-});
 
 // ── State ─────────────────────────────────────────────────────
 let activeBookId = null;
@@ -756,7 +668,7 @@ function highlightText() {
       el.classList.remove('highlight', 'hl-current');
       el.style.display = '';
     });
-    entityEl.textContent = t('nlp_click_hint');
+    entityEl.textContent = BB_NAV.t('nlp_click_hint');
     nav.style.display = 'none';
     hlList = [];
     return;
@@ -810,7 +722,7 @@ document.getElementById('nlp-hl-only').addEventListener('change', applyHlOnly);
 async function loadBook(bookId) {
   activeBookId = bookId;
   activeEntitet = null;
-  document.getElementById('nlp-active-entity').textContent = t('nlp_click_hint');
+  document.getElementById('nlp-active-entity').textContent = BB_NAV.t('nlp_click_hint');
   document.getElementById('nlp-wc-wrap').innerHTML =
     `<div id="nlp-loading" style="color:var(--text-muted);font-size:0.85rem;">Loading…</div>`;
   document.getElementById('nlp-ner-list').innerHTML = '';
@@ -1202,7 +1114,7 @@ document.querySelectorAll('#nlp-conflicts-table th[data-col]').forEach(th => {
   });
 });
 
-applyI18n();
+applyPageI18n();
 init();
 </script>
 </body>

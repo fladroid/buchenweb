@@ -358,47 +358,9 @@
 <div id="bb-footer"></div>
 
 <script>
-const I18N = {
-  en: { nav_home:"Home", nav_about:"About", nav_stats:"X-Ray Stats", nav_books:"Library", nav_nlp:"NLP", nav_reader:"Reader" },
-  de: { nav_home:"Startseite", nav_about:"Über", nav_stats:"X-Ray Statistik", nav_books:"Bücher", nav_nlp:"NLP", nav_reader:"Leser" },
-  it: { nav_home:"Home", nav_about:"Informazioni", nav_stats:"Statistiche X-Ray", nav_books:"Libri", nav_nlp:"NLP", nav_reader:"Lettore" },
-  hr: { nav_home:"Početna", nav_about:"O projektu", nav_stats:"X-Ray Statistike", nav_books:"Knjige", nav_nlp:"NLP", nav_reader:"Čitač" },
-  sr: { nav_home:"Почетна", nav_about:"О пројекту", nav_stats:"X-Ray Статистике", nav_books:"Књиге", nav_nlp:"NLP", nav_reader:"Читач" },
-};
-
-// Theme
-const savedTheme = localStorage.getItem('bb-theme') || 'light';
-document.documentElement.setAttribute('data-theme', savedTheme);
-function updateThemeBtn() {
-  document.getElementById('bb-theme-toggle').textContent =
-    document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
-}
-updateThemeBtn();
-// theme toggle: centralizovano u nav.js
-
-// UI Language
-let uiLang = localStorage.getItem('bb-ui-lang') || 'en';
-function t(key) { return (I18N[uiLang] || {})[key] || I18N.en[key] || key; }
-function applyI18n() {
-  const navLinks = document.querySelectorAll('.bb-nav-link');
-  navLinks[0].textContent = t('nav_home');
-  navLinks[1].textContent = t('nav_about');
-  navLinks[2].textContent = t('nav_stats');
-  navLinks[3].textContent = t('nav_books');
-  navLinks[4].textContent = t('nav_nlp');
-  navLinks[5].textContent = t('nav_reader');
-  document.querySelectorAll('.bb-lang-btn').forEach(b =>
-    b.classList.toggle('active', b.dataset.lang === uiLang));
-}
-document.querySelectorAll('.bb-lang-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    uiLang = btn.dataset.lang;
-    localStorage.setItem('bb-ui-lang', uiLang);
-    applyI18n();
-  });
-});
-
-applyI18n();
+// i18n infrastruktura — sadržajni prijevodi TODO (buduća sesija)
+// BB_NAV upravlja nav labelama automatski
+BB_NAV.onLangChange = function() {};
 </script>
 </body>
 </html>

@@ -182,110 +182,20 @@ const LANG_NAMES_NATIVE = {
   mk:"Македонски", bg:"Български"
 };
 
-const I18N = {
-  en: {
-    nav_home:"Home", nav_about:"About", nav_stats:"X-Ray Stats", nav_books:"Library", nav_nlp:"NLP", nav_reader:"Reader",
-    page_title:"Library",
-    page_subtitle:"All books are sourced from Project Gutenberg (public domain). Each translation is a sentence-level hybrid produced by the Buchenberg pipeline.",
-    lbl_sentences:"sentences", lbl_languages:"languages",
-    btn_read:"Read", btn_gutenberg:"Gutenberg", btn_ner:"NER", btn_wordcloud:"Word cloud",
-    coming_soon:"coming soon",
-    wc_compare:"Compare with:", wc_loading:"Building word cloud…",
-    wc_coverage:"{n} of {total} sentences translated ({pct}%) — word cloud reflects translated sample only",
-    wc_en_full:"EN — Full text ({n} sentences)",
-    wc_tr_sample:"{lang} — {n} translated sentences",
-  },
-  de: {
-    nav_home:"Startseite", nav_about:"Über", nav_stats:"X-Ray Statistik", nav_books:"Bücher", nav_nlp:"NLP", nav_reader:"Leser",
-    page_title:"Übersetzte Bücher",
-    page_subtitle:"Alle Bücher stammen aus dem Project Gutenberg (gemeinfrei). Jede Übersetzung ist ein satzweises Hybrid der Buchenberg-Pipeline.",
-    lbl_sentences:"Sätze", lbl_languages:"Sprachen",
-    btn_read:"Lesen", btn_gutenberg:"Gutenberg", btn_ner:"NER", btn_wordcloud:"Wortwolke",
-    coming_soon:"demnächst",
-    wc_compare:"Vergleichen mit:", wc_loading:"Wortwolke wird erstellt…",
-    wc_coverage:"{n} von {total} Sätzen übersetzt ({pct}%) — Wortwolke zeigt nur übersetzten Teil",
-    wc_en_full:"EN — Volltext ({n} Sätze)",
-    wc_tr_sample:"{lang} — {n} übersetzte Sätze",
-  },
-  it: {
-    nav_home:"Home", nav_about:"Informazioni", nav_stats:"Statistiche X-Ray", nav_books:"Libri", nav_nlp:"NLP", nav_reader:"Lettore",
-    page_title:"Libri tradotti",
-    page_subtitle:"Tutti i libri provengono da Project Gutenberg (pubblico dominio). Ogni traduzione è un ibrido a livello di frase prodotto dalla pipeline Buchenberg.",
-    lbl_sentences:"frasi", lbl_languages:"lingue",
-    btn_read:"Leggi", btn_gutenberg:"Gutenberg", btn_ner:"NER", btn_wordcloud:"Nuvola di parole",
-    coming_soon:"prossimamente",
-    wc_compare:"Confronta con:", wc_loading:"Creazione nuvola…",
-    wc_coverage:"{n} di {total} frasi tradotte ({pct}%) — la nuvola riflette solo il campione tradotto",
-    wc_en_full:"EN — Testo completo ({n} frasi)",
-    wc_tr_sample:"{lang} — {n} frasi tradotte",
-  },
-  hr: {
-    nav_home:"Početna", nav_about:"O projektu", nav_stats:"X-Ray Statistike", nav_books:"Knjige", nav_nlp:"NLP", nav_reader:"Čitač",
-    page_title:"Prevedene knjige",
-    page_subtitle:"Sve knjige dolaze s Project Gutenberga (javna domena). Svaki prijevod je hibrid na razini rečenica, proizveden Buchenberg pipelineom.",
-    lbl_sentences:"rečenica", lbl_languages:"jezika",
-    btn_read:"Čitaj", btn_gutenberg:"Gutenberg", btn_ner:"NER", btn_wordcloud:"Oblak riječi",
-    coming_soon:"uskoro",
-    wc_compare:"Usporedi s:", wc_loading:"Gradim oblak…",
-    wc_coverage:"{n} od {total} rečenica prevedeno ({pct}%) — oblak prikazuje samo prevedeni uzorak",
-    wc_en_full:"EN — Cijeli tekst ({n} rečenica)",
-    wc_tr_sample:"{lang} — {n} prevedenih rečenica",
-  },
-  sr: {
-    nav_home:"Почетна", nav_about:"О пројекту", nav_stats:"X-Ray Статистике", nav_books:"Књиге", nav_nlp:"NLP", nav_reader:"Читач",
-    page_title:"Prevedene knjige",
-    page_subtitle:"Sve knjige potiču sa Project Gutenberga (javna domena). Svaki prevod je hibrid na nivou rečenica, proizveden Buchenberg pipelineom.",
-    lbl_sentences:"rečenica", lbl_languages:"jezika",
-    btn_read:"Čitaj", btn_gutenberg:"Gutenberg", btn_ner:"NER", btn_wordcloud:"Oblak reči",
-    coming_soon:"uskoro",
-    wc_compare:"Uporedi s:", wc_loading:"Gradim oblak…",
-    wc_coverage:"{n} od {total} rečenica prevedeno ({pct}%) — oblak prikazuje samo prevedeni uzorak",
-    wc_en_full:"EN — Ceo tekst ({n} rečenica)",
-    wc_tr_sample:"{lang} — {n} prevedenih rečenica",
-  },
-};
-
-// ── Theme ─────────────────────────────────────────────────────
-const savedTheme = localStorage.getItem('bb-theme') || 'light';
-document.documentElement.setAttribute('data-theme', savedTheme);
-function updateThemeBtn() {
-  document.getElementById('bb-theme-toggle').textContent =
-    document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
-}
-updateThemeBtn();
-// theme toggle: centralizovano u nav.js
-
-// ── UI Language ───────────────────────────────────────────────
-let uiLang = localStorage.getItem('bb-ui-lang') || 'en';
-function t(key) { return (I18N[uiLang] || {})[key] || I18N.en[key] || key; }
+// ── i18n ─────────────────────────────────────────────────────
+function t(key) { return BB_NAV.t('books_' + key) || BB_NAV.t(key) || key; }
 function tf(key, vars) {
-  let s = t(key);
-  for (const [k, v] of Object.entries(vars)) s = s.replace(`{${k}}`, v);
-  return s;
+  let str = t(key);
+  for (const [k, v] of Object.entries(vars)) str = str.replace(`{${k}}`, v);
+  return str;
 }
 
-function applyI18n() {
-  const navLinks = document.querySelectorAll('.bb-nav-link');
-  navLinks[0].textContent = t('nav_home');
-  navLinks[1].textContent = t('nav_about');
-  navLinks[2].textContent = t('nav_stats');
-  navLinks[3].textContent = t('nav_books');
-  navLinks[4].textContent = t('nav_nlp');
-  navLinks[5].textContent = t('nav_reader');
-  document.getElementById('page-title').textContent = t('page_title');
-  document.getElementById('page-subtitle').textContent = t('page_subtitle');
-  document.querySelectorAll('.bb-lang-btn').forEach(b =>
-    b.classList.toggle('active', b.dataset.lang === uiLang));
+function applyPageI18n() {
+  document.getElementById('page-title').textContent = BB_NAV.t('books_title');
+  document.getElementById('page-subtitle').textContent = BB_NAV.t('books_subtitle');
+  if (window._books) renderCards(window._books);
 }
-
-document.querySelectorAll('.bb-lang-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    uiLang = btn.dataset.lang;
-    localStorage.setItem('bb-ui-lang', uiLang);
-    applyI18n();
-    renderCards(window._books);
-  });
-});
+BB_NAV.onLangChange = applyPageI18n;
 
 // ── Word frequency ────────────────────────────────────────────
 function wordFreq(texts) {
@@ -580,7 +490,7 @@ async function init() {
   }
 }
 
-applyI18n();
+applyPageI18n();
 init();
 </script>
 </body>

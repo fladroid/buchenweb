@@ -124,101 +124,16 @@
 <div id="bb-footer"></div>
 
 <script>
-// ── I18N ──────────────────────────────────────────────────────
-const I18N = {
-  en: {
-    nav_home:"Home", nav_about:"About", nav_stats:"X-Ray Stats", nav_books:"Library", nav_nlp:"NLP", nav_reader:"Reader",
-    hero_tagline:"Open-source machine translation pipeline for classic literature",
-    hero_desc:`Buchenberg is a research project that translates public-domain books from
-      <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a> into multiple
-      languages using open-source machine translation models — then measures and ranks
-      translation quality automatically, sentence by sentence.<br><br>
-      The name <strong>Buchenberg</strong> is a deliberate echo of <strong>Gutenberg</strong> —
-      honouring the spirit of the original project while extending it into the age of
-      machine translation. <em>Buch</em> is German for <em>book</em>; the suffix
-      <em>-enberg</em> ties us to our source.`,
-    sec_how:"How it works",
-    how_desc:`Each sentence of a source book is translated into a target language using three
-      different models — <strong>Gemma 3 12B</strong>, <strong>Ministral 3 14B</strong>,
-      and <strong>NLLB-600M</strong> — at various temperatures.
-      The resulting translations are then back-translated to English and compared to
-      the original using <strong>cosine similarity</strong> on multilingual embeddings.
-      A fourth model, <strong>Gemma 4 31B</strong>, acts as a blind judge — rating each
-      candidate on grammar, naturalness, and fidelity.
-      The sentence-level winner is selected by combining both scores.
-      The final document is a hybrid: the best translation for each sentence, regardless of model.`,
-    pillar_bt:"Translate to target language, then back to English. Measure cosine similarity between original and round-tripped text. A high score means the translation preserved meaning.",
-    pillar_judge:"Gemma 4 31B evaluates each candidate translation blindly on three axes: grammar, naturalness, and fidelity to the original. Judge score carries 60% of the final ranking weight.",
-    pillar_winner:"No single model wins every sentence. The final document combines the best-scoring translation per sentence — a hybrid that outperforms any individual model.",
-    sec_status:"Current status",
-    lbl_books:"Books in corpus", lbl_langs:"Target languages", lbl_sentences:"Sentences translated", lbl_models:"Translation models",
-    cta_books:"Browse library", cta_about:"About", cta_stats:"X-Ray statistics",
-    opensource:`<strong>100% open source.</strong> All models used are freely available. No proprietary APIs, no cloud translation services.
-      Source books are from <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a> — public domain, freely distributable.
-      The pipeline runs on commodity hardware with a PostgreSQL backend and
-      <a href="https://ollama.com" target="_blank">Ollama</a> for local and cloud LLM inference.`,
-  },
-  de: {
-    nav_home:"Startseite", nav_about:"Über", nav_stats:"X-Ray Statistik", nav_books:"Bücher", nav_nlp:"NLP", nav_reader:"Leser",
-    hero_tagline:"Open-Source-Pipeline für maschinelle Übersetzung klassischer Literatur",
-    sec_how:"So funktioniert es", sec_status:"Aktueller Stand",
-    lbl_books:"Bücher im Korpus", lbl_langs:"Zielsprachen", lbl_sentences:"Übersetzte Sätze", lbl_models:"Übersetzungsmodelle",
-    cta_books:"Browse library", cta_about:"About", cta_stats:"X-Ray Statistik",
-  },
-  it: {
-    nav_home:"Home", nav_about:"Informazioni", nav_stats:"Statistiche X-Ray", nav_books:"Libri", nav_nlp:"NLP", nav_reader:"Lettore",
-    hero_tagline:"Pipeline open-source di traduzione automatica per la letteratura classica",
-    sec_how:"Come funziona", sec_status:"Stato attuale",
-    lbl_books:"Libri nel corpus", lbl_langs:"Lingue target", lbl_sentences:"Frasi tradotte", lbl_models:"Modelli di traduzione",
-    cta_books:"Browse library", cta_about:"About", cta_stats:"Statistiche X-Ray",
-  },
-  hr: {
-    nav_home:"Početna", nav_about:"O projektu", nav_stats:"X-Ray Statistike", nav_books:"Knjige", nav_nlp:"NLP", nav_reader:"Čitač",
-    hero_tagline:"Open-source pipeline za strojno prevođenje klasične književnosti",
-    sec_how:"Kako funkcionira", sec_status:"Trenutno stanje",
-    lbl_books:"Knjige u korpusu", lbl_langs:"Ciljni jezici", lbl_sentences:"Prevedenih rečenica", lbl_models:"Modeli prevođenja",
-    cta_books:"Browse library", cta_about:"About", cta_stats:"X-Ray statistike",
-  },
-  sr: {
-    nav_home:"Почетна", nav_about:"О пројекту", nav_stats:"X-Ray Статистике", nav_books:"Књиге", nav_nlp:"NLP", nav_reader:"Читач",
-    hero_tagline:"Open-source pipeline за машинско превођење класичне књижевности",
-    sec_how:"Kako funkcioniše", sec_status:"Trenutno stanje",
-    lbl_books:"Knjige u korpusu", lbl_langs:"Ciljni jezici", lbl_sentences:"Prevedenih rečenica", lbl_models:"Modeli prevođenja",
-    cta_books:"Browse library", cta_about:"About", cta_stats:"X-Ray statistike",
-  },
-};
-
-// ── Theme ─────────────────────────────────────────────────────
-const savedTheme = localStorage.getItem('bb-theme') || 'light';
-document.documentElement.setAttribute('data-theme', savedTheme);
-function updateThemeBtn() {
-  document.getElementById('bb-theme-toggle').textContent =
-    document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
-}
-updateThemeBtn();
-// theme toggle: centralizovano u nav.js
-
-// ── UI Language ───────────────────────────────────────────────
-let uiLang = localStorage.getItem('bb-ui-lang') || 'en';
-
-function t(key) {
-  return (I18N[uiLang] || {})[key] || I18N.en[key] || key;
-}
-
-function applyI18n() {
-  document.querySelectorAll('.bb-nav-link')[0].textContent = t('nav_home');
-  document.querySelectorAll('.bb-nav-link')[1].textContent = t('nav_about');
-  document.querySelectorAll('.bb-nav-link')[2].textContent = t('nav_stats');
-  document.querySelectorAll('.bb-nav-link')[3].textContent = t('nav_books');
-  document.querySelectorAll('.bb-nav-link')[4].textContent = t('nav_nlp');
-  document.querySelectorAll('.bb-nav-link')[5].textContent = t('nav_reader');
-  document.getElementById('hero-tagline').textContent = t('hero_tagline');
-  const hd = t('hero_desc'); if (hd) document.getElementById('hero-desc').innerHTML = hd;
+// ── i18n via BB_NAV ───────────────────────────────────────────
+function applyPageI18n() {
+  const t = (k) => BB_NAV.t('index_' + k) || BB_NAV.t(k) || k;
+  document.getElementById('hero-tagline').textContent = t('tagline');
+  const hd = t('hero_desc'); if (hd && hd !== 'hero_desc') document.getElementById('hero-desc').innerHTML = hd;
   document.getElementById('sec-how').textContent = t('sec_how');
-  const hw = t('how_desc'); if (hw) document.getElementById('how-desc').innerHTML = hw;
-  const pb = t('pillar_bt'); if (pb) document.getElementById('pillar-bt').textContent = pb;
-  const pj = t('pillar_judge'); if (pj) document.getElementById('pillar-judge').textContent = pj;
-  const pw = t('pillar_winner'); if (pw) document.getElementById('pillar-winner').textContent = pw;
+  const hw = t('how_desc'); if (hw && hw !== 'how_desc') document.getElementById('how-desc').innerHTML = hw;
+  const pb = t('pillar_bt'); if (pb && pb !== 'pillar_bt') document.getElementById('pillar-bt').textContent = pb;
+  const pj = t('pillar_judge'); if (pj && pj !== 'pillar_judge') document.getElementById('pillar-judge').textContent = pj;
+  const pw = t('pillar_winner'); if (pw && pw !== 'pillar_winner') document.getElementById('pillar-winner').textContent = pw;
   document.getElementById('sec-status').textContent = t('sec_status');
   document.getElementById('lbl-stat-books').textContent = t('lbl_books');
   document.getElementById('lbl-stat-langs').textContent = t('lbl_langs');
@@ -227,17 +142,9 @@ function applyI18n() {
   document.getElementById('cta-books').textContent = t('cta_books');
   document.getElementById('cta-about').textContent = t('cta_about');
   document.getElementById('cta-stats').textContent = t('cta_stats');
-  const os = t('opensource'); if (os) document.getElementById('opensource-note').innerHTML = os;
-  document.querySelectorAll('.bb-lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === uiLang));
+  const os = t('opensource'); if (os && os !== 'opensource') document.getElementById('opensource-note').innerHTML = os;
 }
-
-document.querySelectorAll('.bb-lang-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    uiLang = btn.dataset.lang;
-    localStorage.setItem('bb-ui-lang', uiLang);
-    applyI18n();
-  });
-});
+BB_NAV.onLangChange = applyPageI18n;
 
 // ── Stats iz books.json ───────────────────────────────────────
 async function loadStats() {
@@ -262,7 +169,7 @@ async function loadStats() {
 }
 
 // ── Init ──────────────────────────────────────────────────────
-applyI18n();
+applyPageI18n();
 loadStats();
 </script>
 </body>
