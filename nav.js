@@ -1,8 +1,8 @@
 (function() {
 
 // ── Verzija portala — bump na kraju svake sesije ──
-const BB_VERSION = 's75';
-const BB_VERSION_DATE = '13 Jun 2026';
+const BB_VERSION = 's76';
+const BB_VERSION_DATE = '14 Jun 2026';
 
 const NAV_I18N = {
   en: { home:"Home", about:"About", stats:"X-Ray Stats", books:"Library",
@@ -29,6 +29,8 @@ const NAV_LINKS = [
   { key:"art",      href:"art.html" },
 ];
 
+const LANG_LABELS = { en:'EN', de:'DE', it:'IT', hr:'HR', sr:'SR' };
+
 // Theme init ODMAH — sprečava flash
 const savedTheme = localStorage.getItem('bb-theme') || 'light';
 document.documentElement.setAttribute('data-theme', savedTheme);
@@ -54,17 +56,15 @@ function buildHeaderHTML() {
     return `<a href="${l.href}" class="bb-nav-link${active}" data-navkey="${l.key}">${(NAV_I18N[uiLang]||NAV_I18N.en)[l.key]}</a>`;
   }).join('\n      ');
 
+  const optionsHTML = Object.entries(LANG_LABELS).map(([val, label]) =>
+    `<option value="${val}"${uiLang===val?' selected':''}>${label}</option>`
+  ).join('');
+
   return `<div id="bb-header"><div id="bb-header-inner">
     <a href="index.html" id="bb-logo">Buchenberg</a>
     <nav id="bb-nav">\n      ${navHTML}\n    </nav>
     <div id="bb-header-controls">
-      <div id="bb-ui-lang-bar">
-        <button class="bb-lang-btn${uiLang==='en'?' active':''}" data-lang="en">EN</button>
-        <button class="bb-lang-btn${uiLang==='de'?' active':''}" data-lang="de">DE</button>
-        <button class="bb-lang-btn${uiLang==='it'?' active':''}" data-lang="it">IT</button>
-        <button class="bb-lang-btn${uiLang==='hr'?' active':''}" data-lang="hr">HR</button>
-        <button class="bb-lang-btn${uiLang==='sr'?' active':''}" data-lang="sr">SR</button>
-      </div>
+      <select id="bb-lang-select" title="UI language">${optionsHTML}</select>
       <button id="bb-theme-toggle" title="Toggle dark mode">${savedTheme==='dark'?'☀️':'🌙'}</button>
       <button id="bb-burger" title="Menu">☰</button>
     </div>
@@ -76,6 +76,7 @@ document.write(buildHeaderHTML());
 
 // Nakon što se DOM učita — privežemo event listenere
 document.addEventListener('DOMContentLoaded', function() {
+
   // Theme toggle
   document.getElementById('bb-theme-toggle').addEventListener('click', () => {
     const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -91,22 +92,18 @@ document.addEventListener('DOMContentLoaded', function() {
   nav.querySelectorAll('.bb-nav-link').forEach(a =>
     a.addEventListener('click', () => nav.classList.remove('open')));
 
-  // Lang buttons
-  document.querySelectorAll('.bb-lang-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      uiLang = btn.dataset.lang;
-      localStorage.setItem('bb-ui-lang', uiLang);
-      // Ažuriraj nav labele
-      document.querySelectorAll('.bb-nav-link[data-navkey]').forEach(a => {
-        a.textContent = (NAV_I18N[uiLang]||NAV_I18N.en)[a.dataset.navkey] || a.textContent;
-      });
-      document.querySelectorAll('.bb-lang-btn').forEach(b =>
-        b.classList.toggle('active', b.dataset.lang === uiLang));
-      // Obavijesti stranicu
-      if (typeof window.BB_NAV.onLangChange === 'function') {
-        window.BB_NAV.onLangChange(uiLang);
-      }
+  // Lang dropdown
+  document.getElementById('bb-lang-select').addEventListener('change', function() {
+    uiLang = this.value;
+    localStorage.setItem('bb-ui-lang', uiLang);
+    // Ažuriraj nav labele
+    document.querySelectorAll('.bb-nav-link[data-navkey]').forEach(a => {
+      a.textContent = (NAV_I18N[uiLang]||NAV_I18N.en)[a.dataset.navkey] || a.textContent;
     });
+    // Obavijesti stranicu
+    if (typeof window.BB_NAV.onLangChange === 'function') {
+      window.BB_NAV.onLangChange(uiLang);
+    }
   });
 
   // Key Concepts — about, geometry, art, nlp
@@ -146,14 +143,15 @@ document.addEventListener('DOMContentLoaded', function() {
       .catch(function() {});
   })();
 
-  // Footer: autorstvo + verzija — na svim stranicama
+  // Footer — renderira se iz nav.js, HTML fajlovi imaju samo prazan <div id="bb-footer">
   const footer = document.getElementById('bb-footer');
   if (footer) {
-    const line = document.createElement('div');
-    line.style.cssText = 'max-width:1200px;margin:4px auto 0;padding:0 16px;font-size:11px;color:var(--text-muted);';
-    line.innerHTML = 'Flavio \u00b7 X-Ray approach to machine translation \u00b7 ' + BB_VERSION + ' (' + BB_VERSION_DATE + ')';
-    footer.appendChild(line);
+    footer.innerHTML =
+      '<div style="max-width:1200px;margin:0 auto;padding:0 16px;">' +
+        'Buchenberg \u00b7 Open-source MT pipeline \u00b7 ' + BB_VERSION + ' (' + BB_VERSION_DATE + ')' +
+      '</div>';
   }
+
 });
 
 })();
