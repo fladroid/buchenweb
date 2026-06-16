@@ -120,16 +120,148 @@
   }
   .xray-legend-row {
     display: flex; gap: 0; border-bottom: 1px solid var(--border-light);
-    border-right: 1px solid var(--border-light);
+
   }
   .xray-legend-row:nth-child(even) { border-right: none; }
   .xray-legend-key {
     font-family: var(--font-mono); font-weight: bold; font-size: 11px;
     color: var(--text-muted); padding: 5px 10px; min-width: 140px;
-    border-right: 1px solid var(--border-light); white-space: nowrap;
+ white-space: nowrap;
   }
   .xray-legend-val {
     padding: 5px 10px; color: var(--text-muted); line-height: 1.5; font-size: 11px;
+  }
+
+  /* ── X-Ray Full Mode ─────────────────────────────────────── */
+  #xray-full-container { display: none; }
+  #xray-full-container.visible { display: block; }
+
+  .xf-sentence {
+    margin-bottom: 28px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .xf-original {
+    padding: 10px 16px;
+    background: var(--toc-bg);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-serif);
+    font-size: 13px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+  .xf-original sup {
+    font-size: 10px; color: var(--text-light);
+    font-family: var(--font-mono); font-style: normal;
+    margin-right: 4px;
+  }
+  .xf-candidates { display: flex; flex-direction: column; }
+  .xf-card {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 0;
+    border-bottom: 1px solid var(--border-light);
+    transition: background .1s;
+  }
+  .xf-card:last-child { border-bottom: none; }
+  .xf-card.winner {
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
+    border-left: 3px solid var(--accent);
+  }
+  .xf-card:not(.winner) { border-left: 3px solid transparent; }
+  .xf-label {
+    padding: 10px 12px;
+
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-light);
+    display: flex; flex-direction: column; justify-content: center; gap: 2px;
+  }
+  .xf-label-model { color: var(--text-muted); font-weight: 500; }
+  .xf-label-winner {
+    color: var(--accent); font-size: 10px; font-weight: 600; letter-spacing: 0.05em;
+  }
+  .xf-text {
+    padding: 10px 14px;
+    font-family: var(--font-serif);
+    font-size: 17px;
+    line-height: 1.75;
+    color: var(--text);
+
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .xf-card.winner .xf-text { color: var(--text); font-weight: 500; }
+  .xf-backt {
+    font-size: 12px;
+    font-style: italic;
+    color: var(--text-light);
+    line-height: 1.5;
+    padding-top: 4px;
+    border-top: 1px solid var(--border-light);
+  }
+  .xf-backt-label {
+    font-family: var(--font-mono);
+    font-style: normal;
+    font-size: 10px;
+    color: var(--text-light);
+    margin-right: 4px;
+  }
+  .xf-scores-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 18px;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid var(--border-light);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-light);
+  }
+  .xf-score-item { display: flex; gap: 4px; align-items: baseline; }
+  .xf-score-label { color: var(--text-light); }
+  .xf-score-val { color: var(--text-muted); font-weight: 600; }
+  .xf-score-final .xf-score-val { color: var(--accent); font-weight: 700; }
+
+  /* paginacija */
+  .xf-pagination {
+    display: flex; align-items: center; justify-content: center;
+    gap: 12px; margin: 24px 0 8px;
+    font-family: var(--font-mono); font-size: 13px; color: var(--text-muted);
+  }
+  .xf-page-btn {
+    padding: 5px 14px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .xf-page-btn:hover:not(:disabled) { border-color: var(--accent); }
+  .xf-page-btn:disabled { opacity: 0.35; cursor: default; }
+  .xf-page-info { min-width: 100px; text-align: center; }
+
+  /* X-Ray Full dugme */
+  .xray-full-btn {
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--surface);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    cursor: pointer;
+    transition: border-color .15s, color .15s, background .15s;
+    white-space: nowrap;
+  }
+  .xray-full-btn:hover { border-color: var(--accent); color: var(--text); }
+  .xray-full-btn.active {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+    color: var(--accent);
   }
 
   @media (max-width: 700px) {
@@ -167,52 +299,81 @@
     </div>
   </div>
 
-  <!-- X-RAY LEGENDA -->
-  <div id="xray-legend">
-    <div id="xray-legend-title">X-Ray — Score Guide</div>
-    <div id="xray-legend-body">
-      <div class="xray-legend-row">
-        <div class="xray-legend-key">BT</div>
-        <div class="xray-legend-val">Back Translation — the winning translation translated back to English. Shows how much meaning survives the round trip.</div>
-      </div>
-      <div class="xray-legend-row">
-        <div class="xray-legend-key">Translation Score</div>
-        <div class="xray-legend-val">Cosine similarity between the translation and the original in the multilingual embedding space (e5-large). Measures semantic closeness across languages.</div>
-      </div>
-      <div class="xray-legend-row">
-        <div class="xray-legend-key">Back Score</div>
-        <div class="xray-legend-val">Cosine similarity between the back translation and the original English. A high score means the meaning survived the round trip intact.</div>
-      </div>
-      <div class="xray-legend-row">
-        <div class="xray-legend-key">Judge Average</div>
-        <div class="xray-legend-val">Average of the three judge scores below, assigned by the LLM judge (gemma4:31b). The primary quality signal from the judge.</div>
-      </div>
-      <div class="xray-legend-row">
-        <div class="xray-legend-key">Grammar</div>
-        <div class="xray-legend-val">Judge score for grammatical correctness and syntactic quality of the translation (0–1).</div>
-      </div>
-      <div class="xray-legend-row">
-        <div class="xray-legend-key">Naturalness</div>
-        <div class="xray-legend-val">Judge score for how natural and fluent the translation reads to a native speaker of the target language (0–1).</div>
-      </div>
-      <div class="xray-legend-row">
-        <div class="xray-legend-key">Fidelity</div>
-        <div class="xray-legend-val">Judge score for how faithfully the translation conveys the full meaning of the original sentence (0–1).</div>
-      </div>
-      <div class="xray-legend-row">
-        <div class="xray-legend-key">Model</div>
-        <div class="xray-legend-val">The winning translation model: gemma3 (Google), ministral (Mistral AI), or nllb-600M (Meta NLLB — local CPU model).</div>
-      </div>
-      <div class="xray-legend-row" style="border-right:none;">
-        <div class="xray-legend-key">t=</div>
-        <div class="xray-legend-val">Temperature at which the model was run. Lower values (0.1) produce more deterministic output; higher values (0.8) introduce more variation and creativity.</div>
-      </div>
-    </div>
-  </div>
-
   <!-- MAIN -->
   <div id="reader-main">
     <div id="reader-loading" class="bb-loading">Select a book and translation</div>
+
+    <div id="reader-toolbar" style="display:none">
+      <span class="bb-toggle-wrap">
+        <label id="lbl-show-original">Show original:</label>
+        <label class="bb-toggle">
+          <input type="checkbox" id="toggle-original">
+          <span class="bb-toggle-slider"></span>
+        </label>
+      </span>
+      <span class="bb-toggle-wrap" style="margin-left:12px;display:none" id="xray-full-toggle-wrap">
+        <label class="bb-toggle">
+          <input type="checkbox" id="toggle-xray-full">
+          <span class="bb-toggle-slider"></span>
+        </label>
+        <label style="color:var(--text-muted)">X-Ray</label>
+      </span>
+      <span class="score-info" id="score-info" style="display:none"></span>
+    </div>
+
+    <!-- X-RAY LEGENDA -->
+    <div id="xray-legend">
+      <div id="xray-legend-title">X-Ray — Score Guide</div>
+      <div id="xray-legend-body">
+        <div class="xray-legend-row">
+          <div class="xray-legend-key">BT</div>
+          <div class="xray-legend-val">Back Translation — the winning translation translated back to English. Shows how much meaning survives the round trip.</div>
+        </div>
+        <div class="xray-legend-row">
+          <div class="xray-legend-key">Translation Score</div>
+          <div class="xray-legend-val">Cosine similarity between the translation and the original in the multilingual embedding space (e5-large). Measures semantic closeness across languages.</div>
+        </div>
+        <div class="xray-legend-row">
+          <div class="xray-legend-key">Back Score</div>
+          <div class="xray-legend-val">Cosine similarity between the back translation and the original English. A high score means the meaning survived the round trip intact.</div>
+        </div>
+        <div class="xray-legend-row">
+          <div class="xray-legend-key">Judge Average</div>
+          <div class="xray-legend-val">Average of the three judge scores below, assigned by the LLM judge (gemma4:31b). The primary quality signal from the judge.</div>
+        </div>
+        <div class="xray-legend-row">
+          <div class="xray-legend-key">Grammar</div>
+          <div class="xray-legend-val">Judge score for grammatical correctness and syntactic quality of the translation (0–1).</div>
+        </div>
+        <div class="xray-legend-row">
+          <div class="xray-legend-key">Naturalness</div>
+          <div class="xray-legend-val">Judge score for how natural and fluent the translation reads to a native speaker of the target language (0–1).</div>
+        </div>
+        <div class="xray-legend-row">
+          <div class="xray-legend-key">Fidelity</div>
+          <div class="xray-legend-val">Judge score for how faithfully the translation conveys the full meaning of the original sentence (0–1).</div>
+        </div>
+        <div class="xray-legend-row">
+          <div class="xray-legend-key">Model</div>
+          <div class="xray-legend-val">The winning translation model: gemma3 (Google), ministral (Mistral AI), or nllb-600M (Meta NLLB — local CPU model).</div>
+        </div>
+        <div class="xray-legend-row" style="border-right:none;">
+          <div class="xray-legend-key">t=</div>
+          <div class="xray-legend-val">Temperature at which the model was run. Lower values (0.1) produce more deterministic output; higher values (0.8) introduce more variation and creativity.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- X-RAY FULL CONTAINER -->
+    <div id="xray-full-container">
+      <div id="xray-full-body"></div>
+      <div class="xf-pagination">
+        <button class="xf-page-btn" id="xf-prev">← Prev</button>
+        <span class="xf-page-info" id="xf-page-info"></span>
+        <button class="xf-page-btn" id="xf-next">Next →</button>
+      </div>
+    </div>
+
     <div id="content" style="display:none">
 
       <div id="book-header" style="display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;">
@@ -225,24 +386,6 @@
           <div class="bb-infobox-title" id="infobox-title">Novel</div>
           <table id="infobox-table"></table>
         </div>
-      </div>
-
-      <div id="reader-toolbar">
-        <span class="bb-toggle-wrap">
-          <label id="lbl-show-original">Show original:</label>
-          <label class="bb-toggle">
-            <input type="checkbox" id="toggle-original">
-            <span class="bb-toggle-slider"></span>
-          </label>
-        </span>
-        <span class="bb-toggle-wrap" style="margin-left:12px">
-          <label class="bb-toggle">
-            <input type="checkbox" id="toggle-xray">
-            <span class="bb-toggle-slider"></span>
-          </label>
-          <label id="lbl-xray" style="color:var(--text-muted)">X-Ray</label>
-        </span>
-        <span class="score-info" id="score-info" style="display:none"></span>
       </div>
 
       <div id="reader"></div>
@@ -270,11 +413,14 @@ const LANG_NAMES_NATIVE = {
   mk:"Македонски", bg:"Български"
 };
 
+const XRAY_PAGE_SIZE = 25;
+
 let state = {
   uiLang: localStorage.getItem('bb-ui-lang') || 'en',
   books:[], activeBook:null, activeLang:null,
-  showOriginal:false, xray:false,
-  translation:null, originalOnly:false
+  showOriginal:false,
+  translation:null, originalOnly:false,
+  xrayFull:false, xrayPage:0, xrayData:null
 };
 
 const t = key => (I18N[state.uiLang] || I18N.en)[key] || key;
@@ -425,6 +571,11 @@ function renderContent() {
   renderReader();
   $('reader-loading').style.display = 'none';
   $('content').style.display = '';
+  $('reader-toolbar').style.display = '';
+  // Pokazati X-Ray toggle samo za prevedene jezike
+  $('xray-full-toggle-wrap').style.display = state.originalOnly ? 'none' : '';
+  // Resetirati X-Ray Full mod pri promjeni knjige/jezika
+  if (state.xrayFull) exitXrayFull();
 }
 
 function renderInfobox() {
@@ -529,6 +680,158 @@ function escHtml(str) {
   return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+// ── X-Ray Full ───────────────────────────────────────────────────────────────
+
+async function enterXrayFull() {
+  if (!state.activeBook || !state.activeLang || state.originalOnly) return;
+
+  // Kalkuliraj stranicu iz trenutne scroll pozicije u normalnom readeru
+  // (aproksimacija: koja rečenica je vidljiva)
+  const firstVisible = getFirstVisibleSentenceIndex();
+  state.xrayPage = Math.floor(firstVisible / XRAY_PAGE_SIZE);
+
+  state.xrayFull = true;
+  $('toggle-xray-full').checked = true;
+
+  // Sakriti content (book-header + reader), toolbar ostaje vidljiv
+  $('content').style.display = 'none';
+  $('xray-full-container').classList.add('visible');
+  $('xray-legend').classList.add('visible');
+
+  // Učitati xray JSON ako nije već učitan
+  if (!state.xrayData ||
+      state.xrayData.book_id !== state.activeBook.id ||
+      state.xrayData.language !== state.activeLang) {
+    $('xray-full-body').innerHTML = '<div class="bb-loading">⌛ Loading X-Ray data…</div>';
+    const __v = window.__v || Date.now();
+    try {
+      state.xrayData = await fetch(
+        `data/xray_${state.activeBook.id}_${state.activeLang}.json?v=${__v}`
+      ).then(r => {
+        if (!r.ok) throw new Error('xray_' + state.activeBook.id + '_' + state.activeLang + '.json not found');
+        return r.json();
+      });
+    } catch(e) {
+      $('xray-full-body').innerHTML = '<div class="bb-loading">⚠ ' + escHtml(e.message) + ' — X-Ray data not available for this language yet.</div>';
+      return;
+    }
+  }
+
+  renderXrayPage();
+}
+
+function exitXrayFull() {
+  // Kalkuliraj poziciju u normalnom readeru iz trenutne xray stranice
+  const targetSentencePos = state.xrayPage * XRAY_PAGE_SIZE;
+
+  state.xrayFull = false;
+  $('toggle-xray-full').checked = false;
+
+  $('xray-full-container').classList.remove('visible');
+  $('xray-legend').classList.remove('visible');
+  $('content').style.display = '';
+  $('xray-full-toggle-wrap').style.display = '';
+
+  // Scroll na odgovarajuću poziciju u normalnom readeru
+  setTimeout(() => {
+    const rows = document.querySelectorAll('.sentence-row');
+    if (rows[targetSentencePos]) {
+      rows[targetSentencePos].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 50);
+}
+
+function getFirstVisibleSentenceIndex() {
+  const rows = document.querySelectorAll('.sentence-row');
+  for (let i = 0; i < rows.length; i++) {
+    const rect = rows[i].getBoundingClientRect();
+    if (rect.bottom > 0) return i;
+  }
+  return 0;
+}
+
+function renderXrayPage() {
+  if (!state.xrayData) return;
+  const sentences = state.xrayData.sentences;
+  const totalPages = Math.ceil(sentences.length / XRAY_PAGE_SIZE);
+  const page = Math.max(0, Math.min(state.xrayPage, totalPages - 1));
+  state.xrayPage = page;
+
+  const start = page * XRAY_PAGE_SIZE;
+  const end = Math.min(start + XRAY_PAGE_SIZE, sentences.length);
+  const pageSentences = sentences.slice(start, end);
+
+  const body = $('xray-full-body');
+  body.innerHTML = '';
+
+  pageSentences.forEach(sent => {
+    const el = document.createElement('div');
+    el.className = 'xf-sentence';
+
+    // EN original
+    const orig = document.createElement('div');
+    orig.className = 'xf-original';
+    orig.innerHTML = '<sup>' + sent.pos + '</sup>' + escHtml(sent.original);
+    el.appendChild(orig);
+
+    // Kandidati
+    const cands = document.createElement('div');
+    cands.className = 'xf-candidates';
+
+    const candidates = (sent.candidates || []);
+    candidates.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'xf-card' + (c.is_winner ? ' winner' : '');
+
+      const modelShort = (c.model||'')
+        .replace('gemma3:12b','gemma3')
+        .replace('ministral-3:14b','ministral')
+        .replace('nllb-200-distilled-600M','nllb-600M');
+      const tempStr = (c.temp !== null && c.temp !== undefined) ? 't=' + c.temp : '';
+
+      const backtHtml = c.back_translation
+        ? '<div class="xf-backt"><span class="xf-backt-label">BT</span>' + escHtml(c.back_translation) + '</div>'
+        : '';
+
+      // Scores — horizontalni red ispod BT
+      const scoresHtml = '<div class="xf-scores-row">' +
+        (c.ts != null          ? '<span class="xf-score-item"><span class="xf-score-label">translation</span><span class="xf-score-val">' + c.ts + '</span></span>' : '') +
+        (c.back_score != null  ? '<span class="xf-score-item"><span class="xf-score-label">backtrans</span><span class="xf-score-val">' + c.back_score + '</span></span>' : '') +
+        (c.sudija_grammar != null  ? '<span class="xf-score-item"><span class="xf-score-label">grammar</span><span class="xf-score-val">' + c.sudija_grammar + '</span></span>' : '') +
+        (c.sudija_natural != null  ? '<span class="xf-score-item"><span class="xf-score-label">naturalness</span><span class="xf-score-val">' + c.sudija_natural + '</span></span>' : '') +
+        (c.sudija_fidelity != null ? '<span class="xf-score-item"><span class="xf-score-label">fidelity</span><span class="xf-score-val">' + c.sudija_fidelity + '</span></span>' : '') +
+        (c.judge_avg != null       ? '<span class="xf-score-item"><span class="xf-score-label">judge avg</span><span class="xf-score-val">' + c.judge_avg + '</span></span>' : '') +
+        (c.finalni_score != null   ? '<span class="xf-score-item xf-score-final"><span class="xf-score-label">final</span><span class="xf-score-val">' + c.finalni_score + '</span></span>' : '') +
+        '</div>';
+
+      card.innerHTML =
+        '<div class="xf-label">' +
+          '<span class="xf-label-model">' + escHtml(modelShort) + '</span>' +
+          '<span style="color:var(--text-light);font-size:10px">' + tempStr + '</span>' +
+          (c.is_winner ? '<span class="xf-label-winner">★ winner</span>' : '') +
+        '</div>' +
+        '<div class="xf-text">' +
+          '<span>' + escHtml(c.prevod || '') + '</span>' +
+          backtHtml +
+          scoresHtml +
+        '</div>';
+
+      cands.appendChild(card);
+    });
+
+    el.appendChild(cands);
+    body.appendChild(el);
+  });
+
+  // Paginacija
+  $('xf-page-info').textContent = 'page ' + (page + 1) + ' / ' + totalPages;
+  $('xf-prev').disabled = page === 0;
+  $('xf-next').disabled = page >= totalPages - 1;
+
+  // Scroll na vrh
+  $('xray-full-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 $('book-select').addEventListener('change', function() {
   const book = state.books.find(b => String(b.id) === this.value);
   if (book) selectBook(book);
@@ -545,13 +848,17 @@ $('toggle-original').addEventListener('change', function() {
   if (state.translation) renderReader();
 });
 
-$('toggle-xray').addEventListener('change', function() {
-  state.xray = this.checked;
-  $('score-info').style.display = this.checked ? '' : 'none';
-  $('xray-legend').classList.toggle('visible', state.xray);
-  document.querySelectorAll('.xray-panel').forEach(p => {
-    p.classList.toggle('visible', state.xray);
-  });
+$('toggle-xray-full').addEventListener('change', function() {
+  if (this.checked) enterXrayFull();
+  else exitXrayFull();
+});
+
+$('xf-prev').addEventListener('click', function() {
+  if (state.xrayPage > 0) { state.xrayPage--; renderXrayPage(); }
+});
+
+$('xf-next').addEventListener('click', function() {
+  state.xrayPage++; renderXrayPage();
 });
 
 applyI18n();
