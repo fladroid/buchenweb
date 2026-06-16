@@ -749,8 +749,8 @@
 <!-- HERO -->
 <div class="learn-hero">
   <div class="learn-hero-inner">
-    <h1>Language Learning</h1>
-    <p id="hero-subtitle">Choose a game and start learning languages from classic literature.</p>
+    <h1 id="learn-title"></h1>
+    <p id="hero-subtitle"></p>
   </div>
 </div>
 
@@ -762,50 +762,50 @@
 
       <div class="game-card" data-game="fillin">
         <div class="game-card-icon">✏️</div>
-        <h3>Fill in the Blank</h3>
-        <p>Read a sentence from classic literature and fill in the missing words. Learn a foreign language with English as context, or practise English with a translation as hint.</p>
+        <h3 id="learn-fillin-h"></h3>
+        <p id="learn-fillin-p"></p>
         <ul class="game-card-rules">
-          <li>Easy: 1 blank &middot; Medium: 2 &middot; Hard: 3</li>
-          <li>Click blank to pick from multiple choice, then type if wrong</li>
-          <li>Hint reveals one word (&minus;3 pts) &middot; 10 sentences per round</li>
+          <li id="learn-fillin-r1"></li>
+          <li id="learn-fillin-r2"></li>
+          <li id="learn-fillin-r3"></li>
         </ul>
-        <button class="bb-btn bb-btn-primary game-card-play">Play &rarr;</button>
+        <button class="bb-btn bb-btn-primary game-card-play" id="learn-play-btn-1"></button>
       </div>
 
       <div class="game-card" data-game="match">
         <div class="game-card-icon">🔗</div>
-        <h3>Sentence Match</h3>
-        <p>Two columns &mdash; English on the left, translation on the right. Click one sentence from each side to pair them. Train your eye to recognise which translation belongs to which original.</p>
+        <h3 id="learn-match-h"></h3>
+        <p id="learn-match-p"></p>
         <ul class="game-card-rules">
-          <li>10 sentence pairs per round</li>
-          <li>+10 pts for a correct match, &minus;2 pts for a wrong pair</li>
-          <li>Match all pairs as quickly as possible</li>
+          <li id="learn-match-r1"></li>
+          <li id="learn-match-r2"></li>
+          <li id="learn-match-r3"></li>
         </ul>
-        <button class="bb-btn bb-btn-primary game-card-play">Play &rarr;</button>
+        <button class="bb-btn bb-btn-primary game-card-play" id="learn-play-btn-2"></button>
       </div>
 
       <div class="game-card" data-game="memory">
         <div class="game-card-icon">🃏</div>
-        <h3>Memory</h3>
-        <p>Classic card-flip game. Flip two cards at a time and find matching English&ndash;translation pairs. Cards stay face up when matched &mdash; fewer attempts means a better score.</p>
+        <h3 id="learn-memory-h"></h3>
+        <p id="learn-memory-p"></p>
         <ul class="game-card-rules">
-          <li>5 pairs = 10 cards on the board</li>
-          <li>Find all pairs in as few attempts as possible</li>
-          <li>Unmatched cards flip back after a short delay</li>
+          <li id="learn-memory-r1"></li>
+          <li id="learn-memory-r2"></li>
+          <li id="learn-memory-r3"></li>
         </ul>
-        <button class="bb-btn bb-btn-primary game-card-play">Play &rarr;</button>
+        <button class="bb-btn bb-btn-primary game-card-play" id="learn-play-btn-3"></button>
       </div>
 
       <div class="game-card" data-game="scrambled">
         <div class="game-card-icon">🔀</div>
-        <h3>Scrambled Sentence</h3>
-        <p>The words of a translated sentence are shuffled. Click them in the right order to reconstruct the translation. The English sentence is shown as context throughout.</p>
+        <h3 id="learn-scrambled-h"></h3>
+        <p id="learn-scrambled-p"></p>
         <ul class="game-card-rules">
-          <li>5 sentences per round</li>
-          <li>+10 pts first try, +5 pts after rearranging, 0 pts if wrong</li>
-          <li>Wrong answer reveals the correct sentence</li>
+          <li id="learn-scrambled-r1"></li>
+          <li id="learn-scrambled-r2"></li>
+          <li id="learn-scrambled-r3"></li>
         </ul>
-        <button class="bb-btn bb-btn-primary game-card-play">Play &rarr;</button>
+        <button class="bb-btn bb-btn-primary game-card-play" id="learn-play-btn-4"></button>
       </div>
 
     </div>
@@ -816,10 +816,10 @@
 
   <!-- TABS -->
   <div class="game-tabs">
-    <button class="game-tab active" data-tab="fillin">Fill in the Blank</button>
-    <button class="game-tab" data-tab="match">Sentence Match</button>
-    <button class="game-tab" data-tab="memory">Memory</button>
-    <button class="game-tab" data-tab="scrambled">Scrambled</button>
+    <button class="game-tab active" data-tab="fillin" id="learn-tab-fillin"></button>
+    <button class="game-tab" data-tab="match" id="learn-tab-match"></button>
+    <button class="game-tab" data-tab="memory" id="learn-tab-memory"></button>
+    <button class="game-tab" data-tab="scrambled" id="learn-tab-scrambled"></button>
   </div>
 
   <!-- FILL IN THE BLANK panels -->
@@ -827,40 +827,40 @@
 
   <!-- SETUP -->
   <div id="setup-panel">
-    <h2>New Game</h2>
+    <h2 id="learn-new-game"></h2>
 
     <div class="setup-row">
-      <label>I want to learn</label>
+      <label id="learn-lbl-lang"></label>
       <select id="sel-lang"><option value="">Loading...</option></select>
     </div>
 
     <div class="setup-row">
-      <label>Book</label>
+      <label id="learn-lbl-book"></label>
       <select id="sel-book"><option value="">— select a language first —</option></select>
     </div>
 
     <div class="setup-row" id="direction-info-row" style="display:none">
-      <label>Learning direction</label>
+      <label id="learn-lbl-direction"></label>
       <div class="direction-badge" id="direction-badge"></div>
     </div>
 
     <div class="setup-row" id="hint-lang-row" style="display:none">
-      <label>Hint language (context)</label>
+      <label id="learn-lbl-hint"></label>
       <select id="sel-hint-lang">
         <option value="">— select a book first —</option>
       </select>
     </div>
 
     <div class="setup-row">
-      <label>Difficulty</label>
+      <label id="learn-lbl-difficulty"></label>
       <div class="difficulty-btns">
-        <button class="diff-btn active" data-diff="easy">Easy</button>
-        <button class="diff-btn" data-diff="medium">Medium</button>
-        <button class="diff-btn" data-diff="hard">Hard</button>
+        <button class="diff-btn active" data-diff="easy" id="learn-diff-easy"></button>
+        <button class="diff-btn" data-diff="medium" id="learn-diff-medium"></button>
+        <button class="diff-btn" data-diff="hard" id="learn-diff-hard"></button>
       </div>
     </div>
 
-    <button id="start-btn" class="bb-btn bb-btn-primary">Start Game &#8594;</button>
+    <button id="start-btn" class="bb-btn bb-btn-primary"></button>
   </div>
 
   <!-- GAME -->
@@ -873,7 +873,7 @@
       </div>
       <div class="score-display">
         <div class="score-box">Score: <span id="score-val">0</span></div>
-        <button class="bb-btn" id="quit-btn">Quit</button>
+        <button class="bb-btn" id="quit-btn"></button>
       </div>
     </div>
 
@@ -884,9 +884,9 @@
     <div id="sentences-container"></div>
 
     <div class="game-controls">
-      <button class="bb-btn bb-btn-primary" id="check-btn">Check Answers</button>
-      <button class="bb-btn" id="hint-btn">Hint (&#8722;3 pts)</button>
-      <button class="bb-btn" id="next-btn" style="display:none">Next Sentence &#8594;</button>
+      <button class="bb-btn bb-btn-primary" id="check-btn"></button>
+      <button class="bb-btn" id="hint-btn"></button>
+      <button class="bb-btn" id="next-btn" style="display:none"></button>
     </div>
   </div>
 
@@ -894,24 +894,24 @@
   <div id="results-panel">
     <div class="results-box">
       <div class="results-score" id="res-score">0</div>
-      <div class="results-label">points earned</div>
+      <div class="results-label" id="learn-pts-earned"></div>
       <div class="results-breakdown">
         <div class="rb-item green">
           <div class="rb-num" id="res-correct">0</div>
-          <div class="rb-lbl">Correct</div>
+          <div class="rb-lbl" id="learn-correct"></div>
         </div>
         <div class="rb-item red">
           <div class="rb-num" id="res-wrong">0</div>
-          <div class="rb-lbl">Wrong</div>
+          <div class="rb-lbl" id="learn-wrong"></div>
         </div>
         <div class="rb-item">
           <div class="rb-num" id="res-hints">0</div>
-          <div class="rb-lbl">Hints used</div>
+          <div class="rb-lbl" id="learn-hints-used"></div>
         </div>
       </div>
       <div style="display:flex;gap:10px;justify-content:center;">
-        <button class="bb-btn bb-btn-primary" id="play-again-btn">Play Again</button>
-        <button class="bb-btn" id="new-game-btn">New Game</button>
+        <button class="bb-btn bb-btn-primary" id="play-again-btn"></button>
+        <button class="bb-btn" id="new-game-btn"></button>
       </div>
     </div>
   </div>
@@ -924,7 +924,7 @@
     <!-- MATCH SETUP -->
     <div id="match-panel" style="display:block">
       <div class="match-setup">
-        <h2>Sentence Match</h2>
+        <h2 id="learn-match-setup-h"></h2>
         <div class="setup-row">
           <label>Language (translation)</label>
           <select id="match-sel-lang"><option value="">Loading...</option></select>
@@ -933,7 +933,7 @@
           <label>Book</label>
           <select id="match-sel-book"><option value="">— select a language first —</option></select>
         </div>
-        <button id="match-start-btn" class="bb-btn bb-btn-primary" style="width:100%;padding:12px;font-size:15px;margin-top:8px;">Start Match &#8594;</button>
+        <button id="match-start-btn" class="bb-btn bb-btn-primary" style="width:100%;padding:12px;font-size:15px;margin-top:8px;"></button>
       </div>
     </div>
 
@@ -947,7 +947,7 @@
         </div>
         <div class="score-display">
           <div class="score-box">Score: <span id="match-score-val">0</span></div>
-          <button class="bb-btn" id="match-quit-btn">Quit</button>
+          <button class="bb-btn" id="match-quit-btn"></button>
         </div>
       </div>
       <div class="progress-bar-wrap">
@@ -969,7 +969,7 @@
     <div id="match-results-panel">
       <div class="match-results-box">
         <div class="results-score" id="match-res-score">0</div>
-        <div class="results-label">points earned</div>
+        <div class="results-label" id="learn-match-pts-earned"></div>
         <div class="match-time">Completed in <span id="match-res-time">0</span> seconds</div>
         <div class="results-breakdown" style="margin-bottom:28px">
           <div class="rb-item green">
@@ -978,12 +978,12 @@
           </div>
           <div class="rb-item red">
             <div class="rb-num" id="match-res-wrong">0</div>
-            <div class="rb-lbl">Wrong</div>
+            <div class="rb-lbl" id="learn-scr-wrong"></div>
           </div>
         </div>
         <div style="display:flex;gap:10px;justify-content:center;">
-          <button class="bb-btn bb-btn-primary" id="match-play-again-btn">Play Again</button>
-          <button class="bb-btn" id="match-new-game-btn">New Game</button>
+          <button class="bb-btn bb-btn-primary" id="match-play-again-btn"></button>
+          <button class="bb-btn" id="match-new-game-btn"></button>
         </div>
       </div>
     </div>
@@ -996,7 +996,7 @@
     <!-- MEMORY SETUP -->
     <div id="memory-setup-panel">
       <div class="memory-setup">
-        <h2>Memory</h2>
+        <h2 id="learn-memory-setup-h"></h2>
         <div class="setup-row">
           <label>Language (translation)</label>
           <select id="mem-sel-lang"><option value="">Loading...</option></select>
@@ -1005,7 +1005,7 @@
           <label>Book</label>
           <select id="mem-sel-book"><option value="">— select a language first —</option></select>
         </div>
-        <button id="mem-start-btn" class="bb-btn bb-btn-primary" style="width:100%;padding:12px;font-size:15px;margin-top:8px;">Start Memory &#8594;</button>
+        <button id="mem-start-btn" class="bb-btn bb-btn-primary" style="width:100%;padding:12px;font-size:15px;margin-top:8px;"></button>
       </div>
     </div>
 
@@ -1019,7 +1019,7 @@
         </div>
         <div class="score-display">
           <div class="score-box">Attempts: <span id="mem-attempts">0</span></div>
-          <button class="bb-btn" id="mem-quit-btn">Quit</button>
+          <button class="bb-btn" id="mem-quit-btn"></button>
         </div>
       </div>
       <div class="progress-bar-wrap">
@@ -1032,20 +1032,20 @@
     <div id="memory-results-panel">
       <div class="memory-results-box">
         <div class="results-score" id="mem-res-attempts">0</div>
-        <div class="results-label">attempts to find all 5 pairs</div>
+        <div class="results-label" id="learn-mem-attempts-label"></div>
         <div class="results-breakdown">
           <div class="rb-item green">
             <div class="rb-num" id="mem-res-pairs">5</div>
-            <div class="rb-lbl">Pairs found</div>
+            <div class="rb-lbl" id="learn-pairs-found"></div>
           </div>
           <div class="rb-item">
             <div class="rb-num" id="mem-res-best">5</div>
-            <div class="rb-lbl">Best possible</div>
+            <div class="rb-lbl" id="learn-best-possible"></div>
           </div>
         </div>
         <div style="display:flex;gap:10px;justify-content:center;">
-          <button class="bb-btn bb-btn-primary" id="mem-play-again-btn">Play Again</button>
-          <button class="bb-btn" id="mem-new-game-btn">New Game</button>
+          <button class="bb-btn bb-btn-primary" id="mem-play-again-btn"></button>
+          <button class="bb-btn" id="mem-new-game-btn"></button>
         </div>
       </div>
     </div>
@@ -1058,7 +1058,7 @@
     <!-- SETUP -->
     <div id="scrambled-setup-panel">
       <div class="scrambled-setup">
-        <h2>Scrambled Sentence</h2>
+        <h2 id="learn-scrambled-setup-h"></h2>
         <div class="setup-row">
           <label>Language (translation)</label>
           <select id="scr-sel-lang"><option value="">Loading...</option></select>
@@ -1067,7 +1067,7 @@
           <label>Book</label>
           <select id="scr-sel-book"><option value="">— select a language first —</option></select>
         </div>
-        <button id="scr-start-btn" class="bb-btn bb-btn-primary" style="width:100%;padding:12px;font-size:15px;margin-top:8px;">Start Scrambled &#8594;</button>
+        <button id="scr-start-btn" class="bb-btn bb-btn-primary" style="width:100%;padding:12px;font-size:15px;margin-top:8px;"></button>
       </div>
     </div>
 
@@ -1081,7 +1081,7 @@
         </div>
         <div class="score-display">
           <div class="score-box">Score: <span id="scr-score-val">0</span></div>
-          <button class="bb-btn" id="scr-quit-btn">Quit</button>
+          <button class="bb-btn" id="scr-quit-btn"></button>
         </div>
       </div>
 
@@ -1090,26 +1090,26 @@
       </div>
 
       <div class="scrambled-context">
-        <div class="context-label">English (context)</div>
+        <div class="context-label" id="learn-context-label"></div>
         <div class="context-text" id="scr-context-text"></div>
       </div>
 
       <div id="scr-hint-reveal"></div>
 
-      <div class="context-label" style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-light);margin-bottom:6px;">Your answer</div>
+      <div class="context-label" style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-light);margin-bottom:6px;" id="learn-your-answer"></div>
       <div class="scrambled-answer-area" id="scr-answer-area">
         <span class="scrambled-answer-placeholder" id="scr-placeholder">Click words below to build the sentence...</span>
       </div>
 
       <div class="scrambled-correct-answer" id="scr-correct-answer"></div>
 
-      <div class="context-label" style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-light);margin-bottom:6px;">Words</div>
+      <div class="context-label" style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-light);margin-bottom:6px;" id="learn-words"></div>
       <div class="scrambled-pool" id="scr-pool"></div>
 
       <div class="game-controls">
-        <button class="bb-btn bb-btn-primary" id="scr-check-btn">Check</button>
-        <button class="bb-btn" id="scr-clear-btn">Clear</button>
-        <button class="bb-btn" id="scr-peek-btn">Hold to Peek</button>
+        <button class="bb-btn bb-btn-primary" id="scr-check-btn"></button>
+        <button class="bb-btn" id="scr-clear-btn"></button>
+        <button class="bb-btn" id="scr-peek-btn"></button>
         <button class="bb-btn" id="scr-next-btn" style="display:none">Next &#8594;</button>
       </div>
     </div>
@@ -1118,15 +1118,15 @@
     <div id="scrambled-results-panel">
       <div class="scrambled-results-box">
         <div class="results-score" id="scr-res-score">0</div>
-        <div class="results-label">points out of 50</div>
+        <div class="results-label" id="learn-pts-out-of"></div>
         <div class="results-breakdown">
           <div class="rb-item green">
             <div class="rb-num" id="scr-res-correct">0</div>
-            <div class="rb-lbl">First try</div>
+            <div class="rb-lbl" id="learn-first-try"></div>
           </div>
           <div class="rb-item">
             <div class="rb-num" id="scr-res-partial">0</div>
-            <div class="rb-lbl">With moves</div>
+            <div class="rb-lbl" id="learn-with-moves"></div>
           </div>
           <div class="rb-item red">
             <div class="rb-num" id="scr-res-wrong">0</div>
@@ -1134,8 +1134,8 @@
           </div>
         </div>
         <div style="display:flex;gap:10px;justify-content:center;">
-          <button class="bb-btn bb-btn-primary" id="scr-play-again-btn">Play Again</button>
-          <button class="bb-btn" id="scr-new-game-btn">New Game</button>
+          <button class="bb-btn bb-btn-primary" id="scr-play-again-btn"></button>
+          <button class="bb-btn" id="scr-new-game-btn"></button>
         </div>
       </div>
     </div>
@@ -2447,8 +2447,75 @@ loadBooks();
 </script>
 
 <script>
-// i18n infrastruktura — sadržajni prijevodi TODO (buduća sesija)
-BB_NAV.onLangChange = function() {};
+// i18n
+function applyPageI18n() {
+  var t = (typeof BB_NAV !== 'undefined' && BB_NAV.t) ? BB_NAV.t.bind(BB_NAV) : function(k){return k;};
+
+  // Hero
+  var el = document.getElementById('learn-title'); if(el) el.textContent = t('learn_title');
+
+  // Subtitle — dinamički prema aktivnoj igri
+  var sub = document.getElementById('hero-subtitle');
+  if(sub) {
+    var activeTab = document.querySelector('.game-tab.active');
+    var game = activeTab ? activeTab.dataset.tab : 'overview';
+    var subKeys = {
+      overview:'learn_sub_overview', fillin:'learn_sub_fillin',
+      match:'learn_sub_match', memory:'learn_sub_memory', scrambled:'learn_sub_scrambled'
+    };
+    sub.textContent = t(subKeys[game] || 'learn_sub_overview');
+  }
+
+  // Overview kartice
+  var ids = {
+    'learn-fillin-h':'learn_fillin_h', 'learn-fillin-p':'learn_fillin_p',
+    'learn-fillin-r1':'learn_fillin_r1', 'learn-fillin-r2':'learn_fillin_r2', 'learn-fillin-r3':'learn_fillin_r3',
+    'learn-match-h':'learn_match_h', 'learn-match-p':'learn_match_p',
+    'learn-match-r1':'learn_match_r1', 'learn-match-r2':'learn_match_r2', 'learn-match-r3':'learn_match_r3',
+    'learn-memory-h':'learn_memory_h', 'learn-memory-p':'learn_memory_p',
+    'learn-memory-r1':'learn_memory_r1', 'learn-memory-r2':'learn_memory_r2', 'learn-memory-r3':'learn_memory_r3',
+    'learn-scrambled-h':'learn_scrambled_h', 'learn-scrambled-p':'learn_scrambled_p',
+    'learn-scrambled-r1':'learn_scrambled_r1', 'learn-scrambled-r2':'learn_scrambled_r2', 'learn-scrambled-r3':'learn_scrambled_r3',
+    'learn-play-btn-1':'learn_play_btn', 'learn-play-btn-2':'learn_play_btn',
+    'learn-play-btn-3':'learn_play_btn', 'learn-play-btn-4':'learn_play_btn',
+    'learn-new-game':'learn_new_game',
+    'learn-lbl-lang':'learn_lbl_lang', 'learn-lbl-book':'learn_lbl_book',
+    'learn-lbl-direction':'learn_lbl_direction', 'learn-lbl-hint':'learn_lbl_hint',
+    'learn-lbl-difficulty':'learn_lbl_difficulty',
+    'learn-diff-easy':'learn_diff_easy', 'learn-diff-medium':'learn_diff_medium', 'learn-diff-hard':'learn_diff_hard',
+    'start-btn':'learn_start_btn',
+    'learn-tab-fillin':'learn_tab_fillin', 'learn-tab-match':'learn_tab_match',
+    'learn-tab-memory':'learn_tab_memory', 'learn-tab-scrambled':'learn_tab_scrambled',
+    'quit-btn':'learn_quit', 'check-btn':'learn_check',
+    'hint-btn':'learn_hint_btn', 'next-btn':'learn_next',
+    'learn-pts-earned':'learn_pts_earned', 'learn-correct':'learn_correct',
+    'learn-wrong':'learn_wrong', 'learn-hints-used':'learn_hints_used',
+    'play-again-btn':'learn_play_again', 'new-game-btn':'learn_new_game_btn',
+    'learn-match-setup-h':'learn_match_h',
+    'match-start-btn':'learn_start_match', 'match-quit-btn':'learn_quit',
+    'match-play-again-btn':'learn_play_again', 'match-new-game-btn':'learn_new_game_btn',
+    'learn-match-pts-earned':'learn_pts_earned',
+    'learn-memory-setup-h':'learn_memory_h',
+    'mem-start-btn':'learn_start_memory', 'mem-quit-btn':'learn_quit',
+    'mem-play-again-btn':'learn_play_again', 'mem-new-game-btn':'learn_new_game_btn',
+    'learn-mem-attempts-label':'learn_mem_attempts_label',
+    'learn-pairs-found':'learn_pairs_found', 'learn-best-possible':'learn_best_possible',
+    'learn-scrambled-setup-h':'learn_scrambled_h',
+    'scr-start-btn':'learn_start_scrambled', 'scr-quit-btn':'learn_quit',
+    'scr-check-btn':'learn_check_btn', 'scr-clear-btn':'learn_clear', 'scr-peek-btn':'learn_peek',
+    'scr-play-again-btn':'learn_play_again', 'scr-new-game-btn':'learn_new_game_btn',
+    'learn-pts-out-of':'learn_pts_out_of',
+    'learn-first-try':'learn_first_try', 'learn-with-moves':'learn_with_moves', 'learn-scr-wrong':'learn_wrong',
+    'learn-context-label':'learn_context',
+    'learn-your-answer':'learn_your_answer', 'learn-words':'learn_words'
+  };
+  Object.keys(ids).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = t(ids[id]);
+  });
+}
+document.addEventListener('DOMContentLoaded', applyPageI18n);
+BB_NAV.onLangChange = applyPageI18n;
 </script>
 <div id="bb-footer"></div>
 </body>
