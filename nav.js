@@ -1,7 +1,7 @@
 (function() {
 
 // ── Verzija portala — bump na kraju svake sesije ──
-const BB_VERSION = 's88.4';
+const BB_VERSION = 's88.5';
 const BB_VERSION_DATE = '16 Jun 2026';
 
 const NAV_I18N = {
@@ -1140,7 +1140,7 @@ const NAV_I18N = {
         stats_col_model:"Модел", stats_col_wins:"Победе", stats_col_dist:"Дистрибуција",
         stats_col_book:"Књига", stats_col_lang:"Језик", stats_col_sent:"Реченице",
         stats_col_avg_ts:"Просечни скор превода", stats_col_avg_j:"Просечни скор судије",
-        stats_warning:"⚠ Статистике се рачунају на страни клијента из истих JSON датотека које користи Reader. Информације о побједничком моделу захтијевају податке судије (judge_avg). Реченице без података судије искључене су из просјека.",
+        stats_warning:"⚠ Статистике се рачунају на страни клијента из истих JSON датотека које користи Reader. Информације о победничком моделу захтевају податке судије (judge_avg). Реченице без података судије искључене су из просека.",
         books_title:"Преведене књиге",
         books_subtitle:"Све књиге потичу са Project Gutenberga (јавна домена). Сваки превод је хибрид на нивоу реченица, произведен Buchenberg пипелајном.",
         books_lbl_sentences:"реченица", books_lbl_languages:"језика",
