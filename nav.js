@@ -1,7 +1,7 @@
 (function() {
 
 // ── Verzija portala — bump na kraju svake sesije ──
-const BB_VERSION = 's88.1';
+const BB_VERSION = 's88.4';
 const BB_VERSION_DATE = '16 Jun 2026';
 
 const NAV_I18N = {
@@ -912,7 +912,7 @@ const NAV_I18N = {
         about_title:"O Buchenbergu",
         about_h_name:"Naziv", about_h_problem:"Problem", about_h_pipeline:"Pipeline",
         about_h_models:"Modeli", about_h_llm_nllb:"LLM vs. NLLB — dvije vrste strojeva",
-        about_h_embeddings:"Embeddingi", about_h_scoring:"Bodovanje",
+        about_h_embeddings:"Embeddings", about_h_scoring:"Bodovanje",
         about_h_infrastructure:"Infrastruktura", about_h_source:"Izvorna građa",
         about_h_learnings:"Ključne spoznaje",
         about_h_lineage:"Lineage — od Tractatusa do Buchenberga",
@@ -1191,7 +1191,7 @@ const NAV_I18N = {
         about_title:"О Buchenbergu",
         about_h_name:"Назив", about_h_problem:"Проблем", about_h_pipeline:"Pipeline",
         about_h_models:"Модели", about_h_llm_nllb:"LLM vs. NLLB — двије врсте машина",
-        about_h_embeddings:"Embeddingi", about_h_scoring:"Бодовање",
+        about_h_embeddings:"Embeddings", about_h_scoring:"Бодовање",
         about_h_infrastructure:"Инфраструктура", about_h_source:"Изворна грађа",
         about_h_learnings:"Кључне спознаје",
         about_h_lineage:"Lineage — од Tractatusa до Buchenberga",
