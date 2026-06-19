@@ -1,8 +1,8 @@
 (function() {
 
 // ── Verzija portala — bump na kraju svake sesije ──
-const BB_VERSION = 's88.9';
-const BB_VERSION_DATE = '16 Jun 2026';
+const BB_VERSION = 's90.1';
+const BB_VERSION_DATE = '19 Jun 2026';
 
 const NAV_I18N = {
   en: { home:"Home", about:"About", stats:"X-Ray Stats", books:"Library",
@@ -1493,9 +1493,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Key Concepts — about, geometry, art, nlp
+  // Key Concepts — index, about, geometry, art, nlp, stats, learn, reader, books
   (function() {
-    const CONCEPT_PAGES = ['about', 'geometry', 'art', 'nlp'];
+    const CONCEPT_PAGES = ['index', 'about', 'geometry', 'art', 'nlp', 'stats', 'learn', 'reader', 'books'];
+    const CONCEPT_TITLES = { books: 'The Books on Wikipedia' };
     const page = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
     if (!CONCEPT_PAGES.includes(page)) return;
     const footer = document.getElementById('bb-footer');
@@ -1509,7 +1510,7 @@ document.addEventListener('DOMContentLoaded', function() {
         section.id = 'bb-key-concepts';
         const title = document.createElement('div');
         title.className = 'bb-concepts-title';
-        title.textContent = 'Key Concepts';
+        title.textContent = CONCEPT_TITLES[page] || 'Key Concepts';
         section.appendChild(title);
         const grid = document.createElement('div');
         grid.className = 'bb-concepts-grid';

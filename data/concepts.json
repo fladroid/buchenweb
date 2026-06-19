@@ -1,0 +1,542 @@
+{
+  "index": [
+    {
+      "icon": "🌐",
+      "name": "Machine translation",
+      "description": "The use of software to translate text from one natural language to another.",
+      "wiki": "Machine_translation"
+    },
+    {
+      "icon": "🤖",
+      "name": "Large language model",
+      "description": "A neural network trained on vast amounts of text, capable of generating and translating language.",
+      "wiki": "Large_language_model"
+    },
+    {
+      "icon": "📚",
+      "name": "Project Gutenberg",
+      "description": "A volunteer effort to digitize and archive public-domain books, the source of all Buchenberg texts.",
+      "wiki": "Project_Gutenberg"
+    },
+    {
+      "icon": "🔓",
+      "name": "Public domain",
+      "description": "Creative works whose copyright has expired or never applied, free for anyone to use and distribute.",
+      "wiki": "Public_domain"
+    },
+    {
+      "icon": "🔄",
+      "name": "Back-translation",
+      "description": "Translating text back to the source language to measure how much meaning was preserved.",
+      "wiki": "Back-translation"
+    },
+    {
+      "icon": "📐",
+      "name": "Cosine similarity",
+      "description": "A metric that measures the similarity between two vectors via the cosine of the angle between them.",
+      "wiki": "Cosine_similarity"
+    },
+    {
+      "icon": "🧬",
+      "name": "Sentence embedding",
+      "description": "A dense vector representation of a sentence that encodes its semantic meaning.",
+      "wiki": "Sentence_embedding"
+    },
+    {
+      "icon": "⚙️",
+      "name": "Ollama",
+      "description": "An open-source runtime for running large language models locally and via hosted cloud models.",
+      "wiki": "Ollama"
+    },
+    {
+      "icon": "🌍",
+      "name": "NLLB-200",
+      "description": "Meta's open-source multilingual translation model supporting over 200 languages.",
+      "wiki": "No_Language_Left_Behind"
+    }
+  ],
+  "about": [
+    {
+      "icon": "🌐",
+      "name": "Machine translation",
+      "description": "The use of software to translate text from one natural language to another.",
+      "wiki": "Machine_translation"
+    },
+    {
+      "icon": "🤖",
+      "name": "Large language model",
+      "description": "A neural network trained on vast amounts of text, capable of generating and translating language.",
+      "wiki": "Large_language_model"
+    },
+    {
+      "icon": "🔄",
+      "name": "Back-translation",
+      "description": "Translating text back to the source language to measure how much meaning was preserved in the forward translation.",
+      "wiki": "Back-translation"
+    },
+    {
+      "icon": "📏",
+      "name": "BLEU score",
+      "description": "A metric for evaluating machine translation by measuring n-gram overlap with reference translations.",
+      "wiki": "BLEU"
+    },
+    {
+      "icon": "📐",
+      "name": "Cosine similarity",
+      "description": "A metric that measures the similarity between two vectors by computing the cosine of the angle between them.",
+      "wiki": "Cosine_similarity"
+    },
+    {
+      "icon": "🧬",
+      "name": "Sentence embedding",
+      "description": "A dense vector representation of a sentence that encodes its semantic meaning in a high-dimensional space.",
+      "wiki": "Sentence_embedding"
+    },
+    {
+      "icon": "🤖",
+      "name": "Transformer",
+      "description": "A neural network architecture built on self-attention that forms the foundation of modern large language models.",
+      "wiki": "Transformer_(deep_learning_architecture)"
+    },
+    {
+      "icon": "🌍",
+      "name": "NLLB-200",
+      "description": "Meta's open-source multilingual translation model supporting over 200 languages.",
+      "wiki": "No_Language_Left_Behind"
+    },
+    {
+      "icon": "🧠",
+      "name": "Ludwig Wittgenstein",
+      "description": "Philosopher whose shift from meaning-as-form to meaning-as-use underlies modern distributional NLP.",
+      "wiki": "Ludwig_Wittgenstein"
+    },
+    {
+      "icon": "📚",
+      "name": "Project Gutenberg",
+      "description": "A volunteer effort to digitize and archive public-domain books, the source of all Buchenberg texts.",
+      "wiki": "Project_Gutenberg"
+    },
+    {
+      "icon": "🌳",
+      "name": "Distributional semantics",
+      "description": "The theory that a word's meaning is given by the contexts it appears in — the basis of embeddings.",
+      "wiki": "Distributional_semantics"
+    },
+    {
+      "icon": "🔤",
+      "name": "word2vec",
+      "description": "An early, influential method for learning word embeddings from large text corpora.",
+      "wiki": "Word2vec"
+    },
+    {
+      "icon": "🎯",
+      "name": "Attention",
+      "description": "The mechanism weighing each token against all others, central to transformer translation.",
+      "wiki": "Attention_(machine_learning)"
+    },
+    {
+      "icon": "📜",
+      "name": "Noam Chomsky",
+      "description": "Linguist whose universal grammar shaped the rule-based era of machine translation.",
+      "wiki": "Noam_Chomsky"
+    },
+    {
+      "icon": "⚠️",
+      "name": "ALPAC report",
+      "description": "The 1966 report that halted early rule-based MT funding — a turning point in the field's history.",
+      "wiki": "ALPAC"
+    }
+  ],
+  "geometry": [
+    {
+      "icon": "🧬",
+      "name": "Sentence embedding",
+      "description": "A dense vector representation of a sentence that encodes its semantic meaning in a high-dimensional space.",
+      "wiki": "Sentence_embedding"
+    },
+    {
+      "icon": "🔤",
+      "name": "Word embedding",
+      "description": "A representation of words as vectors so that semantically similar words lie close together.",
+      "wiki": "Word_embedding"
+    },
+    {
+      "icon": "🗺️",
+      "name": "UMAP",
+      "description": "A dimensionality reduction algorithm that projects high-dimensional data into 2D while preserving structure.",
+      "wiki": "Nonlinear_dimensionality_reduction"
+    },
+    {
+      "icon": "📉",
+      "name": "Dimensionality reduction",
+      "description": "Techniques for reducing the number of dimensions of data while preserving meaningful structure.",
+      "wiki": "Dimensionality_reduction"
+    },
+    {
+      "icon": "📐",
+      "name": "Cosine similarity",
+      "description": "A metric that measures the similarity between two vectors by computing the cosine of the angle between them.",
+      "wiki": "Cosine_similarity"
+    },
+    {
+      "icon": "📊",
+      "name": "Vector space model",
+      "description": "A mathematical framework that represents text as numeric vectors in a high-dimensional space.",
+      "wiki": "Vector_space_model"
+    },
+    {
+      "icon": "🎯",
+      "name": "Attention",
+      "description": "A mechanism that weighs the importance of each token relative to others, central to transformers.",
+      "wiki": "Attention_(machine_learning)"
+    },
+    {
+      "icon": "📖",
+      "name": "The Library of Babel",
+      "description": "Borges's story of a library of every possible book — meaning is worthless without an index.",
+      "wiki": "The_Library_of_Babel"
+    },
+    {
+      "icon": "🧠",
+      "name": "Ludwig Wittgenstein",
+      "description": "Philosopher whose 'meaning is use' and 'family resemblance' anticipate distributional semantics.",
+      "wiki": "Ludwig_Wittgenstein"
+    },
+    {
+      "icon": "✍️",
+      "name": "Jorge Luis Borges",
+      "description": "Argentine writer whose fictions on libraries and copies prefigure problems of meaning and translation.",
+      "wiki": "Jorge_Luis_Borges"
+    },
+    {
+      "icon": "👨‍👩‍👧",
+      "name": "Family resemblance",
+      "description": "Wittgenstein's idea that concepts share overlapping similarities, not a single essence — quantified by embeddings.",
+      "wiki": "Family_resemblance"
+    },
+    {
+      "icon": "📖",
+      "name": "Pierre Menard, Author of the Quixote",
+      "description": "Borges's story where an identical text means something new — the problem of translation, stated precisely.",
+      "wiki": "Pierre_Menard,_Author_of_the_Quixote"
+    }
+  ],
+  "art": [
+    {
+      "icon": "🎨",
+      "name": "Synesthesia",
+      "description": "A neurological phenomenon in which one sense automatically triggers an experience in another.",
+      "wiki": "Synesthesia"
+    },
+    {
+      "icon": "🖼️",
+      "name": "Wassily Kandinsky",
+      "description": "Russian abstract painter who theorized correspondences between color, form, music, and emotion.",
+      "wiki": "Wassily_Kandinsky"
+    },
+    {
+      "icon": "🎹",
+      "name": "Alexander Scriabin",
+      "description": "Russian composer who theorized color-sound synesthesia and scored a keyboard of light.",
+      "wiki": "Alexander_Scriabin"
+    },
+    {
+      "icon": "💡",
+      "name": "Color organ",
+      "description": "An instrument that maps sound to projected color — Scriabin's clavier à lumières.",
+      "wiki": "Color_organ"
+    },
+    {
+      "icon": "🖌️",
+      "name": "Abstract art",
+      "description": "Art that does not depict the visible world directly but works through form, color, and line.",
+      "wiki": "Abstract_art"
+    },
+    {
+      "icon": "🔊",
+      "name": "Sonification",
+      "description": "The use of non-speech audio to convey information — turning data into sound.",
+      "wiki": "Sonification"
+    },
+    {
+      "icon": "🎵",
+      "name": "Pentatonic scale",
+      "description": "A five-note musical scale; any sequence of its notes sounds consonant.",
+      "wiki": "Pentatonic_scale"
+    },
+    {
+      "icon": "📏",
+      "name": "BLEU score",
+      "description": "A metric for evaluating machine translation by measuring n-gram overlap with reference translations.",
+      "wiki": "BLEU"
+    },
+    {
+      "icon": "🧬",
+      "name": "Sentence embedding",
+      "description": "A dense vector representation of a sentence that encodes its semantic meaning — content before sense.",
+      "wiki": "Sentence_embedding"
+    },
+    {
+      "icon": "✍️",
+      "name": "Jorge Luis Borges",
+      "description": "Argentine writer whose fictions on copies and meaning belong to the project's intellectual lineage.",
+      "wiki": "Jorge_Luis_Borges"
+    },
+    {
+      "icon": "🔺",
+      "name": "Flatland",
+      "description": "Abbott's 1884 tale of a 2D world — the Square sees only a shadow of the sphere, as a sense under-samples meaning.",
+      "wiki": "Flatland"
+    }
+  ],
+  "nlp": [
+    {
+      "icon": "🏷️",
+      "name": "Named-entity recognition",
+      "description": "An NLP task that locates and classifies named entities such as persons, organizations, and places.",
+      "wiki": "Named-entity_recognition"
+    },
+    {
+      "icon": "🐍",
+      "name": "spaCy",
+      "description": "An open-source natural language processing library for Python, optimized for production use.",
+      "wiki": "SpaCy"
+    },
+    {
+      "icon": "🔗",
+      "name": "Co-occurrence",
+      "description": "A statistical measure of how frequently two items appear together within a context window.",
+      "wiki": "Co-occurrence"
+    },
+    {
+      "icon": "🕸️",
+      "name": "Knowledge graph",
+      "description": "A network of entities and the relationships between them, represented as nodes and edges.",
+      "wiki": "Knowledge_graph"
+    },
+    {
+      "icon": "🔀",
+      "name": "Relationship extraction",
+      "description": "An NLP task that detects and classifies semantic relationships between entities in text.",
+      "wiki": "Relationship_extraction"
+    },
+    {
+      "icon": "🧩",
+      "name": "Tokenization",
+      "description": "Splitting text into smaller units (tokens) such as words or subwords for processing.",
+      "wiki": "Tokenization_(lexical_analysis)"
+    },
+    {
+      "icon": "☁️",
+      "name": "Tag cloud",
+      "description": "A visual representation of word frequency where size reflects how often a term appears.",
+      "wiki": "Tag_cloud"
+    },
+    {
+      "icon": "🌐",
+      "name": "Force-directed graph",
+      "description": "A graph drawing method that positions nodes using simulated physical forces.",
+      "wiki": "Force-directed_graph_drawing"
+    },
+    {
+      "icon": "🤖",
+      "name": "Large language model",
+      "description": "A neural network trained on vast text; Gemma4 normalizes entities in the NLP pipeline.",
+      "wiki": "Large_language_model"
+    }
+  ],
+  "stats": [
+    {
+      "icon": "📊",
+      "name": "Descriptive statistics",
+      "description": "Summary measures that describe and quantify features of a collection of data.",
+      "wiki": "Descriptive_statistics"
+    },
+    {
+      "icon": "📈",
+      "name": "Data visualization",
+      "description": "The graphical representation of data and information to aid understanding.",
+      "wiki": "Data_and_information_visualization"
+    },
+    {
+      "icon": "📉",
+      "name": "Frequency distribution",
+      "description": "A summary of how often each value or category occurs in a dataset.",
+      "wiki": "Frequency_distribution"
+    },
+    {
+      "icon": "➗",
+      "name": "Arithmetic mean",
+      "description": "The sum of values divided by their count — the average score per language or model.",
+      "wiki": "Arithmetic_mean"
+    },
+    {
+      "icon": "📐",
+      "name": "Cosine similarity",
+      "description": "The metric behind the translation scores aggregated on this page.",
+      "wiki": "Cosine_similarity"
+    },
+    {
+      "icon": "📏",
+      "name": "BLEU score",
+      "description": "The classic n-gram translation metric, contrasted with Buchenberg's embedding scores.",
+      "wiki": "BLEU"
+    },
+    {
+      "icon": "🧬",
+      "name": "Sentence embedding",
+      "description": "The vector representation underlying every score shown here.",
+      "wiki": "Sentence_embedding"
+    },
+    {
+      "icon": "🤖",
+      "name": "Large language model",
+      "description": "The models whose winning rates are charted on this page.",
+      "wiki": "Large_language_model"
+    }
+  ],
+  "learn": [
+    {
+      "icon": "🗣️",
+      "name": "Language acquisition",
+      "description": "The process by which humans learn to perceive, produce, and use words to understand and communicate.",
+      "wiki": "Language_acquisition"
+    },
+    {
+      "icon": "🌍",
+      "name": "Second-language acquisition",
+      "description": "The process of learning a language other than one's native tongue.",
+      "wiki": "Second-language_acquisition"
+    },
+    {
+      "icon": "📖",
+      "name": "Vocabulary",
+      "description": "The body of words known and used by a person in a given language.",
+      "wiki": "Vocabulary"
+    },
+    {
+      "icon": "🎮",
+      "name": "Gamification",
+      "description": "Applying game elements such as points and challenges to non-game contexts to boost engagement.",
+      "wiki": "Gamification"
+    },
+    {
+      "icon": "🔁",
+      "name": "Parallel text",
+      "description": "A text placed alongside its translation — the basis of every learning game here.",
+      "wiki": "Parallel_text"
+    },
+    {
+      "icon": "🌐",
+      "name": "Machine translation",
+      "description": "The software translation that produced the sentence pairs used in these games.",
+      "wiki": "Machine_translation"
+    },
+    {
+      "icon": "📚",
+      "name": "Project Gutenberg",
+      "description": "The public-domain source of every sentence in the learning games.",
+      "wiki": "Project_Gutenberg"
+    },
+    {
+      "icon": "🧩",
+      "name": "Flashcard",
+      "description": "A card bearing information on both sides, used in active recall practice.",
+      "wiki": "Flashcard"
+    }
+  ],
+  "reader": [
+    {
+      "icon": "🔁",
+      "name": "Parallel text",
+      "description": "A text placed alongside its translation, aligned for comparison — the heart of the Reader.",
+      "wiki": "Parallel_text"
+    },
+    {
+      "icon": "🧬",
+      "name": "Sentence embedding",
+      "description": "The vector representation behind the scores shown in X-Ray mode.",
+      "wiki": "Sentence_embedding"
+    },
+    {
+      "icon": "🔄",
+      "name": "Back-translation",
+      "description": "The round-trip translation whose score appears for each candidate in X-Ray mode.",
+      "wiki": "Back-translation"
+    },
+    {
+      "icon": "📐",
+      "name": "Cosine similarity",
+      "description": "The metric producing the translation and back scores per sentence.",
+      "wiki": "Cosine_similarity"
+    },
+    {
+      "icon": "🌐",
+      "name": "Machine translation",
+      "description": "The software translation displayed for each sentence.",
+      "wiki": "Machine_translation"
+    },
+    {
+      "icon": "🤖",
+      "name": "Large language model",
+      "description": "The models that generated the candidate translations you can inspect.",
+      "wiki": "Large_language_model"
+    }
+  ],
+  "books": [
+    {
+      "icon": "📖",
+      "name": "The Hound of the Baskervilles",
+      "description": "Arthur Conan Doyle · 1902 — a Sherlock Holmes mystery.",
+      "wiki": "The_Hound_of_the_Baskervilles"
+    },
+    {
+      "icon": "📖",
+      "name": "The Big Four",
+      "description": "Agatha Christie · 1927 — a Hercule Poirot novel.",
+      "wiki": "The_Big_Four_(novel)"
+    },
+    {
+      "icon": "📖",
+      "name": "Frankenstein",
+      "description": "Mary Shelley · 1818 — the modern Prometheus.",
+      "wiki": "Frankenstein"
+    },
+    {
+      "icon": "📖",
+      "name": "Moby Dick",
+      "description": "Herman Melville · 1851 — the hunt for the white whale.",
+      "wiki": "Moby-Dick"
+    },
+    {
+      "icon": "📖",
+      "name": "Romeo and Juliet",
+      "description": "William Shakespeare · c. 1597 — the tragedy of two lovers.",
+      "wiki": "Romeo_and_Juliet"
+    },
+    {
+      "icon": "📖",
+      "name": "Alice's Adventures in Wonderland",
+      "description": "Lewis Carroll · 1865 — Alice down the rabbit hole.",
+      "wiki": "Alice%27s_Adventures_in_Wonderland"
+    },
+    {
+      "icon": "📖",
+      "name": "The Strange Case of Dr Jekyll and Mr Hyde",
+      "description": "Robert Louis Stevenson · 1886 — a gothic novella.",
+      "wiki": "Strange_Case_of_Dr_Jekyll_and_Mr_Hyde"
+    },
+    {
+      "icon": "📖",
+      "name": "Dracula",
+      "description": "Bram Stoker · 1897 — the gothic vampire novel.",
+      "wiki": "Dracula"
+    },
+    {
+      "icon": "📖",
+      "name": "Flatland",
+      "description": "Edwin A. Abbott · 1884 — a romance of many dimensions.",
+      "wiki": "Flatland"
+    }
+  ]
+}
