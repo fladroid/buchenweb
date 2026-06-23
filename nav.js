@@ -1,8 +1,8 @@
 (function() {
 
 // ── Verzija portala — bump na kraju svake sesije ──
-const BB_VERSION = 's90.1';
-const BB_VERSION_DATE = '19 Jun 2026';
+const BB_VERSION = 's94';
+const BB_VERSION_DATE = '23 Jun 2026';
 
 const NAV_I18N = {
   en: { home:"Home", about:"About", stats:"X-Ray Stats", books:"Library",
@@ -26,7 +26,7 @@ const NAV_I18N = {
         books_title:"Library",
         books_subtitle:"All books are sourced from Project Gutenberg (public domain). Each translation is a sentence-level hybrid produced by the Buchenberg pipeline.",
         books_lbl_sentences:"sentences", books_lbl_languages:"languages",
-        books_btn_read:"Read", books_btn_gutenberg:"Gutenberg", books_btn_ner:"NER", books_btn_wordcloud:"Word cloud",
+        books_btn_read:"Read", books_btn_gutenberg:"Gutenberg", books_btn_ner:"NLP", books_btn_wordcloud:"Word cloud",
         books_coming_soon:"coming soon",
         books_wc_compare:"Compare with:", books_wc_loading:"Building word cloud…",
         books_wc_coverage:"{n} of {total} sentences translated ({pct}%) — word cloud reflects translated sample only",
@@ -308,7 +308,7 @@ const NAV_I18N = {
         books_title:"Übersetzte Bücher",
         books_subtitle:"Alle Bücher stammen aus dem Project Gutenberg (gemeinfrei). Jede Übersetzung ist ein satzweises Hybrid der Buchenberg-Pipeline.",
         books_lbl_sentences:"Sätze", books_lbl_languages:"Sprachen",
-        books_btn_read:"Lesen", books_btn_gutenberg:"Gutenberg", books_btn_ner:"NER", books_btn_wordcloud:"Wortwolke",
+        books_btn_read:"Lesen", books_btn_gutenberg:"Gutenberg", books_btn_ner:"NLP", books_btn_wordcloud:"Wortwolke",
         books_coming_soon:"demnächst",
         books_wc_compare:"Vergleichen mit:", books_wc_loading:"Wortwolke wird erstellt…",
         books_wc_coverage:"{n} von {total} Sätzen übersetzt ({pct}%) — Wortwolke zeigt nur übersetzten Teil",
@@ -586,7 +586,7 @@ const NAV_I18N = {
         books_title:"Libri tradotti",
         books_subtitle:"Tutti i libri provengono da Project Gutenberg (pubblico dominio). Ogni traduzione è un ibrido a livello di frase prodotto dalla pipeline Buchenberg.",
         books_lbl_sentences:"frasi", books_lbl_languages:"lingue",
-        books_btn_read:"Leggi", books_btn_gutenberg:"Gutenberg", books_btn_ner:"NER", books_btn_wordcloud:"Nuvola di parole",
+        books_btn_read:"Leggi", books_btn_gutenberg:"Gutenberg", books_btn_ner:"NLP", books_btn_wordcloud:"Nuvola di parole",
         books_coming_soon:"prossimamente",
         books_wc_compare:"Confronta con:", books_wc_loading:"Creazione nuvola…",
         books_wc_coverage:"{n} di {total} frasi tradotte ({pct}%) — la nuvola riflette solo il campione tradotto",
@@ -865,7 +865,7 @@ const NAV_I18N = {
         books_title:"Prevedene knjige",
         books_subtitle:"Sve knjige dolaze s Project Gutenberga (javna domena). Svaki prijevod je hibrid na razini rečenica, proizveden Buchenberg pipelineom.",
         books_lbl_sentences:"rečenica", books_lbl_languages:"jezika",
-        books_btn_read:"Čitaj", books_btn_gutenberg:"Gutenberg", books_btn_ner:"NER", books_btn_wordcloud:"Oblak riječi",
+        books_btn_read:"Čitaj", books_btn_gutenberg:"Gutenberg", books_btn_ner:"NLP", books_btn_wordcloud:"Oblak riječi",
         books_coming_soon:"uskoro",
         books_wc_compare:"Usporedi s:", books_wc_loading:"Gradim oblak…",
         books_wc_coverage:"{n} od {total} rečenica prevedeno ({pct}%) — oblak prikazuje samo prevedeni uzorak",
@@ -1144,7 +1144,7 @@ const NAV_I18N = {
         books_title:"Преведене књиге",
         books_subtitle:"Све књиге потичу са Project Gutenberga (јавна домена). Сваки превод је хибрид на нивоу реченица, произведен Buchenberg пипелајном.",
         books_lbl_sentences:"реченица", books_lbl_languages:"језика",
-        books_btn_read:"Читај", books_btn_gutenberg:"Gutenberg", books_btn_ner:"NER", books_btn_wordcloud:"Облак речи",
+        books_btn_read:"Читај", books_btn_gutenberg:"Gutenberg", books_btn_ner:"NLP", books_btn_wordcloud:"Облак речи",
         books_coming_soon:"ускоро",
         books_wc_compare:"Упореди с:", books_wc_loading:"Градим облак…",
         books_wc_coverage:"{n} од {total} реченица преведено ({pct}%) — облак приказује само преведени узорак",
