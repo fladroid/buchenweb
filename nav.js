@@ -1,8 +1,8 @@
 (function() {
 
 // ── Verzija portala — bump na kraju svake sesije ──
-const BB_VERSION = 's94';
-const BB_VERSION_DATE = '23 Jun 2026';
+const BB_VERSION = 's95';
+const BB_VERSION_DATE = '24 Jun 2026';
 
 const NAV_I18N = {
   en: { home:"Home", about:"About", stats:"X-Ray Stats", books:"Library",
@@ -1458,6 +1458,9 @@ function buildHeaderHTML() {
   </div></div>`;
 }
 
+// Favicon — upisuje se u <head> dok je parser aktivan
+document.write('<link rel="icon" type="image/svg+xml" href="favicon.svg">');
+
 // Ubaci header SINHRONO — document.write dok je parser aktivan
 document.write(buildHeaderHTML());
 
@@ -1536,7 +1539,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (footer) {
     footer.innerHTML =
       '<div style="max-width:1200px;margin:0 auto;padding:0 16px;">' +
-        'Buchenberg \u00b7 Open-source MT pipeline \u00b7 ' + BB_VERSION + ' (' + BB_VERSION_DATE + ')' +
+        'Buchenberg \u00b7 an X-Ray project \u00b7 open-source MT pipeline \u00b7 ' + BB_VERSION + ' (' + BB_VERSION_DATE + ')' +
       '</div>';
   }
 
