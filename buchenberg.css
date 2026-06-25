@@ -326,8 +326,21 @@ a:hover { text-decoration: underline; color: var(--link-hover); }
   color: var(--text);
   margin-bottom: 8px;
   letter-spacing: -1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
 }
+.bb-hero-icon { width: 64px; height: 64px; flex-shrink: 0; }
 .bb-hero-logo span { color: var(--accent); }
+.bb-hero-lab {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
 .bb-hero-tagline {
   font-size: 16px;
   color: var(--text-muted);

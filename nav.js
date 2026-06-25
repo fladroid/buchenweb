@@ -1,8 +1,8 @@
 (function() {
 
 // ── Verzija portala — bump na kraju svake sesije ──
-const BB_VERSION = 's95';
-const BB_VERSION_DATE = '24 Jun 2026';
+const BB_VERSION = 's96';
+const BB_VERSION_DATE = '25 Jun 2026';
 
 const NAV_I18N = {
   en: { home:"Home", about:"About", stats:"X-Ray Stats", books:"Library",
