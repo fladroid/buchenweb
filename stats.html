@@ -132,79 +132,47 @@ function modelClass(model) {
 }
 
 async function loadStats() {
+  const __loadingMsg = (typeof t === 'function' ? (t('stats_loading') || 'Loading\u2026') : 'Loading\u2026');
+  ['winner-table-wrap','coverage-table-wrap','score-table-wrap'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted);">' + __loadingMsg + '</div>';
+  });
   const __ver = await fetch(`data/version.json?t=${Date.now()}`).then(r => r.json()).catch(() => ({v: Date.now()}));
   const __v = __ver.v;
-  const books = await fetch(`data/books.json?v=${__v}`).then(r => r.json());
 
-  // Učitaj sve tr_*.json fajlove
-  const allTranslations = []; // {book, lang, sentences}
-  for (const book of books) {
-    for (const lang of (book.languages || [])) {
-      try {
-        const data = await fetch(`data/tr_${book.id}_${lang.code}.json?v=${__v}`).then(r => r.json());
-        allTranslations.push({ book, lang: lang.code, sentences: data.sentences || [] });
-      } catch(e) { /* skip */ }
-    }
-  }
+  // Jedan fetch gotovih agregata (DB-side, ~15 KB) umjesto 126 tr_*.json (~165 MB).
+  const stats = await fetch(`data/stats.json?v=${__v}`).then(r => r.json());
 
   // ── Summary cards ──
-  let totalSentences = 0, totalTs = 0, tsCount = 0;
-  const langBookSet = new Set();
-  allTranslations.forEach(tr => {
-    const translated = tr.sentences.filter(s => s.translated !== false);
-    totalSentences += translated.length;
-    langBookSet.add(`${tr.book.id}_${tr.lang}`);
-    translated.forEach(s => {
-      if (s.ts) { totalTs += s.ts; tsCount++; }
-    });
-  });
-  document.getElementById('stat-total-translations').textContent = totalSentences.toLocaleString();
-  document.getElementById('stat-total-books').textContent = books.length;
-  document.getElementById('stat-total-langs').textContent = langBookSet.size;
-  document.getElementById('stat-avg-ts').textContent = tsCount
-    ? (totalTs / tsCount).toFixed(3) : '–';
+  document.getElementById('stat-total-translations').textContent = stats.summary.total_winners.toLocaleString();
+  document.getElementById('stat-total-books').textContent = stats.summary.total_books;
+  document.getElementById('stat-total-langs').textContent = stats.summary.total_booklangs;
+  document.getElementById('stat-avg-ts').textContent =
+    (stats.summary.avg_ts !== null && stats.summary.avg_ts !== undefined)
+      ? stats.summary.avg_ts.toFixed(3) : '–';
 
   // ── Winner distribution ──
-  const winnerCounts = {};
-  let totalWinners = 0;
-  allTranslations.forEach(tr => {
-    tr.sentences.filter(s => s.translated !== false && s.model).forEach(s => {
-      const key = modelShortName(s.model) + (s.temperatura !== undefined ? ` @${s.temperatura}` : '');
-      winnerCounts[key] = (winnerCounts[key] || 0) + 1;
-      totalWinners++;
-    });
-  });
-  window._winnerRows = Object.entries(winnerCounts).map(([model, count]) => ({model, count}));
-  window._totalWinners = totalWinners;
+  window._winnerRows = stats.winners.map(w => ({
+    model: modelShortName(w.model) + (w.temp !== null && w.temp !== undefined ? ` @${w.temp}` : ''),
+    count: w.count
+  }));
+  window._totalWinners = stats.winners.reduce((a, w) => a + w.count, 0);
 
   // ── Coverage table ──
-  window._coverageRows = [];
-  allTranslations.forEach(tr => {
-    const translated = tr.sentences.filter(s => s.translated !== false).length;
-    window._coverageRows.push({
-      book: tr.book.title,
-      lang: tr.lang,
-      langName: LANG_NAMES_NATIVE[tr.lang] || tr.lang,
-      translated
-    });
-  });
+  window._coverageRows = stats.coverage.map(c => ({
+    book: c.book,
+    lang: c.lang,
+    langName: LANG_NAMES_NATIVE[c.lang] || c.lang,
+    translated: c.translated
+  }));
 
   // ── Score by language ──
-  const langScores = {};
-  allTranslations.forEach(tr => {
-    if (!langScores[tr.lang]) langScores[tr.lang] = { ts_sum:0, ts_n:0, j_sum:0, j_n:0, langName: LANG_NAMES_NATIVE[tr.lang] || tr.lang };
-    const s = langScores[tr.lang];
-    tr.sentences.filter(x => x.translated !== false).forEach(x => {
-      if (x.ts) { s.ts_sum += x.ts; s.ts_n++; }
-      if (x.judge_avg) { s.j_sum += x.judge_avg; s.j_n++; }
-    });
-  });
-  window._scoreRows = Object.entries(langScores).map(([lang, s]) => ({
-    lang,
-    langName: s.langName,
-    avg_ts: s.ts_n ? s.ts_sum / s.ts_n : null,
-    avg_j:  s.j_n  ? s.j_sum  / s.j_n  : null,
-    n: s.ts_n
+  window._scoreRows = stats.scores.map(sc => ({
+    lang: sc.lang,
+    langName: LANG_NAMES_NATIVE[sc.lang] || sc.lang,
+    avg_ts: sc.avg_ts,
+    avg_j:  sc.avg_judge,
+    n: sc.n
   }));
 
   // Sort state
@@ -311,7 +279,10 @@ function renderScoreTable() {
 
 applyPageI18n();
 loadStats().catch(err => {
-  document.getElementById('winner-table-wrap').innerHTML = '⚠ ' + err.message;
+  ['winner-table-wrap','coverage-table-wrap','score-table-wrap'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '\u26a0 ' + err.message;
+  });
 });
 </script>
 </body>
