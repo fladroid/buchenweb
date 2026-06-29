@@ -355,7 +355,11 @@
         </div>
         <div class="xray-legend-row">
           <div class="xray-legend-key">Model</div>
-          <div class="xray-legend-val">The winning translation model: gemma3 (Google), ministral (Mistral AI), or nllb-600M (Meta NLLB — local CPU model).</div>
+          <div class="xray-legend-val">The winning translation model: gemma3 (Google), ministral (Mistral AI), or nllb-600M (Meta NLLB — local CPU model). Variants marked <strong>-refine</strong> are self-refine candidates: the same model re-translating with the current winner supplied as a reference (see Self-Refine).</div>
+        </div>
+        <div class="xray-legend-row">
+          <div class="xray-legend-key">Self-Refine</div>
+          <div class="xray-legend-val">An experiment in <em>anchored mutation</em>: a model re-translates a sentence with the existing winner given as a hint, trying to improve on it while staying grammatically valid. On strong winners it rarely wins (the anchor is already near-ceiling), but it shows that guided variation over language stays inside the grammatical space — the missing piece for evolutionary approaches to translation. A genuine X-Ray exhibit: shown, scored, and honest about when it does not beat the original.</div>
         </div>
         <div class="xray-legend-row" style="border-right:none;">
           <div class="xray-legend-key">t=</div>
