@@ -33,6 +33,38 @@
   <h1 class="bb-section-title" id="stats-title"></h1>
   <p class="bb-section-subtitle" id="stats-subtitle"></p>
 
+  <!-- CORPUS FUNNEL -->
+  <div class="bb-funnel" style="margin-bottom:24px;">
+    <div class="bb-funnel-title" id="funnel-title">From source to selected translation</div>
+    <div class="bb-funnel-row">
+      <div class="bb-funnel-step">
+        <div class="bb-funnel-num" id="funnel-sentences">&ndash;</div>
+        <div class="bb-funnel-cap" id="funnel-sentences-cap">English sentences</div>
+        <div class="bb-funnel-sub" id="funnel-sentences-sub">9 books &middot; Project Gutenberg</div>
+      </div>
+      <div class="bb-funnel-arrow">&rarr;</div>
+      <div class="bb-funnel-step">
+        <div class="bb-funnel-num" id="funnel-candidates">&ndash;</div>
+        <div class="bb-funnel-cap" id="funnel-candidates-cap">Candidate translations</div>
+        <div class="bb-funnel-sub" id="funnel-candidates-sub">5 configs &times; up to 14 languages</div>
+      </div>
+      <div class="bb-funnel-arrow">&rarr;</div>
+      <div class="bb-funnel-step">
+        <div class="bb-funnel-num" id="funnel-winners">&ndash;</div>
+        <div class="bb-funnel-cap" id="funnel-winners-cap">Selected translations</div>
+        <div class="bb-funnel-sub" id="funnel-winners-sub">judge picks one per sentence</div>
+      </div>
+    </div>
+    <div class="bb-funnel-foot" id="funnel-foot">
+      <strong id="funnel-full">&ndash;</strong> <span id="funnel-full-cap">sentences fully translated across all 14 languages</span>
+    </div>
+  </div>
+
+  <!-- READING NOTE -->
+  <div class="bb-box" style="margin-bottom:24px;">
+    <div class="bb-box-body" style="font-size:13px; color:var(--text-muted); line-height:1.7; padding:12px 14px;" id="stats-reading-note"></div>
+  </div>
+
   <!-- SUMMARY CARDS -->
   <div id="summary-cards" class="bb-stats-grid" style="margin-bottom:32px;">
     <div class="bb-stat-card">
@@ -42,6 +74,10 @@
     <div class="bb-stat-card">
       <div class="bb-stat-number" id="stat-total-books">–</div>
       <div class="bb-stat-label" id="lbl-total-books"></div>
+    </div>
+    <div class="bb-stat-card">
+      <div class="bb-stat-number" id="stat-target-langs">–</div>
+      <div class="bb-stat-label" id="lbl-target-langs"></div>
     </div>
     <div class="bb-stat-card">
       <div class="bb-stat-number" id="stat-total-langs">–</div>
@@ -99,6 +135,17 @@ function applyPageI18n() {
   document.getElementById('lbl-total-sent').textContent      = t('stats_total_sent');
   document.getElementById('lbl-total-books').textContent     = t('stats_total_books');
   document.getElementById('lbl-lang-combos').textContent     = t('stats_lang_combos');
+  document.getElementById('lbl-target-langs').textContent    = t('stats_total_langs');
+  document.getElementById('stats-reading-note').innerHTML    = t('stats_reading_note');
+  const __sf = (id, key) => { const v = t(key); if (v && v !== key) document.getElementById(id).textContent = v; };
+  __sf('funnel-title','index_funnel_title');
+  __sf('funnel-sentences-cap','index_funnel_sentences');
+  __sf('funnel-sentences-sub','index_funnel_sentences_sub');
+  __sf('funnel-candidates-cap','index_funnel_candidates');
+  __sf('funnel-candidates-sub','index_funnel_candidates_sub');
+  __sf('funnel-winners-cap','index_funnel_winners');
+  __sf('funnel-winners-sub','index_funnel_winners_sub');
+  __sf('funnel-full-cap','index_funnel_full');
   document.getElementById('lbl-avg-ts').textContent          = t('stats_avg_ts');
   document.getElementById('stats-winners-title').textContent = t('stats_winners_title');
   document.getElementById('stats-winners-sub').textContent   = t('stats_winners_sub');
@@ -147,6 +194,14 @@ async function loadStats() {
   document.getElementById('stat-total-translations').textContent = stats.summary.total_winners.toLocaleString();
   document.getElementById('stat-total-books').textContent = stats.summary.total_books;
   document.getElementById('stat-total-langs').textContent = stats.summary.total_booklangs;
+  document.getElementById('stat-target-langs').textContent = stats.summary.total_languages;
+
+  // Corpus funnel
+  const __fmt = (n) => (n == null ? '\u2013' : Number(n).toLocaleString());
+  document.getElementById('funnel-sentences').textContent  = __fmt(stats.summary.total_sentences);
+  document.getElementById('funnel-candidates').textContent = __fmt(stats.summary.total_candidates);
+  document.getElementById('funnel-winners').textContent    = __fmt(stats.summary.total_winners);
+  document.getElementById('funnel-full').textContent       = __fmt(stats.summary.full_all_langs);
   document.getElementById('stat-avg-ts').textContent =
     (stats.summary.avg_ts !== null && stats.summary.avg_ts !== undefined)
       ? stats.summary.avg_ts.toFixed(3) : '–';

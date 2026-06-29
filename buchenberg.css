@@ -492,6 +492,79 @@ a:hover { text-decoration: underline; color: var(--link-hover); }
   margin-top: 4px;
 }
 
+/* --- Corpus funnel (home) --- */
+.bb-funnel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 24px 20px 20px;
+  margin-bottom: 28px;
+}
+.bb-funnel-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-light);
+  text-align: center;
+  margin-bottom: 18px;
+}
+.bb-funnel-row {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.bb-funnel-step {
+  flex: 1 1 200px;
+  text-align: center;
+  padding: 8px 6px;
+}
+.bb-funnel-num {
+  font-family: var(--font-serif);
+  font-size: 40px;
+  font-weight: bold;
+  color: var(--accent);
+  line-height: 1.05;
+}
+.bb-funnel-cap {
+  font-size: 13px;
+  color: var(--text);
+  margin-top: 6px;
+  font-weight: 600;
+}
+.bb-funnel-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  line-height: 1.4;
+}
+.bb-funnel-arrow {
+  display: flex;
+  align-items: center;
+  font-size: 28px;
+  color: var(--border);
+  font-weight: bold;
+  padding: 0 2px;
+}
+.bb-funnel-foot {
+  text-align: center;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-light);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.bb-funnel-foot strong {
+  color: var(--accent);
+  font-family: var(--font-serif);
+  font-size: 18px;
+}
+@media (max-width: 640px) {
+  .bb-funnel-arrow { transform: rotate(90deg); padding: 4px 0; }
+  .bb-funnel-step { flex-basis: 100%; }
+}
+
 /* --- Loading / empty states --- */
 .bb-loading {
   text-align: center;

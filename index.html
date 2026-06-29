@@ -28,11 +28,6 @@
       machine translation. <em>Buch</em> is German for <em>book</em>; the suffix
       <em>-enberg</em> ties us to our source.
     </div>
-    <div class="bb-hero-actions">
-      <a href="books.html" class="bb-btn bb-btn-primary" id="cta-books">Browse library</a>
-      <a href="about.html" class="bb-btn" id="cta-about">About</a>
-      <a href="stats.html" class="bb-btn" id="cta-stats">X-Ray statistics</a>
-    </div>
   </div>
 
   <!-- KEY CONCEPTS -->
@@ -85,27 +80,6 @@
 
     </div>
 
-    <!-- CURRENT STATUS -->
-    <h2 class="bb-section-title" id="sec-status">Current status</h2>
-    <div id="status-cards" class="bb-stats-grid">
-      <div class="bb-stat-card">
-        <div class="bb-stat-number" id="stat-books">–</div>
-        <div class="bb-stat-label" id="lbl-stat-books">Books in corpus</div>
-      </div>
-      <div class="bb-stat-card">
-        <div class="bb-stat-number" id="stat-langs">–</div>
-        <div class="bb-stat-label" id="lbl-stat-langs">Target languages</div>
-      </div>
-      <div class="bb-stat-card">
-        <div class="bb-stat-number" id="stat-sentences">–</div>
-        <div class="bb-stat-label" id="lbl-stat-sentences">Sentences translated</div>
-      </div>
-      <div class="bb-stat-card">
-        <div class="bb-stat-number" id="stat-models">4</div>
-        <div class="bb-stat-label" id="lbl-stat-models">Translation models</div>
-      </div>
-    </div>
-
     <!-- OPEN SOURCE NOTE -->
     <div class="bb-box" style="margin-top:8px;">
       <div class="bb-box-body" style="font-size:13px; color:var(--text-muted); line-height:1.8; padding: 14px 16px;" id="opensource-note">
@@ -135,43 +109,12 @@ function applyPageI18n() {
   const pb = t('pillar_bt'); if (pb && pb !== 'pillar_bt') document.getElementById('pillar-bt').textContent = pb;
   const pj = t('pillar_judge'); if (pj && pj !== 'pillar_judge') document.getElementById('pillar-judge').textContent = pj;
   const pw = t('pillar_winner'); if (pw && pw !== 'pillar_winner') document.getElementById('pillar-winner').textContent = pw;
-  document.getElementById('sec-status').textContent = t('sec_status');
-  document.getElementById('lbl-stat-books').textContent = t('lbl_books');
-  document.getElementById('lbl-stat-langs').textContent = t('lbl_langs');
-  document.getElementById('lbl-stat-sentences').textContent = t('lbl_sentences');
-  document.getElementById('lbl-stat-models').textContent = t('lbl_models');
-  document.getElementById('cta-books').textContent = t('cta_books');
-  document.getElementById('cta-about').textContent = t('cta_about');
-  document.getElementById('cta-stats').textContent = t('cta_stats');
   const os = t('opensource'); if (os && os !== 'opensource') document.getElementById('opensource-note').innerHTML = os;
 }
 BB_NAV.onLangChange = applyPageI18n;
 
-// ── Stats iz books.json ───────────────────────────────────────
-async function loadStats() {
-  const __ver = await fetch(`data/version.json?t=${Date.now()}`).then(r => r.json()).catch(() => ({v: Date.now()}));
-  const __v = __ver.v;
-  try {
-    const books = await fetch(`data/books.json?v=${__v}`).then(r => r.json());
-    document.getElementById('stat-books').textContent = books.length;
-    const langs = new Set();
-    let sentences = 0;
-    books.forEach(b => {
-      (b.languages || []).forEach(l => {
-        langs.add(l.code);
-        sentences += l.sentences || 0;
-      });
-    });
-    document.getElementById('stat-langs').textContent = langs.size;
-    document.getElementById('stat-sentences').textContent = sentences.toLocaleString();
-  } catch(e) {
-    console.warn('Stats load failed:', e);
-  }
-}
-
 // ── Init ──────────────────────────────────────────────────────
 applyPageI18n();
-loadStats();
 </script>
 </body>
 </html>

@@ -1,8 +1,8 @@
 (function() {
 
 // ── Verzija portala — bump na kraju svake sesije ──
-const BB_VERSION = 's99';
-const BB_VERSION_DATE = '27 Jun 2026';
+const BB_VERSION = 's101';
+const BB_VERSION_DATE = '29 Jun 2026';
 
 const NAV_I18N = {
   en: { home:"Home", about:"About", stats:"X-Ray Stats", books:"Library",
@@ -12,6 +12,8 @@ const NAV_I18N = {
         stats_total_sent:"Total translated sentences",
         stats_total_books:"Books in corpus",
         stats_lang_combos:"Language × book combinations",
+        stats_total_langs:"Target languages",
+        stats_reading_note:"<strong>Reading these numbers.</strong> The corpus is <strong>38,333 English sentences</strong> from 9 books. Each is translated by 3 engines — gemma3 and ministral (general-purpose LLMs, run at two temperatures each) and NLLB (a dedicated translation model, run deterministically) — giving 5 configurations per sentence across up to 14 languages. A blind judge then picks one winner per sentence and language. So a “translation” here means one sentence–language pair, not a new sentence: that is why selected translations outnumber source sentences.",
         stats_avg_ts:"Avg translation score (all)",
         stats_winners_title:"Winner distribution by model",
         stats_winners_sub:"How often each model wins — across all books and languages.",
@@ -57,6 +59,11 @@ const NAV_I18N = {
         index_sec_status:"Current status",
         index_lbl_books:"Books in corpus", index_lbl_langs:"Target languages",
         index_lbl_sentences:"Sentences translated", index_lbl_models:"Translation models",
+        index_funnel_title:"From source to selected translation",
+        index_funnel_sentences:"English sentences", index_funnel_sentences_sub:"9 books · Project Gutenberg",
+        index_funnel_candidates:"Candidate translations", index_funnel_candidates_sub:"5 configs × up to 14 languages",
+        index_funnel_winners:"Selected translations", index_funnel_winners_sub:"judge picks one per sentence",
+        index_funnel_full:"sentences fully translated across all 14 languages",
         index_cta_books:"Browse library", index_cta_about:"About", index_cta_stats:"X-Ray statistics",
         index_opensource:`<strong>100% open source.</strong> All models used are freely available. No proprietary APIs, no cloud translation services.
       Source books are from <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a> — public domain, freely distributable.
@@ -296,6 +303,8 @@ const NAV_I18N = {
         stats_total_sent:"Übersetzte Sätze gesamt",
         stats_total_books:"Bücher im Korpus",
         stats_lang_combos:"Sprache × Buch-Kombinationen",
+        stats_total_langs:"Zielsprachen",
+        stats_reading_note:"<strong>Wie diese Zahlen zu lesen sind.</strong> Der Korpus umfasst <strong>38.333 englische Sätze</strong> aus 9 Büchern. Jeder wird von 3 Engines übersetzt — gemma3 und ministral (Allzweck-LLMs, je mit zwei Temperaturen) und NLLB (ein spezialisiertes Übersetzungsmodell, deterministisch) — was 5 Konfigurationen pro Satz über bis zu 14 Sprachen ergibt. Ein blinder Richter wählt dann einen Gewinner pro Satz und Sprache. Eine „Übersetzung“ ist hier also ein Satz-Sprache-Paar, kein neuer Satz: deshalb übersteigen die ausgewählten Übersetzungen die Zahl der Ausgangssätze.",
         stats_avg_ts:"Ø Übersetzungsscore (alle)",
         stats_winners_title:"Gewinnverteilung nach Modell",
         stats_winners_sub:"Wie oft jedes Modell gewinnt — über alle Bücher und Sprachen.",
@@ -337,6 +346,11 @@ const NAV_I18N = {
         index_sec_status:"Aktueller Stand",
         index_lbl_books:"Bücher im Korpus", index_lbl_langs:"Zielsprachen",
         index_lbl_sentences:"Übersetzte Sätze", index_lbl_models:"Übersetzungsmodelle",
+        index_funnel_title:"Von der Quelle zur gewählten Übersetzung",
+        index_funnel_sentences:"englische Sätze", index_funnel_sentences_sub:"9 Bücher · Project Gutenberg",
+        index_funnel_candidates:"Übersetzungskandidaten", index_funnel_candidates_sub:"5 Konfigurationen × bis zu 14 Sprachen",
+        index_funnel_winners:"ausgewählte Übersetzungen", index_funnel_winners_sub:"Richter wählt eine pro Satz",
+        index_funnel_full:"Sätze vollständig in alle 14 Sprachen übersetzt",
         index_cta_books:"Zur Bibliothek", index_cta_about:"Über das Projekt", index_cta_stats:"X-Ray Statistik",
         index_opensource:`<strong>100% Open Source.</strong> Alle verwendeten Modelle sind frei verfügbar. Keine proprietären APIs, keine Cloud-Übersetzungsdienste.
       Quellbücher stammen von <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a> — gemeinfrei und frei verteilbar.
@@ -576,6 +590,8 @@ const NAV_I18N = {
         stats_total_sent:"Frasi tradotte totali",
         stats_total_books:"Libri nel corpus",
         stats_lang_combos:"Combinazioni lingua × libro",
+        stats_total_langs:"Lingue di destinazione",
+        stats_reading_note:"<strong>Come leggere questi numeri.</strong> Il corpus è composto da <strong>38.333 frasi inglesi</strong> da 9 libri. Ciascuna è tradotta da 3 motori — gemma3 e ministral (LLM generici, eseguiti a due temperature ciascuno) e NLLB (un modello di traduzione dedicato, deterministico) — per 5 configurazioni a frase su un massimo di 14 lingue. Un giudice cieco sceglie poi un vincitore per frase e lingua. Quindi una «traduzione» qui significa una coppia frase–lingua, non una nuova frase: ecco perché le traduzioni selezionate superano le frasi di partenza.",
         stats_avg_ts:"Punteggio medio (tutti)",
         stats_winners_title:"Distribuzione dei vincitori per modello",
         stats_winners_sub:"Con quale frequenza vince ogni modello — su tutti i libri e le lingue.",
@@ -618,6 +634,11 @@ const NAV_I18N = {
         index_sec_status:"Stato attuale",
         index_lbl_books:"Libri nel corpus", index_lbl_langs:"Lingue target",
         index_lbl_sentences:"Frasi tradotte", index_lbl_models:"Modelli di traduzione",
+        index_funnel_title:"Dalla fonte alla traduzione scelta",
+        index_funnel_sentences:"frasi inglesi", index_funnel_sentences_sub:"9 libri · Project Gutenberg",
+        index_funnel_candidates:"traduzioni candidate", index_funnel_candidates_sub:"5 configurazioni × fino a 14 lingue",
+        index_funnel_winners:"traduzioni selezionate", index_funnel_winners_sub:"il giudice ne sceglie una per frase",
+        index_funnel_full:"frasi tradotte completamente in tutte le 14 lingue",
         index_cta_books:"Esplora la biblioteca", index_cta_about:"Informazioni", index_cta_stats:"Statistiche X-Ray",
         index_opensource:`<strong>100% open source.</strong> Tutti i modelli usati sono liberamente disponibili. Nessuna API proprietaria, nessun servizio di traduzione cloud.
       I libri sorgente provengono da <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a> — pubblico dominio, liberamente distribuibili.
@@ -857,6 +878,8 @@ const NAV_I18N = {
         stats_total_sent:"Ukupno prevedenih rečenica",
         stats_total_books:"Knjige u korpusu",
         stats_lang_combos:"Kombinacije jezik × knjiga",
+        stats_total_langs:"Ciljni jezici",
+        stats_reading_note:"<strong>Kako čitati ove brojeve.</strong> Korpus čini <strong>38.333 engleske rečenice</strong> iz 9 knjiga. Svaku prevode 3 engine-a — gemma3 i ministral (LLM-ovi opće namjene, svaki na dvije temperature) i NLLB (namjenski prevodilački model, deterministički) — što daje 5 konfiguracija po rečenici na do 14 jezika. Slijepi sudac zatim bira jednog pobjednika po rečenici i jeziku. Dakle „prijevod“ ovdje znači par rečenica–jezik, ne novu rečenicu: zato izabranih prijevoda ima više nego izvornih rečenica.",
         stats_avg_ts:"Prosječni score prijevoda (sve)",
         stats_winners_title:"Distribucija pobjednika po modelu",
         stats_winners_sub:"Koliko često svaki model pobjeđuje — kroz sve knjige i jezike.",
@@ -899,6 +922,11 @@ const NAV_I18N = {
         index_sec_status:"Trenutno stanje",
         index_lbl_books:"Knjige u korpusu", index_lbl_langs:"Ciljni jezici",
         index_lbl_sentences:"Prevedenih rečenica", index_lbl_models:"Modeli prevođenja",
+        index_funnel_title:"Od izvora do odabranog prijevoda",
+        index_funnel_sentences:"engleskih rečenica", index_funnel_sentences_sub:"9 knjiga · Project Gutenberg",
+        index_funnel_candidates:"kandidata za prijevod", index_funnel_candidates_sub:"5 konfiguracija × do 14 jezika",
+        index_funnel_winners:"odabranih prijevoda", index_funnel_winners_sub:"sudac bira jedan po rečenici",
+        index_funnel_full:"rečenica potpuno prevedeno na svih 14 jezika",
         index_cta_books:"Prelistaj knjižnicu", index_cta_about:"O projektu", index_cta_stats:"X-Ray statistike",
         index_opensource:`<strong>100% open source.</strong> Svi korišteni modeli su slobodno dostupni. Bez vlasničkih API-ja, bez cloud usluga prevođenja.
       Izvorne knjige dolaze s <a href="https://www.gutenberg.org" target="_blank">Project Gutenberga</a> — javna domena, slobodno distribuirane.
@@ -1138,6 +1166,8 @@ const NAV_I18N = {
         stats_total_sent:"Укупно преведених реченица",
         stats_total_books:"Књиге у корпусу",
         stats_lang_combos:"Комбинације језик × књига",
+        stats_total_langs:"Циљни језици",
+        stats_reading_note:"<strong>Како читати ове бројеве.</strong> Корпус чине <strong>38.333 енглеске реченице</strong> из 9 књига. Сваку преводе 3 енџина — gemma3 и ministral (LLM-ови опште намене, сваки на две температуре) и NLLB (наменски преводилачки модел, детерминистички) — што даје 5 конфигурација по реченици на до 14 језика. Слепи судија затим бира једног победника по реченици и језику. Дакле „превод“ овде значи пар реченица–језик, не нову реченицу: зато изабраних превода има више него изворних реченица.",
         stats_avg_ts:"Просечни скор превода (све)",
         stats_winners_title:"Дистрибуција победника по моделу",
         stats_winners_sub:"Колико често сваки модел побеђује — кроз све књиге и језике.",
@@ -1180,6 +1210,11 @@ const NAV_I18N = {
         index_sec_status:"Тренутно стање",
         index_lbl_books:"Књиге у корпусу", index_lbl_langs:"Циљни језици",
         index_lbl_sentences:"Преведених реченица", index_lbl_models:"Модели превођења",
+        index_funnel_title:"Од извора до изабраног превода",
+        index_funnel_sentences:"енглеских реченица", index_funnel_sentences_sub:"9 књига · Project Gutenberg",
+        index_funnel_candidates:"кандидата за превод", index_funnel_candidates_sub:"5 конфигурација × до 14 језика",
+        index_funnel_winners:"изабраних превода", index_funnel_winners_sub:"судија бира један по реченици",
+        index_funnel_full:"реченица потпуно преведено на свих 14 језика",
         index_cta_books:"Прелистај библиотеку", index_cta_about:"О пројекту", index_cta_stats:"X-Ray статистике",
         index_opensource:`<strong>100% open source.</strong> Сви коришћени модели су слободно доступни. Без власничких API-ja, без cloud услуга превођења.
       Изворне књиге долазе са <a href="https://www.gutenberg.org" target="_blank">Project Gutenberga</a> — јавна домена, слободно дистрибуиране.
