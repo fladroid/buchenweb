@@ -1,8 +1,8 @@
 (function() {
 
 // ── Verzija portala — bump na kraju svake sesije ──
-const BB_VERSION = 's102';
-const BB_VERSION_DATE = '29 Jun 2026';
+const BB_VERSION = 's108.4';
+const BB_VERSION_DATE = '2 Jul 2026';
 
 const NAV_I18N = {
   en: { home:"Home", about:"About", stats:"X-Ray Stats", books:"Library",
@@ -51,11 +51,12 @@ const NAV_I18N = {
       the original using <strong>cosine similarity</strong> on multilingual embeddings.
       A fourth model, <strong>Gemma 4 31B</strong>, acts as a blind judge — rating each
       candidate on grammar, naturalness, and fidelity.
-      The sentence-level winner is selected by combining both scores.
-      The final document is a hybrid: the best translation for each sentence, regardless of model.`,
+      Combining both scores selects a winner for this first phase.`,
+        index_how_desc2:`That winner then becomes the anchor for a second phase: <strong>self-refinement</strong>. Two refine models take the current best translation as a hint and mutate it — an <strong>anchored mutation</strong> that keeps the sentence grammatical while searching for something better. The final winner is chosen across both phases, so the finished document is a hybrid not only of models but of phases: the best translation for each sentence, regardless of model or phase.`,
         index_pillar_bt:"Translate to target language, then back to English. Measure cosine similarity between original and round-tripped text. A high score means the translation preserved meaning.",
         index_pillar_judge:"Gemma 4 31B evaluates each candidate translation blindly on three axes: grammar, naturalness, and fidelity to the original. Judge score carries 60% of the final ranking weight.",
-        index_pillar_winner:"No single model wins every sentence. The final document combines the best-scoring translation per sentence — a hybrid that outperforms any individual model.",
+        index_pillar_refine:"The first-phase winner is fed back as a hint to two refine models, which mutate it rather than translate from scratch. This anchored mutation keeps grammar intact while exploring for better wording — evolution over language itself.",
+        index_pillar_winner:"No single model — or phase — wins every sentence. The final document combines the best-scoring translation per sentence across both phases — a hybrid that outperforms any individual model.",
         index_sec_status:"Current status",
         index_lbl_books:"Books in corpus", index_lbl_langs:"Target languages",
         index_lbl_sentences:"Sentences translated", index_lbl_models:"Translation models",
@@ -338,11 +339,12 @@ const NAV_I18N = {
       bei verschiedenen Temperaturen. Die Übersetzungen werden dann rückübersetzt und mit dem Original
       mittels <strong>Kosinus-Ähnlichkeit</strong> auf mehrsprachigen Embeddings verglichen.
       Ein viertes Modell, <strong>Gemma 4 31B</strong>, fungiert als blinder Richter —
-      bewertet Grammatik, Natürlichkeit und Treue. Der Gewinner pro Satz wird durch Kombination beider Scores ermittelt.
-      Das Ergebnis ist ein Hybrid: die beste Übersetzung pro Satz, unabhängig vom Modell.`,
+      bewertet Grammatik, Natürlichkeit und Treue. Durch Kombination beider Scores wird ein Gewinner für diese erste Phase ermittelt.`,
+        index_how_desc2:`Dieser Gewinner wird dann zum Anker für eine zweite Phase: <strong>Selbstverfeinerung</strong>. Zwei Verfeinerungsmodelle nehmen die aktuelle beste Übersetzung als Hinweis und mutieren sie — eine <strong>verankerte Mutation</strong>, die den Satz grammatisch hält, während sie nach etwas Besserem sucht. Der endgültige Gewinner wird über beide Phasen gewählt, sodass das Ergebnis ein Hybrid nicht nur aus Modellen, sondern aus Phasen ist: die beste Übersetzung pro Satz, unabhängig von Modell oder Phase.`,
         index_pillar_bt:"Übersetze in die Zielsprache, dann zurück ins Englische. Messe die Kosinus-Ähnlichkeit zwischen Original und rückübersetztem Text. Ein hoher Score bedeutet, dass die Bedeutung erhalten blieb.",
         index_pillar_judge:"Gemma 4 31B bewertet jeden Übersetzungskandidaten blind nach drei Kriterien: Grammatik, Natürlichkeit und Treue zum Original. Der Richter-Score trägt 60% des Endranking-Gewichts.",
-        index_pillar_winner:"Kein einzelnes Modell gewinnt jeden Satz. Das Ergebnis kombiniert die bestbewertete Übersetzung pro Satz — ein Hybrid, der jedes Einzelmodell übertrifft.",
+        index_pillar_refine:"Der Gewinner der ersten Phase wird als Hinweis an zwei Verfeinerungsmodelle zurückgegeben, die ihn mutieren, statt von Grund auf neu zu übersetzen. Diese verankerte Mutation hält die Grammatik intakt und sucht zugleich nach besserer Formulierung — Evolution über die Sprache selbst.",
+        index_pillar_winner:"Kein einzelnes Modell — und keine einzelne Phase — gewinnt jeden Satz. Das Ergebnis kombiniert die bestbewertete Übersetzung pro Satz über beide Phasen — ein Hybrid, der jedes Einzelmodell übertrifft.",
         index_sec_status:"Aktueller Stand",
         index_lbl_books:"Bücher im Korpus", index_lbl_langs:"Zielsprachen",
         index_lbl_sentences:"Übersetzte Sätze", index_lbl_models:"Übersetzungsmodelle",
@@ -626,11 +628,12 @@ const NAV_I18N = {
       tramite <strong>similarità coseno</strong> su embedding multilingui.
       Un quarto modello, <strong>Gemma 4 31B</strong>, agisce da giudice cieco —
       valutando grammatica, naturalezza e fedeltà.
-      Il vincitore per frase è scelto combinando entrambi i punteggi.
-      Il documento finale è un ibrido: la migliore traduzione per ogni frase, indipendentemente dal modello.`,
+      Combinando entrambi i punteggi si sceglie un vincitore per questa prima fase.`,
+        index_how_desc2:`Quel vincitore diventa poi l'ancora per una seconda fase: <strong>auto-raffinamento</strong>. Due modelli di raffinamento prendono la migliore traduzione attuale come suggerimento e la mutano — una <strong>mutazione ancorata</strong> che mantiene la frase grammaticale mentre cerca qualcosa di migliore. Il vincitore finale è scelto tra entrambe le fasi, quindi il documento finale è un ibrido non solo di modelli ma di fasi: la migliore traduzione per ogni frase, indipendentemente da modello o fase.`,
         index_pillar_bt:"Traduci nella lingua target, poi ritraduce in inglese. Misura la similarità coseno tra originale e testo ritradotto. Un punteggio alto significa che il significato è stato preservato.",
         index_pillar_judge:"Gemma 4 31B valuta ogni traduzione candidata alla cieca su tre assi: grammatica, naturalezza e fedeltà all'originale. Il punteggio del giudice pesa il 60% del ranking finale.",
-        index_pillar_winner:"Nessun modello vince ogni frase. Il documento finale combina la traduzione con il punteggio più alto per ogni frase — un ibrido che supera qualsiasi modello individuale.",
+        index_pillar_refine:"Il vincitore della prima fase viene rimandato come suggerimento a due modelli di raffinamento, che lo mutano invece di tradurre da zero. Questa mutazione ancorata mantiene intatta la grammatica mentre esplora una formulazione migliore — evoluzione sulla lingua stessa.",
+        index_pillar_winner:"Nessun modello — né fase — vince ogni frase. Il documento finale combina la traduzione con il punteggio più alto per ogni frase tra entrambe le fasi — un ibrido che supera qualsiasi modello individuale.",
         index_sec_status:"Stato attuale",
         index_lbl_books:"Libri nel corpus", index_lbl_langs:"Lingue target",
         index_lbl_sentences:"Frasi tradotte", index_lbl_models:"Modelli di traduzione",
@@ -914,11 +917,12 @@ const NAV_I18N = {
       pomoću <strong>kosinusne sličnosti</strong> na višejezičnim embeddingima.
       Četvrti model, <strong>Gemma 4 31B</strong>, djeluje kao slijepi sudac —
       ocjenjuje gramatiku, prirodnost i vjernost originalu.
-      Pobjednik po rečenici bira se kombinacijom oba scorea.
-      Konačni dokument je hibrid: najbolji prijevod za svaku rečenicu, bez obzira na model.`,
+      Kombinacijom oba scorea bira se pobjednik ove prve faze.`,
+        index_how_desc2:`Taj pobjednik zatim postaje sidro za drugu fazu: <strong>samo-dorada</strong>. Dva modela za doradu uzimaju trenutni najbolji prijevod kao nagovještaj i mutiraju ga — <strong>usidrena mutacija</strong> koja rečenicu drži gramatičnom dok traži nešto bolje. Konačni pobjednik bira se kroz obje faze, pa je gotov dokument hibrid ne samo modela nego i faza: najbolji prijevod za svaku rečenicu, bez obzira na model ili fazu.`,
         index_pillar_bt:"Prevedi na ciljni jezik, zatim natrag na engleski. Izmjeri kosinusnu sličnost između originala i back-transliranog teksta. Visok score znači da je značenje sačuvano.",
         index_pillar_judge:"Gemma 4 31B ocjenjuje svaki prijevod slijepo po tri osi: gramatika, prirodnost i vjernost originalu. Score sudije nosi 60% težine u finalnom rangiranju.",
-        index_pillar_winner:"Nijedan model ne pobjeđuje u svakoj rečenici. Konačni dokument kombinira prijevod s najvišim scoreom po rečenici — hibrid koji nadmašuje svaki pojedinačni model.",
+        index_pillar_refine:"Pobjednik prve faze vraća se kao nagovještaj dvama modelima za doradu, koji ga mutiraju umjesto da prevode iznova. Ta usidrena mutacija čuva gramatiku netaknutom dok istražuje bolju formulaciju — evolucija nad samim jezikom.",
+        index_pillar_winner:"Nijedan model — ni faza — ne pobjeđuje u svakoj rečenici. Konačni dokument kombinira prijevod s najvišim scoreom po rečenici kroz obje faze — hibrid koji nadmašuje svaki pojedinačni model.",
         index_sec_status:"Trenutno stanje",
         index_lbl_books:"Knjige u korpusu", index_lbl_langs:"Ciljni jezici",
         index_lbl_sentences:"Prevedenih rečenica", index_lbl_models:"Modeli prevođenja",
@@ -1202,11 +1206,12 @@ const NAV_I18N = {
       помоћу <strong>косинусне сличности</strong> на вишејезичним embeddingima.
       Четврти модел, <strong>Gemma 4 31B</strong>, делује као слепи судија —
       оцењује граматику, природност и верност оригиналу.
-      Победник по реченици бира се комбинацијом оба скора.
-      Коначни документ је хибрид: најбољи превод за сваку реченицу, без обзира на модел.`,
+      Комбинацијом оба скора бира се победник ове прве фазе.`,
+        index_how_desc2:`Тај победник затим постаје сидро за другу фазу: <strong>само-дорада</strong>. Два модела за дораду узимају тренутни најбољи превод као наговештај и мутирају га — <strong>усидрена мутација</strong> која реченицу држи граматичном док тражи нешто боље. Коначни победник бира се кроз обе фазе, па је готов документ хибрид не само модела него и фаза: најбољи превод за сваку реченицу, без обзира на модел или фазу.`,
         index_pillar_bt:"Преведи на циљни језик, затим назад на енглески. Измери косинусну сличност између оригинала и back-transliranog текста. Висок скор значи да је значење сачувано.",
         index_pillar_judge:"Gemma 4 31B оцењује сваки превод слепо по три осе: граматика, природност и верност оригиналу. Скор судије носи 60% тежине у финалном рангирању.",
-        index_pillar_winner:"Ниједан модел не побеђује у свакој реченици. Коначни документ комбинује превод с највишим скором по реченици — хибрид који надмашује сваки појединачни модел.",
+        index_pillar_refine:"Победник прве фазе враћа се као наговештај двама моделима за дораду, који га мутирају уместо да преводе изнова. Та усидрена мутација чува граматику нетакнутом док истражује бољу формулацију — еволуција над самим језиком.",
+        index_pillar_winner:"Ниједан модел — ни фаза — не побеђује у свакој реченици. Коначни документ комбинује превод с највишим скором по реченици кроз обе фазе — хибрид који надмашује сваки појединачни модел.",
         index_sec_status:"Тренутно стање",
         index_lbl_books:"Књиге у корпусу", index_lbl_langs:"Циљни језици",
         index_lbl_sentences:"Преведених реченица", index_lbl_models:"Модели превођења",

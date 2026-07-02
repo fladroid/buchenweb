@@ -55,6 +55,12 @@
       "wiki": "No_Language_Left_Behind"
     },
     {
+      "icon": "🎲",
+      "name": "Mutation",
+      "description": "The genetic operator that introduces variation to escape local optima — the lens behind self-refinement as anchored mutation.",
+      "wiki": "Mutation_(evolutionary_algorithm)"
+    },
+    {
       "icon": "🩻",
       "name": "X-ray style art",
       "wiki": "X-ray_style_art",

@@ -43,13 +43,20 @@
         the original using <strong>cosine similarity</strong> on multilingual embeddings.
         A fourth model, <strong>Gemma 4 31B</strong>, acts as a blind judge — rating each
         candidate on grammar, naturalness, and fidelity.
-        The sentence-level winner is selected by combining both scores.
-        The final document is a hybrid: the best translation for each sentence, regardless of model.
+        Combining both scores selects a winner for this first phase.
+      </p>
+      <p id="how-desc2">
+        That winner then becomes the anchor for a second phase: <strong>self-refinement</strong>.
+        Two refine models take the current best translation as a hint and mutate it — an
+        <strong>anchored mutation</strong> that keeps the sentence grammatical while searching
+        for something better. The final winner is chosen across both phases, so the finished
+        document is a hybrid not only of models but of phases: the best translation for each
+        sentence, regardless of model or phase.
       </p>
     </div>
 
     <!-- THREE PILLARS -->
-    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap:20px; margin:32px 0;">
+    <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:20px; margin:32px 0;">
 
       <div class="bb-box">
         <div class="bb-box-title">📐 Back-translation scoring</div>
@@ -70,11 +77,20 @@
       </div>
 
       <div class="bb-box">
+        <div class="bb-box-title">🧬 Self-refinement</div>
+        <div class="bb-box-body" style="font-size:13px; color:var(--text-muted); line-height:1.7" id="pillar-refine">
+          The first-phase winner is fed back as a hint to two refine models, which mutate it
+          rather than translate from scratch. This anchored mutation keeps grammar intact while
+          exploring for better wording — evolution over language itself.
+        </div>
+      </div>
+
+      <div class="bb-box">
         <div class="bb-box-title">🏆 Sentence-level winner</div>
         <div class="bb-box-body" style="font-size:13px; color:var(--text-muted); line-height:1.7" id="pillar-winner">
-          No single model wins every sentence. The final document combines
-          the best-scoring translation per sentence — a hybrid that outperforms
-          any individual model.
+          No single model — or phase — wins every sentence. The final document combines
+          the best-scoring translation per sentence across both phases — a hybrid that
+          outperforms any individual model.
         </div>
       </div>
 
@@ -106,8 +122,10 @@ function applyPageI18n() {
   const hd = t('hero_desc'); if (hd && hd !== 'hero_desc') document.getElementById('hero-desc').innerHTML = hd;
   document.getElementById('sec-how').textContent = t('sec_how');
   const hw = t('how_desc'); if (hw && hw !== 'how_desc') document.getElementById('how-desc').innerHTML = hw;
+  const hw2 = t('how_desc2'); if (hw2 && hw2 !== 'how_desc2') document.getElementById('how-desc2').innerHTML = hw2;
   const pb = t('pillar_bt'); if (pb && pb !== 'pillar_bt') document.getElementById('pillar-bt').textContent = pb;
   const pj = t('pillar_judge'); if (pj && pj !== 'pillar_judge') document.getElementById('pillar-judge').textContent = pj;
+  const pr = t('pillar_refine'); if (pr && pr !== 'pillar_refine') document.getElementById('pillar-refine').textContent = pr;
   const pw = t('pillar_winner'); if (pw && pw !== 'pillar_winner') document.getElementById('pillar-winner').textContent = pw;
   const os = t('opensource'); if (os && os !== 'opensource') document.getElementById('opensource-note').innerHTML = os;
 }
