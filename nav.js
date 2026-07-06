@@ -1,8 +1,8 @@
 (function() {
 
 // ── Verzija portala — bump na kraju svake sesije ──
-const BB_VERSION = 's108.4';
-const BB_VERSION_DATE = '2 Jul 2026';
+const BB_VERSION = 's115';
+const BB_VERSION_DATE = '6 Jul 2026';
 
 const NAV_I18N = {
   en: { home:"Home", about:"About", stats:"X-Ray Stats", books:"Library",
@@ -44,18 +44,18 @@ const NAV_I18N = {
       machine translation. <em>Buch</em> is German for <em>book</em>; the suffix
       <em>-enberg</em> ties us to our source.`,
         index_sec_how:"How it works",
-        index_how_desc:`Each sentence of a source book is translated into a target language using three
-      different models — <strong>Gemma 3 12B</strong>, <strong>Ministral 3 14B</strong>,
-      and <strong>NLLB-600M</strong> — at various temperatures.
-      The resulting translations are then back-translated to English and compared to
+        index_how_desc:`Each sentence of a source book is translated into a target language by a pool of
+      models — several general-purpose LLMs run at different temperatures, plus a dedicated
+      machine-translation model.
+      Each translation is then back-translated to English and compared to
       the original using <strong>cosine similarity</strong> on multilingual embeddings.
-      A fourth model, <strong>Gemma 4 31B</strong>, acts as a blind judge — rating each
+      A separate LLM, chosen only to judge and never to translate, blindly rates each
       candidate on grammar, naturalness, and fidelity.
       Combining both scores selects a winner for this first phase.`,
-        index_how_desc2:`That winner then becomes the anchor for a second phase: <strong>self-refinement</strong>. Two refine models take the current best translation as a hint and mutate it — an <strong>anchored mutation</strong> that keeps the sentence grammatical while searching for something better. The final winner is chosen across both phases, so the finished document is a hybrid not only of models but of phases: the best translation for each sentence, regardless of model or phase.`,
+        index_how_desc2:`That winner then becomes the anchor for a second phase: <strong>self-refinement</strong>. The pipeline re-translates the current best translation, taking it as a hint and mutating it — an <strong>anchored mutation</strong> that keeps the sentence grammatical while searching for something better. The final winner is chosen across both phases, so the finished document is a hybrid not of models but of phases: the best translation for each sentence, whichever model or phase produced it.`,
         index_pillar_bt:"Translate to target language, then back to English. Measure cosine similarity between original and round-tripped text. A high score means the translation preserved meaning.",
-        index_pillar_judge:"Gemma 4 31B evaluates each candidate translation blindly on three axes: grammar, naturalness, and fidelity to the original. Judge score carries 60% of the final ranking weight.",
-        index_pillar_refine:"The first-phase winner is fed back as a hint to two refine models, which mutate it rather than translate from scratch. This anchored mutation keeps grammar intact while exploring for better wording — evolution over language itself.",
+        index_pillar_judge:"A dedicated LLM, used only for judging, evaluates each candidate translation blindly on three axes: grammar, naturalness, and fidelity to the original. The judge score carries 60% of the final ranking weight.",
+        index_pillar_refine:"The first-phase winner is fed back as a hint and re-translated rather than translated from scratch. This anchored mutation keeps grammar intact while exploring for better wording — evolution over language itself.",
         index_pillar_winner:"No single model — or phase — wins every sentence. The final document combines the best-scoring translation per sentence across both phases — a hybrid that outperforms any individual model.",
         index_sec_status:"Current status",
         index_lbl_books:"Books in corpus", index_lbl_langs:"Target languages",
@@ -334,16 +334,16 @@ const NAV_I18N = {
       im Geist des Originals, erweitert ins Zeitalter der maschinellen Übersetzung.
       <em>Buch</em> bedeutet auf Deutsch Buch; das Suffix <em>-enberg</em> verbindet uns mit unserer Quelle.`,
         index_sec_how:"So funktioniert es",
-        index_how_desc:`Jeder Satz eines Quellbuchs wird mit drei verschiedenen Modellen übersetzt —
-      <strong>Gemma 3 12B</strong>, <strong>Ministral 3 14B</strong> und <strong>NLLB-600M</strong> —
-      bei verschiedenen Temperaturen. Die Übersetzungen werden dann rückübersetzt und mit dem Original
+        index_how_desc:`Jeder Satz eines Quellbuchs wird von einem Pool von Modellen übersetzt —
+      mehrere Allzweck-LLMs bei verschiedenen Temperaturen sowie ein spezialisiertes Übersetzungsmodell.
+      Die Übersetzungen werden dann rückübersetzt und mit dem Original
       mittels <strong>Kosinus-Ähnlichkeit</strong> auf mehrsprachigen Embeddings verglichen.
-      Ein viertes Modell, <strong>Gemma 4 31B</strong>, fungiert als blinder Richter —
-      bewertet Grammatik, Natürlichkeit und Treue. Durch Kombination beider Scores wird ein Gewinner für diese erste Phase ermittelt.`,
-        index_how_desc2:`Dieser Gewinner wird dann zum Anker für eine zweite Phase: <strong>Selbstverfeinerung</strong>. Zwei Verfeinerungsmodelle nehmen die aktuelle beste Übersetzung als Hinweis und mutieren sie — eine <strong>verankerte Mutation</strong>, die den Satz grammatisch hält, während sie nach etwas Besserem sucht. Der endgültige Gewinner wird über beide Phasen gewählt, sodass das Ergebnis ein Hybrid nicht nur aus Modellen, sondern aus Phasen ist: die beste Übersetzung pro Satz, unabhängig von Modell oder Phase.`,
+      Ein separates LLM, das nur zum Bewerten und nie zum Übersetzen gewählt wurde, bewertet jeden
+      Kandidaten blind nach Grammatik, Natürlichkeit und Treue. Durch Kombination beider Scores wird ein Gewinner für diese erste Phase ermittelt.`,
+        index_how_desc2:`Dieser Gewinner wird dann zum Anker für eine zweite Phase: <strong>Selbstverfeinerung</strong>. Die Pipeline übersetzt die aktuelle beste Übersetzung neu, nimmt sie als Hinweis und mutiert sie — eine <strong>verankerte Mutation</strong>, die den Satz grammatisch hält, während sie nach etwas Besserem sucht. Der endgültige Gewinner wird über beide Phasen gewählt, sodass das Ergebnis ein Hybrid nicht aus Modellen, sondern aus Phasen ist: die beste Übersetzung pro Satz, unabhängig davon, welches Modell oder welche Phase sie erzeugt hat.`,
         index_pillar_bt:"Übersetze in die Zielsprache, dann zurück ins Englische. Messe die Kosinus-Ähnlichkeit zwischen Original und rückübersetztem Text. Ein hoher Score bedeutet, dass die Bedeutung erhalten blieb.",
-        index_pillar_judge:"Gemma 4 31B bewertet jeden Übersetzungskandidaten blind nach drei Kriterien: Grammatik, Natürlichkeit und Treue zum Original. Der Richter-Score trägt 60% des Endranking-Gewichts.",
-        index_pillar_refine:"Der Gewinner der ersten Phase wird als Hinweis an zwei Verfeinerungsmodelle zurückgegeben, die ihn mutieren, statt von Grund auf neu zu übersetzen. Diese verankerte Mutation hält die Grammatik intakt und sucht zugleich nach besserer Formulierung — Evolution über die Sprache selbst.",
+        index_pillar_judge:"Ein separates LLM, nur zum Bewerten verwendet, bewertet jeden Übersetzungskandidaten blind nach drei Kriterien: Grammatik, Natürlichkeit und Treue zum Original. Der Richter-Score trägt 60% des Endranking-Gewichts.",
+        index_pillar_refine:"Der Gewinner der ersten Phase wird als Hinweis zurückgegeben und neu übersetzt, statt von Grund auf neu zu übersetzen. Diese verankerte Mutation hält die Grammatik intakt und sucht zugleich nach besserer Formulierung — Evolution über die Sprache selbst.",
         index_pillar_winner:"Kein einzelnes Modell — und keine einzelne Phase — gewinnt jeden Satz. Das Ergebnis kombiniert die bestbewertete Übersetzung pro Satz über beide Phasen — ein Hybrid, der jedes Einzelmodell übertrifft.",
         index_sec_status:"Aktueller Stand",
         index_lbl_books:"Bücher im Korpus", index_lbl_langs:"Zielsprachen",
@@ -622,17 +622,17 @@ const NAV_I18N = {
       nello spirito del progetto originale, esteso nell'era della traduzione automatica.
       <em>Buch</em> in tedesco significa libro; il suffisso <em>-enberg</em> ci lega alla nostra fonte.`,
         index_sec_how:"Come funziona",
-        index_how_desc:`Ogni frase di un libro sorgente viene tradotta usando tre modelli diversi —
-      <strong>Gemma 3 12B</strong>, <strong>Ministral 3 14B</strong> e <strong>NLLB-600M</strong> —
-      a varie temperature. Le traduzioni vengono poi ritradotte in inglese e confrontate con l'originale
+        index_how_desc:`Ogni frase di un libro sorgente viene tradotta da un pool di modelli —
+      diversi LLM generici eseguiti a varie temperature, più un modello di traduzione dedicato.
+      Le traduzioni vengono poi ritradotte in inglese e confrontate con l'originale
       tramite <strong>similarità coseno</strong> su embedding multilingui.
-      Un quarto modello, <strong>Gemma 4 31B</strong>, agisce da giudice cieco —
-      valutando grammatica, naturalezza e fedeltà.
+      Un LLM separato, scelto solo per giudicare e mai per tradurre, valuta ogni candidato
+      alla cieca su grammatica, naturalezza e fedeltà.
       Combinando entrambi i punteggi si sceglie un vincitore per questa prima fase.`,
-        index_how_desc2:`Quel vincitore diventa poi l'ancora per una seconda fase: <strong>auto-raffinamento</strong>. Due modelli di raffinamento prendono la migliore traduzione attuale come suggerimento e la mutano — una <strong>mutazione ancorata</strong> che mantiene la frase grammaticale mentre cerca qualcosa di migliore. Il vincitore finale è scelto tra entrambe le fasi, quindi il documento finale è un ibrido non solo di modelli ma di fasi: la migliore traduzione per ogni frase, indipendentemente da modello o fase.`,
+        index_how_desc2:`Quel vincitore diventa poi l'ancora per una seconda fase: <strong>auto-raffinamento</strong>. La pipeline ritraduce la migliore traduzione attuale, prendendola come suggerimento e mutandola — una <strong>mutazione ancorata</strong> che mantiene la frase grammaticale mentre cerca qualcosa di migliore. Il vincitore finale è scelto tra entrambe le fasi, quindi il documento finale è un ibrido non di modelli ma di fasi: la migliore traduzione per ogni frase, qualunque modello o fase l'abbia prodotta.`,
         index_pillar_bt:"Traduci nella lingua target, poi ritraduce in inglese. Misura la similarità coseno tra originale e testo ritradotto. Un punteggio alto significa che il significato è stato preservato.",
-        index_pillar_judge:"Gemma 4 31B valuta ogni traduzione candidata alla cieca su tre assi: grammatica, naturalezza e fedeltà all'originale. Il punteggio del giudice pesa il 60% del ranking finale.",
-        index_pillar_refine:"Il vincitore della prima fase viene rimandato come suggerimento a due modelli di raffinamento, che lo mutano invece di tradurre da zero. Questa mutazione ancorata mantiene intatta la grammatica mentre esplora una formulazione migliore — evoluzione sulla lingua stessa.",
+        index_pillar_judge:"Un LLM dedicato, usato solo per giudicare, valuta ogni traduzione candidata alla cieca su tre assi: grammatica, naturalezza e fedeltà all'originale. Il punteggio del giudice pesa il 60% del ranking finale.",
+        index_pillar_refine:"Il vincitore della prima fase viene rimandato come suggerimento e ritradotto invece di tradurre da zero. Questa mutazione ancorata mantiene intatta la grammatica mentre esplora una formulazione migliore — evoluzione sulla lingua stessa.",
         index_pillar_winner:"Nessun modello — né fase — vince ogni frase. Il documento finale combina la traduzione con il punteggio più alto per ogni frase tra entrambe le fasi — un ibrido che supera qualsiasi modello individuale.",
         index_sec_status:"Stato attuale",
         index_lbl_books:"Libri nel corpus", index_lbl_langs:"Lingue target",
@@ -911,17 +911,17 @@ const NAV_I18N = {
       u duhu izvornog projekta, proširen u doba strojnog prevođenja.
       <em>Buch</em> je na njemačkom knjiga; sufiks <em>-enberg</em> veže nas uz naš izvor.`,
         index_sec_how:"Kako funkcionira",
-        index_how_desc:`Svaka rečenica izvorne knjige prevodi se pomoću tri modela —
-      <strong>Gemma 3 12B</strong>, <strong>Ministral 3 14B</strong> i <strong>NLLB-600M</strong> —
-      pri različitim temperaturama. Prijevodi se zatim back-transliraju na engleski i uspoređuju s originalom
+        index_how_desc:`Svaka rečenica izvorne knjige prevodi se pomoću skupa modela —
+      nekoliko LLM-ova opće namjene pokrenutih pri različitim temperaturama, uz namjenski prevodilački model.
+      Prijevodi se zatim back-transliraju na engleski i uspoređuju s originalom
       pomoću <strong>kosinusne sličnosti</strong> na višejezičnim embeddingima.
-      Četvrti model, <strong>Gemma 4 31B</strong>, djeluje kao slijepi sudac —
-      ocjenjuje gramatiku, prirodnost i vjernost originalu.
+      Zaseban LLM, odabran samo za ocjenjivanje a nikad za prevođenje, slijepo ocjenjuje svaki
+      kandidat po gramatici, prirodnosti i vjernosti originalu.
       Kombinacijom oba scorea bira se pobjednik ove prve faze.`,
-        index_how_desc2:`Taj pobjednik zatim postaje sidro za drugu fazu: <strong>samo-dorada</strong>. Dva modela za doradu uzimaju trenutni najbolji prijevod kao nagovještaj i mutiraju ga — <strong>usidrena mutacija</strong> koja rečenicu drži gramatičnom dok traži nešto bolje. Konačni pobjednik bira se kroz obje faze, pa je gotov dokument hibrid ne samo modela nego i faza: najbolji prijevod za svaku rečenicu, bez obzira na model ili fazu.`,
+        index_how_desc2:`Taj pobjednik zatim postaje sidro za drugu fazu: <strong>samo-dorada</strong>. Pipeline ponovno prevodi trenutni najbolji prijevod, uzimajući ga kao nagovještaj i mutirajući ga — <strong>usidrena mutacija</strong> koja rečenicu drži gramatičnom dok traži nešto bolje. Konačni pobjednik bira se kroz obje faze, pa je gotov dokument hibrid ne modela nego faza: najbolji prijevod za svaku rečenicu, koji god ga model ili faza proizveli.`,
         index_pillar_bt:"Prevedi na ciljni jezik, zatim natrag na engleski. Izmjeri kosinusnu sličnost između originala i back-transliranog teksta. Visok score znači da je značenje sačuvano.",
-        index_pillar_judge:"Gemma 4 31B ocjenjuje svaki prijevod slijepo po tri osi: gramatika, prirodnost i vjernost originalu. Score sudije nosi 60% težine u finalnom rangiranju.",
-        index_pillar_refine:"Pobjednik prve faze vraća se kao nagovještaj dvama modelima za doradu, koji ga mutiraju umjesto da prevode iznova. Ta usidrena mutacija čuva gramatiku netaknutom dok istražuje bolju formulaciju — evolucija nad samim jezikom.",
+        index_pillar_judge:"Zaseban LLM, korišten samo za ocjenjivanje, ocjenjuje svaki prijevod slijepo po tri osi: gramatika, prirodnost i vjernost originalu. Score sudije nosi 60% težine u finalnom rangiranju.",
+        index_pillar_refine:"Pobjednik prve faze vraća se kao nagovještaj i ponovno prevodi umjesto da se prevodi iznova. Ta usidrena mutacija čuva gramatiku netaknutom dok istražuje bolju formulaciju — evolucija nad samim jezikom.",
         index_pillar_winner:"Nijedan model — ni faza — ne pobjeđuje u svakoj rečenici. Konačni dokument kombinira prijevod s najvišim scoreom po rečenici kroz obje faze — hibrid koji nadmašuje svaki pojedinačni model.",
         index_sec_status:"Trenutno stanje",
         index_lbl_books:"Knjige u korpusu", index_lbl_langs:"Ciljni jezici",
@@ -1200,17 +1200,17 @@ const NAV_I18N = {
       у духу оригиналног пројекта, проширен у доба машинског превођења.
       <em>Buch</em> је на немачком књига; суфикс <em>-enberg</em> везује нас за наш извор.`,
         index_sec_how:"Како функционише",
-        index_how_desc:`Свака реченица изворне књиге преводи се помоћу три модела —
-      <strong>Gemma 3 12B</strong>, <strong>Ministral 3 14B</strong> и <strong>NLLB-600M</strong> —
-      при различитим температурама. Преводи се затим back-transliraju на енглески и пореде с оригиналом
+        index_how_desc:`Свака реченица изворне књиге преводи се помоћу скупа модела —
+      неколико LLM-ова опште намене покренутих при различитим температурама, уз наменски преводилачки модел.
+      Преводи се затим back-transliraju на енглески и пореде с оригиналом
       помоћу <strong>косинусне сличности</strong> на вишејезичним embeddingima.
-      Четврти модел, <strong>Gemma 4 31B</strong>, делује као слепи судија —
-      оцењује граматику, природност и верност оригиналу.
+      Засебан LLM, одабран само за оцењивање а никад за превођење, слепо оцењује сваки
+      кандидат по граматици, природности и верности оригиналу.
       Комбинацијом оба скора бира се победник ове прве фазе.`,
-        index_how_desc2:`Тај победник затим постаје сидро за другу фазу: <strong>само-дорада</strong>. Два модела за дораду узимају тренутни најбољи превод као наговештај и мутирају га — <strong>усидрена мутација</strong> која реченицу држи граматичном док тражи нешто боље. Коначни победник бира се кроз обе фазе, па је готов документ хибрид не само модела него и фаза: најбољи превод за сваку реченицу, без обзира на модел или фазу.`,
+        index_how_desc2:`Тај победник затим постаје сидро за другу фазу: <strong>само-дорада</strong>. Pipeline поново преводи тренутни најбољи превод, узимајући га као наговештај и мутирајући га — <strong>усидрена мутација</strong> која реченицу држи граматичном док тражи нешто боље. Коначни победник бира се кроз обе фазе, па је готов документ хибрид не модела него фаза: најбољи превод за сваку реченицу, који год га модел или фаза произвели.`,
         index_pillar_bt:"Преведи на циљни језик, затим назад на енглески. Измери косинусну сличност између оригинала и back-transliranog текста. Висок скор значи да је значење сачувано.",
-        index_pillar_judge:"Gemma 4 31B оцењује сваки превод слепо по три осе: граматика, природност и верност оригиналу. Скор судије носи 60% тежине у финалном рангирању.",
-        index_pillar_refine:"Победник прве фазе враћа се као наговештај двама моделима за дораду, који га мутирају уместо да преводе изнова. Та усидрена мутација чува граматику нетакнутом док истражује бољу формулацију — еволуција над самим језиком.",
+        index_pillar_judge:"Засебан LLM, коришћен само за оцењивање, оцењује сваки превод слепо по три осе: граматика, природност и верност оригиналу. Скор судије носи 60% тежине у финалном рангирању.",
+        index_pillar_refine:"Победник прве фазе враћа се као наговештај и поново преводи уместо да се преводи изнова. Та усидрена мутација чува граматику нетакнутом док истражује бољу формулацију — еволуција над самим језиком.",
         index_pillar_winner:"Ниједан модел — ни фаза — не побеђује у свакој реченици. Коначни документ комбинује превод с највишим скором по реченици кроз обе фазе — хибрид који надмашује сваки појединачни модел.",
         index_sec_status:"Тренутно стање",
         index_lbl_books:"Књиге у корпусу", index_lbl_langs:"Циљни језици",

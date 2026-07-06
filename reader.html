@@ -355,11 +355,15 @@
         </div>
         <div class="xray-legend-row">
           <div class="xray-legend-key">Model</div>
-          <div class="xray-legend-val">The winning translation model: gemma3 (Google), ministral (Mistral AI), or nllb-600M (Meta NLLB — local CPU model). Variants marked <strong>-refine</strong> are self-refine candidates: the same model re-translating with the current winner supplied as a reference (see Self-Refine).</div>
+          <div class="xray-legend-val">The translation model behind this candidate. Several models compete for each sentence: general-purpose cloud LLMs and one dedicated machine-translation model. Models are swapped over time as better ones appear, so older translations may show models no longer in use — what matters is the score each candidate earned, not its name.</div>
+        </div>
+        <div class="xray-legend-row">
+          <div class="xray-legend-key">Phase</div>
+          <div class="xray-legend-val">Phase 1 is the first translation pass, where every model competes on the original sentence. Phase 2 is self-refinement: a model re-translates while looking at the current winner, trying to improve on it. The same model and temperature can appear in both phases — the phase is what tells them apart.</div>
         </div>
         <div class="xray-legend-row">
           <div class="xray-legend-key">Self-Refine</div>
-          <div class="xray-legend-val">An experiment in <em>anchored mutation</em>: a model re-translates a sentence with the existing winner given as a hint, trying to improve on it while staying grammatically valid. On strong winners it rarely wins (the anchor is already near-ceiling), but it shows that guided variation over language stays inside the grammatical space — the missing piece for evolutionary approaches to translation. A genuine X-Ray exhibit: shown, scored, and honest about when it does not beat the original.</div>
+          <div class="xray-legend-val">This is <strong>Phase 2</strong> in action — <em>anchored mutation</em>: a model re-translates a sentence with the existing winner given as a hint, trying to improve on it while staying grammatically valid. On strong winners it rarely wins (the anchor is already near-ceiling), but it shows that guided variation over language stays inside the grammatical space — the missing piece for evolutionary approaches to translation. A genuine X-Ray exhibit: shown, scored, and honest about when it does not beat the original.</div>
         </div>
         <div class="xray-legend-row" style="border-right:none;">
           <div class="xray-legend-key">t=</div>
