@@ -43,7 +43,33 @@
 
         <p id="about-pipeline-outro"></p>
 
+        <h2 id="about-h-refine"></h2>
+        <p id="about-p-refine1"></p>
+        <p id="about-p-refine2"></p>
+        <p id="about-p-refine3"></p>
+        <p id="about-p-refine4"></p>
+
+        <pre><code>PHASE 1  ·  base translation          PHASE 2  ·  refinement
+────────────────────────           ────────────────────────
+EN original                          EN original + absolute winner
+     │                                        │   (seed)
+     ▼                                        ▼
+competing candidates                 re-translation / mutation
+(≥ 2 LLMs + 1 MT model)              (LLMs only, highest temp)
+     │                                        │
+     └────────────────┬────────────────────────┘
+                      ▼
+        one combined pool — all candidates, all phases
+                      │
+                      ▼
+        same judge · same score · same winner rule
+                      │
+                      ▼
+        absolute winner = best across ALL phases
+              (feeds the next phase's seed)</code></pre>
+
         <h2 id="about-h-models"></h2>
+        <p id="about-p-models-note"></p>
         <table>
           <tr><th id="about-th-model"></th><th id="about-th-role"></th><th id="about-th-engine"></th></tr>
           <tr><td><code>gemma3:12b</code></td><td class="about-role-translation"></td><td>Ollama Cloud</td></tr>
@@ -291,6 +317,7 @@ function applyPageI18n() {
   ti('about-h-problem',          'h_problem');
   ti('about-h-pipeline',         'h_pipeline');
   ti('about-h-models',           'h_models');
+  ti('about-p-models-note',      'p_models_note');
   ti('about-h-llm-nllb',         'h_llm_nllb');
   ti('about-h-embeddings',       'h_embeddings');
   ti('about-h-scoring',          'h_scoring');
@@ -300,6 +327,11 @@ function applyPageI18n() {
   ti('about-h-lineage',          'h_lineage');
   ti('about-pipeline-intro',     'pipeline_intro');
   ti('about-pipeline-outro',     'pipeline_outro');
+  ti('about-h-refine',           'h_refine');
+  ti('about-p-refine1',          'p_refine1');
+  ti('about-p-refine2',          'p_refine2');
+  ti('about-p-refine3',          'p_refine3');
+  ti('about-p-refine4',          'p_refine4');
   ti('about-p-name',             'p_name');
   ti('about-p-problem',          'p_problem');
   ti('about-p-llm1',             'p_llm1');

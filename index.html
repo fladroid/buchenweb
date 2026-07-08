@@ -36,22 +36,22 @@
     <h2 class="bb-section-title" id="sec-how">How it works</h2>
     <div class="bb-prose" style="max-width:100%">
       <p id="how-desc">
-        Each sentence of a source book is translated into a target language using three
-        different models — <strong>Gemma 3 12B</strong>, <strong>Ministral 3 14B</strong>,
-        and <strong>NLLB-600M</strong> — at various temperatures.
-        The resulting translations are then back-translated to English and compared to
+        Each sentence of a source book is translated into a target language by a pool of
+        models — several general-purpose LLMs run at different temperatures, plus a dedicated
+        machine-translation model.
+        Each translation is then back-translated to English and compared to
         the original using <strong>cosine similarity</strong> on multilingual embeddings.
-        A fourth model, <strong>Gemma 4 31B</strong>, acts as a blind judge — rating each
+        A separate LLM, chosen only to judge and never to translate, blindly rates each
         candidate on grammar, naturalness, and fidelity.
         Combining both scores selects a winner for this first phase.
       </p>
       <p id="how-desc2">
         That winner then becomes the anchor for a second phase: <strong>self-refinement</strong>.
-        Two refine models take the current best translation as a hint and mutate it — an
-        <strong>anchored mutation</strong> that keeps the sentence grammatical while searching
-        for something better. The final winner is chosen across both phases, so the finished
-        document is a hybrid not only of models but of phases: the best translation for each
-        sentence, regardless of model or phase.
+        The pipeline re-translates the current best translation, taking it as a hint and mutating
+        it — an <strong>anchored mutation</strong> that keeps the sentence grammatical while
+        searching for something better. The final winner is chosen across both phases, so the
+        finished document is a hybrid not of models but of phases: the best translation for each
+        sentence, whichever model or phase produced it.
       </p>
     </div>
 
@@ -70,18 +70,18 @@
       <div class="bb-box">
         <div class="bb-box-title">⚖️ LLM judge</div>
         <div class="bb-box-body" style="font-size:13px; color:var(--text-muted); line-height:1.7" id="pillar-judge">
-          Gemma 4 31B evaluates each candidate translation blindly on three axes:
-          grammar, naturalness, and fidelity to the original.
-          Judge score carries 60% of the final ranking weight.
+          A dedicated LLM, used only for judging, evaluates each candidate translation blindly
+          on three axes: grammar, naturalness, and fidelity to the original.
+          The judge score carries 60% of the final ranking weight.
         </div>
       </div>
 
       <div class="bb-box">
         <div class="bb-box-title">🧬 Self-refinement</div>
         <div class="bb-box-body" style="font-size:13px; color:var(--text-muted); line-height:1.7" id="pillar-refine">
-          The first-phase winner is fed back as a hint to two refine models, which mutate it
-          rather than translate from scratch. This anchored mutation keeps grammar intact while
-          exploring for better wording — evolution over language itself.
+          The first-phase winner is fed back as a hint and re-translated rather than translated
+          from scratch. This anchored mutation keeps grammar intact while exploring for better
+          wording — evolution over language itself.
         </div>
       </div>
 

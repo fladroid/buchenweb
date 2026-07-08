@@ -339,7 +339,7 @@
         </div>
         <div class="xray-legend-row">
           <div class="xray-legend-key">Judge Average</div>
-          <div class="xray-legend-val">Average of the three judge scores below, assigned by the LLM judge (gemma4:31b). The primary quality signal from the judge.</div>
+          <div class="xray-legend-val">Average of the three judge scores below, assigned by the LLM judge. The primary quality signal from the judge.</div>
         </div>
         <div class="xray-legend-row">
           <div class="xray-legend-key">Grammar</div>
@@ -406,14 +406,6 @@
 <div id="bb-footer"></div>
 
 <script>
-const I18N = {
-  en: { books:"Books", translations:"Translations", select:"Select a book and translation", show_original:"Show original:", sentences:"sentences", author:"Author", language:"Language", sentences_lbl:"Sentences", pipeline:"Pipeline", source:"Source", infobox_title:"Novel", gutenberg:"Project Gutenberg", ui_lang:"UI:", original:"Original", untranslated:"untranslated", nav_home:"Home", nav_about:"About", nav_stats:"X-Ray Stats", nav_books:"Library", nav_nlp:"NLP", nav_reader:"Reader" },
-  de: { books:"Bücher", translations:"Übersetzungen", select:"Buch und Übersetzung auswählen", show_original:"Original anzeigen:", sentences:"Sätze", author:"Autor", language:"Sprache", sentences_lbl:"Sätze", pipeline:"Pipeline", source:"Quelle", infobox_title:"Roman", gutenberg:"Project Gutenberg", ui_lang:"Sprache:", original:"Original", untranslated:"unübersetzt", nav_home:"Startseite", nav_about:"Über", nav_stats:"X-Ray Statistik", nav_books:"Bibliothek", nav_nlp:"NLP", nav_reader:"Leser" },
-  it: { books:"Libri", translations:"Traduzioni", select:"Seleziona un libro e una traduzione", show_original:"Mostra originale:", sentences:"frasi", author:"Autore", language:"Lingua", sentences_lbl:"Frasi", pipeline:"Pipeline", source:"Fonte", infobox_title:"Romanzo", gutenberg:"Project Gutenberg", ui_lang:"Lingua:", original:"Originale", untranslated:"non tradotto", nav_home:"Home", nav_about:"Informazioni", nav_stats:"Statistiche X-Ray", nav_books:"Biblioteca", nav_nlp:"NLP", nav_reader:"Lettore" },
-  hr: { books:"Knjige", translations:"Prijevodi", select:"Odaberi knjigu i prijevod", show_original:"Prikaži original:", sentences:"rečenica", author:"Autor", language:"Jezik", sentences_lbl:"Rečenica", pipeline:"Pipeline", source:"Izvor", infobox_title:"Roman", gutenberg:"Project Gutenberg", ui_lang:"Jezik:", original:"Original", untranslated:"neprevedeno", nav_home:"Početna", nav_about:"O projektu", nav_stats:"X-Ray Statistike", nav_books:"Knjižnica", nav_nlp:"NLP", nav_reader:"Čitač" },
-  sr: { books:"Књиге", translations:"Преводи", select:"Одабери књигу и превод", show_original:"Прикажи оригинал:", sentences:"реченица", author:"Autor", language:"Jezik", sentences_lbl:"Реченица", pipeline:"Pipeline", source:"Извор", infobox_title:"Роман", gutenberg:"Project Gutenberg", ui_lang:"Језик:", original:"Оригинал", untranslated:"непреведено", nav_home:"Почетна", nav_about:"О пројекту", nav_stats:"X-Ray Статистике", nav_books:"Библиотека", nav_nlp:"NLP", nav_reader:"Читач" },
-};
-
 const LANG_NAMES_NATIVE = {
   hr:"Hrvatski", bs:"Bosanski", sr:"Српски", sl:"Slovenščina",
   de:"Deutsch", nl:"Nederlands", af:"Afrikaans",
@@ -431,7 +423,7 @@ let state = {
   xrayFull:false, xrayPage:0, xrayData:null
 };
 
-const t = key => (I18N[state.uiLang] || I18N.en)[key] || key;
+const t = key => BB_NAV.t('reader_' + key) || BB_NAV.t(key) || key;
 const $ = id => document.getElementById(id);
 
 const savedTheme = localStorage.getItem('bb-theme') || 'light';
@@ -443,30 +435,15 @@ function updateThemeBtn() {
 updateThemeBtn();
 
 function applyI18n() {
-  const navLinks = document.querySelectorAll('.bb-nav-link');
-  navLinks[0].textContent = t('nav_home');
-  navLinks[1].textContent = t('nav_about');
-  navLinks[2].textContent = t('nav_stats');
-  navLinks[3].textContent = t('nav_books');
-  navLinks[4].textContent = t('nav_nlp');
-  navLinks[5].textContent = t('nav_reader');
   $('lbl-books').textContent = t('books');
   $('lbl-translations').textContent = t('translations');
   $('lbl-show-original').textContent = t('show_original');
   if (!state.activeLang) $('reader-loading').textContent = t('select');
   if (state.activeBook) renderLangSelect();
   if (state.translation) { renderInfobox(); renderScoreInfo(); }
-  document.querySelectorAll('.bb-lang-btn').forEach(b =>
-    b.classList.toggle('active', b.dataset.lang === state.uiLang));
 }
 
-document.querySelectorAll('.bb-lang-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    state.uiLang = btn.dataset.lang;
-    localStorage.setItem('bb-ui-lang', state.uiLang);
-    applyI18n();
-  });
-});
+BB_NAV.onLangChange = applyI18n;
 
 async function loadBooks() {
   const __ver = await fetch(`data/version.json?t=${Date.now()}`).then(r => r.json()).catch(() => ({v: Date.now()}));

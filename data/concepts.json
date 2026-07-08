@@ -59,18 +59,6 @@
       "name": "Mutation",
       "description": "The genetic operator that introduces variation to escape local optima — the lens behind self-refinement as anchored mutation.",
       "wiki": "Mutation_(evolutionary_algorithm)"
-    },
-    {
-      "icon": "🩻",
-      "name": "X-ray style art",
-      "wiki": "X-ray_style_art",
-      "description": "Prehistoric art depicting the bones and organs inside an animal, not just its skin — the attitude the project is named for."
-    },
-    {
-      "icon": "🎸",
-      "name": "Rock Art and the X-Ray Style",
-      "wiki": "Rock_Art_and_the_X-Ray_Style",
-      "description": "Joe Strummer's 1999 album — source of the line “I need to see in an x-ray style.”"
     }
   ],
   "about": [
@@ -163,18 +151,6 @@
       "name": "ALPAC report",
       "description": "The 1966 report that halted early rule-based MT funding — a turning point in the field's history.",
       "wiki": "ALPAC"
-    },
-    {
-      "icon": "🩻",
-      "name": "X-ray style art",
-      "wiki": "X-ray_style_art",
-      "description": "Prehistoric art depicting the bones and organs inside an animal, not just its skin — the attitude the project is named for."
-    },
-    {
-      "icon": "🎸",
-      "name": "Rock Art and the X-Ray Style",
-      "wiki": "Rock_Art_and_the_X-Ray_Style",
-      "description": "Joe Strummer's 1999 album — source of the line “I need to see in an x-ray style.”"
     },
     {
       "icon": "✨",
@@ -429,18 +405,6 @@
       "name": "Large language model",
       "description": "The models whose winning rates are charted on this page.",
       "wiki": "Large_language_model"
-    },
-    {
-      "icon": "🩻",
-      "name": "X-ray style art",
-      "wiki": "X-ray_style_art",
-      "description": "Prehistoric art depicting the bones and organs inside an animal, not just its skin — the attitude the project is named for."
-    },
-    {
-      "icon": "🎸",
-      "name": "Rock Art and the X-Ray Style",
-      "wiki": "Rock_Art_and_the_X-Ray_Style",
-      "description": "Joe Strummer's 1999 album — source of the line “I need to see in an x-ray style.”"
     }
   ],
   "learn": [

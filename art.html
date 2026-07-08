@@ -151,7 +151,7 @@
 
 <div id="bb-page">
 
-  <h1 class="bb-section-title">Art</h1>
+  <h1 class="bb-section-title" id="art-title">Art</h1>
   <p class="bb-section-subtitle">
     <span id="art-subtitle"></span>
   </p>
@@ -359,13 +359,18 @@
     return { cell: Math.max(3, Math.floor(w/c)), cols: c };
   }
 
-  const MODEL_COLORS = {
-    'gemma3:12b@0.8':      '#e74c3c',
-    'gemma3:12b@0.1':      '#e67e22',
-    'ministral-3:14b@0.8': '#3498db',
-    'ministral-3:14b@0.1': '#9b59b6',
-    'nllb-600M@0.0':       '#27ae60'
-  };
+  // Naziv modela je parametar, ne dio arhitekture (KONCEPT.md §1) — boja se izvodi
+  // deterministički iz stringa (hash -> HSL), isti obrazac kao stats.html.
+  // Legenda se gradi iz stvarnih modela u prikazanim podacima (vidi renderLegend), ne fiksne liste.
+  function modelColor(key) {
+    if (!key) return '#888';
+    let hash = 0;
+    for (let i = 0; i < key.length; i++) {
+      hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
+    }
+    const hue = hash % 360;
+    return `hsl(${hue}, 65%, 50%)`;
+  }
   const UNWOVEN = 'rgba(128,128,128,0.22)';
 
   const modelKey = s => s.model + '@' + Number(s.temp).toFixed(1);
@@ -457,7 +462,7 @@
       const xOff = (row === totalRows - 1 && lastRowOffset > 0) ? lastRowOffset * cellSize : 0;
       const x = col * cellSize + xOff, y = row * cellSize;
       const c = mode === 'score' ? scoreColor(finalScore(s))
-                                 : (MODEL_COLORS[modelKey(s)] || '#888');
+                                 : modelColor(modelKey(s));
       ctx.fillStyle = c;
       ctx.fillRect(x, y, cellSize - GAP, cellSize - GAP);
     });
@@ -473,8 +478,9 @@
           : '<span>0.60</span><span id="tap-grad"></span><span>1.00 &middot; final score</span>') +
         '<span><span class="tap-swatch" style="background:' + UNWOVEN + '"></span>not woven yet</span>';
     } else {
-      $('tap-legend').innerHTML = Object.entries(MODEL_COLORS).map(([k, c]) =>
-        '<span><span class="tap-swatch" style="background:' + c + '"></span>' + k + '</span>'
+      const __presentKeys = Array.from(new Set(tapSlice.filter(s => s.translated).map(modelKey))).sort();
+      $('tap-legend').innerHTML = __presentKeys.map(k =>
+        '<span><span class="tap-swatch" style="background:' + modelColor(k) + '"></span>' + k + '</span>'
       ).join('') +
         '<span><span class="tap-swatch" style="background:' + UNWOVEN + '"></span>not woven yet</span>';
     }
@@ -831,6 +837,7 @@ init();
 function applyPageI18n() {
   var t = (typeof BB_NAV !== 'undefined' && BB_NAV.t) ? BB_NAV.t : function(k){return k;};
   var ids = {
+    'art-title':'art_title',
     'art-subtitle':'art_subtitle',
     'art-h-synesthesia':'art_h_synesthesia',
     'art-synesthesia-intro':'art_synesthesia_intro',

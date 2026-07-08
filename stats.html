@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>X-Ray Stats — Buchenberg</title>
+<title>Stats — Buchenberg</title>
 <link rel="stylesheet" href="buchenberg.css">
 <script src="nav.js"></script>
 <style>
@@ -18,9 +18,6 @@
   .winner-bar-wrap { background:var(--border-light); border-radius:2px; height:10px; width:100%; min-width:80px; }
   .winner-bar { background:var(--accent); border-radius:2px; height:10px; transition:width .3s; }
 
-  .model-gem3  { color: #2a6; }
-  .model-min3  { color: #a62; }
-  .model-nllb  { color: #62a; }
 </style>
 </head>
 <body>
@@ -162,20 +159,20 @@ BB_NAV.onLangChange = applyPageI18n;
 
 // ── Stats computation ─────────────────────────────────────────
 function modelShortName(model) {
-  if (!model) return '?';
-  if (model.includes('gemma3') || model.includes('gemma3:12b')) return 'gemma3:12b';
-  if (model.includes('ministral') || model.includes('ministral-3')) return 'ministral-3:14b';
-  if (model.includes('nllb')) return 'nllb-600M';
-  if (model.includes('gemma4')) return 'gemma4:31b';
-  return model;
+  return model || '?';
 }
 
-function modelClass(model) {
-  if (!model) return '';
-  if (model.includes('gemma3')) return 'model-gem3';
-  if (model.includes('ministral')) return 'model-min3';
-  if (model.includes('nllb')) return 'model-nllb';
-  return '';
+// Naziv modela je parametar, ne dio arhitekture (KONCEPT.md §1) — boja se izvodi
+// deterministički iz stringa (hash -> HSL), ne iz whitelist-e poznatih imena.
+// Bilo koje budće ime modela automatski dobija stabilnu, različitu boju.
+function modelColor(model) {
+  if (!model) return 'var(--text-muted)';
+  let hash = 0;
+  for (let i = 0; i < model.length; i++) {
+    hash = (hash * 31 + model.charCodeAt(i)) >>> 0;
+  }
+  const hue = hash % 360;
+  return `hsl(${hue}, 55%, 40%)`;
 }
 
 async function loadStats() {
@@ -280,9 +277,9 @@ function renderWinnerTable() {
     <th style="min-width:120px">${wt('stats_col_dist')}</th></tr>`;
   rows.forEach(({model, count}) => {
     const pct = totalWinners ? (count / totalWinners * 100).toFixed(1) : 0;
-    const cls = modelClass(model);
+    const col = modelColor(model);
     html += `<tr>
-      <td><span class="${cls}" style="font-family:var(--font-mono);font-size:12px">${model}</span></td>
+      <td><span style="color:${col};font-family:var(--font-mono);font-size:12px">${model}</span></td>
       <td>${count.toLocaleString()}</td>
       <td>${pct}%</td>
       <td><div class="winner-bar-wrap"><div class="winner-bar" style="width:${pct}%"></div></div></td>
