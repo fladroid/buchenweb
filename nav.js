@@ -1,7 +1,7 @@
 (function() {
 
 // ── Verzija portala — bump na kraju svake sesije ──
-const BB_VERSION = 's123.1';
+const BB_VERSION = 's123.2';
 const BB_VERSION_DATE = '9 Jul 2026';
 
 const NAV_I18N = {
@@ -163,6 +163,7 @@ const NAV_I18N = {
         art_fp_p1:"Every sentence has a shape. Its <strong>embedding vector</strong> — 1,024 numbers that capture its meaning — becomes a radial fingerprint: 64 sectors, each holding a slice of the vector; its length is the slice’s magnitude, its colour the slice’s mean. A faithful translation should produce a fingerprint that <em>looks like</em> the original. No reference translation needed — the shape speaks for itself.",
         art_fp_p2:"The fourth shadow of the same sphere — beside the scatter of <em>Geometry</em>, the cloth of <em>The Tapestry</em>, and the melody of <em>The Sound of Translation</em>.",
         reader_books:"Books", reader_translations:"Translations", reader_select:"Select a book and translation",
+        reader_refined:"refined", reader_phase1:"Phase 1", reader_phase2:"Phase 2", reader_winner:"winner",
         reader_show_original:"Show original:", reader_sentences:"sentences", reader_author:"Author",
         reader_language:"Language", reader_sentences_lbl:"Sentences", reader_pipeline:"Pipeline",
         reader_source:"Source", reader_infobox_title:"Novel", reader_gutenberg:"Project Gutenberg",
@@ -466,6 +467,7 @@ const NAV_I18N = {
         art_fp_p1:"Jeder Satz hat eine Form. Sein <strong>Einbettungsvektor</strong> — 1.024 Zahlen, die seine Bedeutung erfassen — wird zu einem radialen Fingerabdruck: 64 Sektoren, jeder mit einem Ausschnitt des Vektors; seine Länge ist die Magnitude des Ausschnitts, seine Farbe der Mittelwert. Eine treue Übersetzung sollte einen Fingerabdruck erzeugen, der dem Original <em>ähnelt</em>. Keine Referenzübersetzung erforderlich — die Form spricht für sich.",
         art_fp_p2:"Der vierte Schatten derselben Kugel — neben dem Scatter der <em>Geometrie</em>, dem Stoff des <em>Teppichs</em> und der Melodie des <em>Klangs der Übersetzung</em>.",
         reader_books:"Bücher", reader_translations:"Übersetzungen", reader_select:"Buch und Übersetzung auswählen",
+        reader_refined:"verfeinert", reader_phase1:"Phase 1", reader_phase2:"Phase 2", reader_winner:"Gewinner",
         reader_show_original:"Original anzeigen:", reader_sentences:"Sätze", reader_author:"Autor",
         reader_language:"Sprache", reader_sentences_lbl:"Sätze", reader_pipeline:"Pipeline",
         reader_source:"Quelle", reader_infobox_title:"Roman", reader_gutenberg:"Project Gutenberg",
@@ -770,6 +772,7 @@ const NAV_I18N = {
         art_fp_p1:"Ogni frase ha una forma. Il suo <strong>vettore di embedding</strong> — 1.024 numeri che catturano il suo significato — diventa un’impronta radiale: 64 settori, ognuno contenente una fetta del vettore; la sua lunghezza è la magnitudine della fetta, il suo colore la media. Una traduzione fedele dovrebbe produrre un’impronta che <em>assomigli</em> all’originale. Nessuna traduzione di riferimento necessaria — la forma parla da sola.",
         art_fp_p2:"La quarta ombra della stessa sfera — accanto allo scatter della <em>Geometria</em>, al tessuto de <em>L’Arazzo</em> e alla melodia de <em>Il Suono della Traduzione</em>.",
         reader_books:"Libri", reader_translations:"Traduzioni", reader_select:"Seleziona un libro e una traduzione",
+        reader_refined:"raffinato", reader_phase1:"Fase 1", reader_phase2:"Fase 2", reader_winner:"vincitore",
         reader_show_original:"Mostra originale:", reader_sentences:"frasi", reader_author:"Autore",
         reader_language:"Lingua", reader_sentences_lbl:"Frasi", reader_pipeline:"Pipeline",
         reader_source:"Fonte", reader_infobox_title:"Romanzo", reader_gutenberg:"Project Gutenberg",
@@ -1074,6 +1077,7 @@ const NAV_I18N = {
         art_fp_p1:"Svaka rečenica ima oblik. Njezin <strong>vektor ugradnje</strong> — 1.024 broja koji hvataju njezino značenje — postaje radijalni otisak: 64 sektora, svaki držeći isječak vektora; njegova duljina je magnituda isječka, njegova boja srednja vrijednost. Vjerni prijevod trebao bi proizvesti otisak koji <em>izgleda poput</em> originala. Nije potreban referentni prijevod — oblik govori sam za sebe.",
         art_fp_p2:"Četvrti otisak iste sfere — uz scatter <em>Geometrije</em>, tkaninu <em>Tapiserije</em> i melodiju <em>Zvuka prijevoda</em>.",
         reader_books:"Knjige", reader_translations:"Prijevodi", reader_select:"Odaberi knjigu i prijevod",
+        reader_refined:"poboljšano", reader_phase1:"Faza 1", reader_phase2:"Faza 2", reader_winner:"pobjednik",
         reader_show_original:"Prikaži original:", reader_sentences:"rečenica", reader_author:"Autor",
         reader_language:"Jezik", reader_sentences_lbl:"Rečenica", reader_pipeline:"Pipeline",
         reader_source:"Izvor", reader_infobox_title:"Roman", reader_gutenberg:"Project Gutenberg",
@@ -1378,6 +1382,7 @@ const NAV_I18N = {
         art_fp_p1:"Свака реченица има облик. њен <strong>вектор уградње</strong> — 1.024 броја који хватају значење — постаје радијални отисак: 64 сектора, сваки држи исечак вектора; његова дужина је магнитуда исечка, његова боја средња вредност. Веран превод требао би произвести отисак који <em>личи</em> оригиналу. Не треба референтни превод — облик говори сам за себе.",
         art_fp_p2:"Четврта сена исте сфере — уз расипање <em>Геометрије</em>, ткиво <em>Тапесерије</em> и мелодију <em>Звука превода</em>.",
         reader_books:"Књиге", reader_translations:"Преводи", reader_select:"Одабери књигу и превод",
+        reader_refined:"побољшано", reader_phase1:"Фаза 1", reader_phase2:"Фаза 2", reader_winner:"победник",
         reader_show_original:"Прикажи оригинал:", reader_sentences:"реченица", reader_author:"Аутор",
         reader_language:"Језик", reader_sentences_lbl:"Реченица", reader_pipeline:"Pipeline",
         reader_source:"Извор", reader_infobox_title:"Роман", reader_gutenberg:"Project Gutenberg",

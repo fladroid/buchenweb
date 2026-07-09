@@ -104,6 +104,37 @@
     color: var(--text-light); font-size: 10px;
   }
 
+  /* ── 6a/6b: faza badge + before/after panel ──────────────── */
+  .phase-badge {
+    display: inline-block; font-size: 10px; line-height: 1;
+    padding: 2px 6px; margin-left: 4px; vertical-align: middle;
+    background: transparent; color: var(--text-light);
+    border: 1px solid var(--border-light); border-radius: 3px;
+    cursor: pointer; font-family: var(--font-mono);
+    transition: border-color .15s, color .15s;
+  }
+  .phase-badge:hover { border-color: var(--accent); color: var(--text); }
+  .phase-panel {
+    margin: 6px 0 10px; border-left: 2px solid var(--border-light);
+    padding-left: 10px; font-size: 13px;
+  }
+  .phase-row {
+    display: grid; grid-template-columns: 90px 1fr auto; gap: 10px;
+    align-items: baseline; padding: 3px 0;
+  }
+  .phase-row.phase-win .phase-text { color: var(--text); font-weight: 500; }
+  .phase-label { color: var(--text-light); font-size: 11px; font-family: var(--font-mono); }
+  .phase-winner {
+    color: var(--accent); font-weight: 600; text-transform: lowercase;
+  }
+  .phase-text { color: var(--text-muted); }
+  .phase-score {
+    color: var(--text-light); font-size: 11px; font-family: var(--font-mono);
+    white-space: nowrap; text-align: right;
+  }
+  .phase-model { color: var(--text-light); opacity: .7; }
+  .phase-empty { color: var(--text-light); padding: 3px 0; }
+
   #xray-legend {
     display: none; margin-bottom: 20px;
     border: 1px solid var(--border); border-radius: 2px;
@@ -420,7 +451,8 @@ let state = {
   books:[], activeBook:null, activeLang:null,
   showOriginal:false,
   translation:null, originalOnly:false,
-  xrayFull:false, xrayPage:0, xrayData:null
+  xrayFull:false, xrayPage:0, xrayData:null,
+  phasesData:null, openPhases:{}
 };
 
 const t = key => BB_NAV.t('reader_' + key) || BB_NAV.t(key) || key;
@@ -633,6 +665,15 @@ function renderReader() {
     if (isTranslated) {
       trans.innerHTML = (showOrig ? '' : '<sup class="sentence-num">' + s.pos + '</sup>') +
         escHtml(s.translation);
+      // 6a: badge-dugme kad je apsolutni pobjednik iz faze 2 (refine)
+      if (s.faza === 2) {
+        const badge = document.createElement('button');
+        badge.className = 'phase-badge';
+        badge.textContent = t('refined');
+        badge.onclick = () => togglePhases(s.pos, trans);
+        trans.appendChild(document.createTextNode(' '));
+        trans.appendChild(badge);
+      }
       const panel = document.createElement('div');
       panel.className = 'xray-panel' + (state.xray ? ' visible' : '');
       const modelShort = (s.model||'').replace('gemma3:12b','gemma3').replace('ministral-3:14b','ministral').replace('nllb-200-distilled-600M','nllb-600M').replace(':12b','').replace('-3:14b','');
@@ -659,6 +700,53 @@ function renderReader() {
     row.appendChild(trans);
     reader.appendChild(row);
   });
+}
+
+async function togglePhases(pos, container) {
+  // 6b: lazy-load phases_<book>_<lang>.json (jednom), toggle before/after panel
+  const existing = container.querySelector('.phase-panel');
+  if (existing) { existing.remove(); delete state.openPhases[pos]; return; }
+
+  // Lazy-load ako fajl nije ucitan za ovu knjigu/jezik
+  if (!state.phasesData ||
+      state.phasesData.book_id !== state.activeBook.id ||
+      state.phasesData.language !== state.activeLang) {
+    const __v = window.__v || Date.now();
+    try {
+      state.phasesData = await fetch(
+        `data/phases_${state.activeBook.id}_${state.activeLang}.json?v=${__v}`
+      ).then(r => { if (!r.ok) throw new Error('nema'); return r.json(); });
+    } catch(e) {
+      state.phasesData = { book_id: state.activeBook.id, language: state.activeLang, _map: {} };
+    }
+  }
+  // Izgradi pos->podaci mapu jednom
+  if (!state.phasesData._map) {
+    state.phasesData._map = {};
+    (state.phasesData.sentences || []).forEach(x => { state.phasesData._map[x.pos] = x; });
+  }
+
+  const data = state.phasesData._map[pos];
+  const panel = document.createElement('div');
+  panel.className = 'phase-panel';
+  if (!data) {
+    panel.innerHTML = '<div class="phase-empty">&mdash;</div>';
+  } else {
+    const row = (faza, key) => {
+      const x = data[key];
+      if (!x) return '';
+      const isWin = data.apsolutna_faza === faza;
+      return '<div class="phase-row' + (isWin ? ' phase-win' : '') + '">' +
+        '<span class="phase-label">' + t('phase' + faza) + (isWin ? ' <span class="phase-winner">' + t('winner') + '</span>' : '') + '</span>' +
+        '<span class="phase-text">' + escHtml(x.prevod) + '</span>' +
+        '<span class="phase-score">' + (x.finalni_score != null ? x.finalni_score.toFixed(4) : '&mdash;') +
+        ' <span class="phase-model">' + escHtml(x.model || '') + '</span></span>' +
+        '</div>';
+    };
+    panel.innerHTML = row(1, 'faza1') + row(2, 'faza2');
+  }
+  container.appendChild(panel);
+  state.openPhases[pos] = true;
 }
 
 function escHtml(str) {
