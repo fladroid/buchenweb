@@ -86,10 +86,24 @@
     </div>
   </div>
 
-  <!-- WINNER DISTRIBUTION -->
-  <h2 class="bb-section-title" id="stats-winners-title"></h2>
-  <p class="bb-section-subtitle" id="stats-winners-sub"></p>
-  <div id="winner-table-wrap">
+  <!-- TABELA 0: MODELS AND ROLES -->
+  <h2 class="bb-section-title" id="stats-models-title"></h2>
+  <p class="bb-section-subtitle" id="stats-models-sub"></p>
+  <div id="models-table-wrap">
+    <div class="bb-loading">Loading…</div>
+  </div>
+
+  <!-- TABELA 1: WINS BY ENGINE AND PHASE -->
+  <h2 class="bb-section-title" id="stats-engine-title"></h2>
+  <p class="bb-section-subtitle" id="stats-engine-sub"></p>
+  <div id="engine-table-wrap">
+    <div class="bb-loading">Loading…</div>
+  </div>
+
+  <!-- TABELA 2: WINS BY CONFIGURATION -->
+  <h2 class="bb-section-title" id="stats-config-title"></h2>
+  <p class="bb-section-subtitle" id="stats-config-sub"></p>
+  <div id="config-table-wrap">
     <div class="bb-loading">Loading…</div>
   </div>
 
@@ -144,14 +158,20 @@ function applyPageI18n() {
   __sf('funnel-winners-sub','index_funnel_winners_sub');
   __sf('funnel-full-cap','index_funnel_full');
   document.getElementById('lbl-avg-ts').textContent          = t('stats_avg_ts');
-  document.getElementById('stats-winners-title').textContent = t('stats_winners_title');
-  document.getElementById('stats-winners-sub').textContent   = t('stats_winners_sub');
+  document.getElementById('stats-models-title').textContent = t('stats_models_title');
+  document.getElementById('stats-models-sub').textContent   = t('stats_models_sub');
+  document.getElementById('stats-engine-title').textContent = t('stats_engine_title');
+  document.getElementById('stats-engine-sub').textContent   = t('stats_engine_sub');
+  document.getElementById('stats-config-title').textContent = t('stats_config_title');
+  document.getElementById('stats-config-sub').textContent   = t('stats_config_sub');
   document.getElementById('stats-coverage-title').textContent = t('stats_coverage_title');
   document.getElementById('stats-coverage-sub').textContent  = t('stats_coverage_sub');
   document.getElementById('stats-score-title').textContent   = t('stats_score_title');
   document.getElementById('stats-score-sub').textContent     = t('stats_score_sub');
   document.getElementById('stats-warning').textContent       = t('stats_warning');
-  if (window._winnerRows)   renderWinnerTable();
+  if (window._modelsRows)   renderModelsTable();
+  if (window._engineRows)   renderEngineTable();
+  if (window._configRows)   renderConfigTable();
   if (window._coverageRows) renderCoverageTable();
   if (window._scoreRows)    renderScoreTable();
 }
@@ -177,7 +197,7 @@ function modelColor(model) {
 
 async function loadStats() {
   const __loadingMsg = (typeof t === 'function' ? (t('stats_loading') || 'Loading\u2026') : 'Loading\u2026');
-  ['winner-table-wrap','coverage-table-wrap','score-table-wrap'].forEach(id => {
+  ['models-table-wrap','engine-table-wrap','config-table-wrap','coverage-table-wrap','score-table-wrap'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted);">' + __loadingMsg + '</div>';
   });
@@ -203,12 +223,24 @@ async function loadStats() {
     (stats.summary.avg_ts !== null && stats.summary.avg_ts !== undefined)
       ? stats.summary.avg_ts.toFixed(3) : '–';
 
-  // ── Winner distribution ──
-  window._winnerRows = stats.winners.map(w => ({
-    model: modelShortName(w.model) + (w.temp !== null && w.temp !== undefined ? ` @${w.temp}` : ''),
-    count: w.count
+  // ── Tabela 0: Models and roles (inventar iz registra) ──
+  window._modelsRows = (stats.models || []).map(m => ({
+    naziv: m.naziv,
+    vrsta: m.vrsta || '',
+    uloge: (m.uloge || []).join(', '),
+    broj: m.broj_prevoda
   }));
-  window._totalWinners = stats.winners.reduce((a, w) => a + w.count, 0);
+
+  // ── Tabela 1: Wins by engine and phase ──
+  window._engineRows = stats.winners_by_engine || [];
+
+  // ── Tabela 2: Wins by configuration ──
+  window._configRows = (stats.winners_by_config || []).map(c => ({
+    config: modelShortName(c.model) + (c.temp !== null && c.temp !== undefined ? ` @${c.temp}` : '') + ` · f${c.faza}`,
+    model: c.model, temp: c.temp, faza: c.faza,
+    count: c.count, candidates: c.candidates, win_rate: c.win_rate
+  }));
+  window._totalWinners = (stats.winners_by_config || []).reduce((a, c) => a + c.count, 0);
 
   // ── Coverage table ──
   window._coverageRows = stats.coverage.map(c => ({
@@ -229,12 +261,14 @@ async function loadStats() {
 
   // Sort state
   window._sort = {
-    winner:   { col: 'count',   asc: false },
+    config:   { col: 'count',   asc: false },
     coverage: { col: 'translated', asc: false },
     score:    { col: 'langName', asc: true  }
   };
 
-  renderWinnerTable();
+  renderModelsTable();
+  renderEngineTable();
+  renderConfigTable();
   renderCoverageTable();
   renderScoreTable();
 }
@@ -265,28 +299,72 @@ function sortRows(rows, col, asc) {
   });
 }
 
-function renderWinnerTable() {
-  const { col, asc } = window._sort.winner;
-  const totalWinners = window._totalWinners;
-  const rows = sortRows(window._winnerRows, col, asc);
-  const wt = BB_NAV.t.bind(BB_NAV);
+function renderModelsTable() {
+  const rows = window._modelsRows;
+  const mt = BB_NAV.t.bind(BB_NAV);
   let html = `<table class="bb-table"><tr>
-    <th style="cursor:pointer" onclick="thClick('winner','model',true,renderWinnerTable)">${wt('stats_col_model')}${sortIcon('winner','model')}</th>
-    <th style="cursor:pointer" onclick="thClick('winner','count',false,renderWinnerTable)">${wt('stats_col_wins')}${sortIcon('winner','count')}</th>
-    <th>%</th>
-    <th style="min-width:120px">${wt('stats_col_dist')}</th></tr>`;
-  rows.forEach(({model, count}) => {
+    <th>${mt('stats_col_model')}</th>
+    <th>${mt('stats_col_type')}</th>
+    <th>${mt('stats_col_role')}</th>
+    <th>${mt('stats_col_translations')}</th></tr>`;
+  rows.forEach(({naziv, vrsta, uloge, broj}) => {
+    const col = modelColor(naziv);
+    html += `<tr>
+      <td><span style="color:${col};font-family:var(--font-mono);font-size:12px">${naziv}</span></td>
+      <td>${vrsta}</td>
+      <td>${uloge}</td>
+      <td>${broj.toLocaleString()}</td>
+    </tr>`;
+  });
+  html += `</table>`;
+  document.getElementById('models-table-wrap').innerHTML = html;
+}
+
+function renderEngineTable() {
+  const rows = window._engineRows;
+  const et = BB_NAV.t.bind(BB_NAV);
+  const cell = (p) => p ? `${p.count.toLocaleString()}${p.win_rate !== null ? ` <span style="color:var(--text-light);font-size:11px">(${p.win_rate}%)</span>` : ''}` : '<span style="color:var(--text-light)">–</span>';
+  let html = `<table class="bb-table"><tr>
+    <th>${et('stats_col_engine')}</th>
+    <th>${et('stats_col_phase1')}</th>
+    <th>${et('stats_col_phase2')}</th>
+    <th>${et('stats_col_total')}</th></tr>`;
+  rows.forEach(({engine, phases, total_count, total_win_rate}) => {
+    const col = modelColor(engine);
+    const p1 = phases['1'], p2 = phases['2'];
+    html += `<tr>
+      <td><span style="color:${col};font-family:var(--font-mono);font-size:12px">${engine}</span></td>
+      <td>${cell(p1)}</td>
+      <td>${cell(p2)}</td>
+      <td><strong>${total_count.toLocaleString()}</strong>${total_win_rate !== null ? ` <span style="color:var(--text-light);font-size:11px">(${total_win_rate}%)</span>` : ''}</td>
+    </tr>`;
+  });
+  html += `</table>`;
+  document.getElementById('engine-table-wrap').innerHTML = html;
+}
+
+function renderConfigTable() {
+  const { col, asc } = window._sort.config;
+  const totalWinners = window._totalWinners;
+  const rows = sortRows(window._configRows, col, asc);
+  const ct = BB_NAV.t.bind(BB_NAV);
+  let html = `<table class="bb-table"><tr>
+    <th style="cursor:pointer" onclick="thClick('config','config',true,renderConfigTable)">${ct('stats_col_config')}${sortIcon('config','config')}</th>
+    <th style="cursor:pointer" onclick="thClick('config','count',false,renderConfigTable)">${ct('stats_col_wins')}${sortIcon('config','count')}</th>
+    <th style="cursor:pointer" onclick="thClick('config','win_rate',false,renderConfigTable)">${ct('stats_col_winrate')}${sortIcon('config','win_rate')}</th>
+    <th style="min-width:120px">${ct('stats_col_dist')}</th></tr>`;
+  rows.forEach(({config, model, count, candidates, win_rate}) => {
     const pct = totalWinners ? (count / totalWinners * 100).toFixed(1) : 0;
     const col = modelColor(model);
     html += `<tr>
-      <td><span style="color:${col};font-family:var(--font-mono);font-size:12px">${model}</span></td>
+      <td><span style="color:${col};font-family:var(--font-mono);font-size:12px">${config}</span></td>
       <td>${count.toLocaleString()}</td>
-      <td>${pct}%</td>
+      <td>${win_rate !== null ? win_rate + '%' : '–'}</td>
       <td><div class="winner-bar-wrap"><div class="winner-bar" style="width:${pct}%"></div></div></td>
     </tr>`;
   });
-  html += `<tr style="font-weight:bold"><td>Total</td><td>${totalWinners.toLocaleString()}</td><td>100%</td><td></td></tr></table>`;
-  document.getElementById('winner-table-wrap').innerHTML = html;
+  html += `<tr style="font-weight:bold"><td>Total</td><td>${totalWinners.toLocaleString()}</td><td></td><td></td></tr></table>`;
+  document.getElementById('config-table-wrap').innerHTML = html;
 }
 
 function renderCoverageTable() {
@@ -331,7 +409,7 @@ function renderScoreTable() {
 
 applyPageI18n();
 loadStats().catch(err => {
-  ['winner-table-wrap','coverage-table-wrap','score-table-wrap'].forEach(id => {
+  ['models-table-wrap','engine-table-wrap','config-table-wrap','coverage-table-wrap','score-table-wrap'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.innerHTML = '\u26a0 ' + err.message;
   });

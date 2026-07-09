@@ -1,8 +1,8 @@
 (function() {
 
 // ── Verzija portala — bump na kraju svake sesije ──
-const BB_VERSION = 's120';
-const BB_VERSION_DATE = '8 Jul 2026';
+const BB_VERSION = 's123.1';
+const BB_VERSION_DATE = '9 Jul 2026';
 
 const NAV_I18N = {
   en: { home:"Home", about:"About", stats:"Stats", books:"Library",
@@ -24,6 +24,10 @@ const NAV_I18N = {
         stats_col_model:"Model", stats_col_wins:"Wins", stats_col_dist:"Distribution",
         stats_col_book:"Book", stats_col_lang:"Language", stats_col_sent:"Sentences",
         stats_col_avg_ts:"Avg translation score", stats_col_avg_j:"Avg judge score",
+        stats_models_title:"Models and roles", stats_models_sub:"Every model in the system, its type, role, and number of translations produced.",
+        stats_engine_title:"Wins by engine and phase", stats_engine_sub:"Absolute winners per engine, split by phase (base vs refinement).",
+        stats_config_title:"Wins by configuration", stats_config_sub:"Each competitor as model × temperature × phase, with win rate against its own candidate pool.",
+        stats_col_type:"Type", stats_col_role:"Role", stats_col_translations:"Translations", stats_col_engine:"Engine", stats_col_phase1:"Phase 1", stats_col_phase2:"Phase 2", stats_col_total:"Total", stats_col_winrate:"Win rate", stats_col_config:"Configuration", stats_col_phase:"Phase",
         stats_warning:"⚠ Statistics are computed client-side from the same JSON files used by the Reader. Winner model information requires judge data (judge_avg) to be present. Sentences without judge data are excluded from judge averages.",
         books_title:"Library",
         books_subtitle:"All books are sourced from Project Gutenberg (public domain). Each translation is a sentence-level hybrid produced by the Buchenberg pipeline.",
@@ -327,6 +331,10 @@ const NAV_I18N = {
         stats_col_model:"Modell", stats_col_wins:"Siege", stats_col_dist:"Verteilung",
         stats_col_book:"Buch", stats_col_lang:"Sprache", stats_col_sent:"Sätze",
         stats_col_avg_ts:"Ø Übersetzungsscore", stats_col_avg_j:"Ø Richter-Score",
+        stats_models_title:"Modelle und Rollen", stats_models_sub:"Jedes Modell im System, sein Typ, seine Rolle und die Anzahl erzeugter Übersetzungen.",
+        stats_engine_title:"Siege nach Engine und Phase", stats_engine_sub:"Absolute Gewinner pro Engine, aufgeteilt nach Phase (Basis vs. Verfeinerung).",
+        stats_config_title:"Siege nach Konfiguration", stats_config_sub:"Jeder Teilnehmer als Modell × Temperatur × Phase, mit Gewinnrate gegen seinen eigenen Kandidatenpool.",
+        stats_col_type:"Typ", stats_col_role:"Rolle", stats_col_translations:"Übersetzungen", stats_col_engine:"Engine", stats_col_phase1:"Phase 1", stats_col_phase2:"Phase 2", stats_col_total:"Gesamt", stats_col_winrate:"Gewinnrate", stats_col_config:"Konfiguration", stats_col_phase:"Phase",
         stats_warning:"⚠ Statistiken werden clientseitig aus denselben JSON-Dateien berechnet wie im Reader. Gewinnermodell-Informationen erfordern Richter-Daten (judge_avg). Sätze ohne Richter-Daten werden von den Richter-Durchschnittswerten ausgeschlossen.",
         books_title:"Bibliothek",
         books_subtitle:"Alle Bücher stammen aus dem Project Gutenberg (gemeinfrei). Jede Übersetzung ist ein satzweises Hybrid der Buchenberg-Pipeline.",
@@ -626,6 +634,10 @@ const NAV_I18N = {
         stats_col_model:"Modello", stats_col_wins:"Vittorie", stats_col_dist:"Distribuzione",
         stats_col_book:"Libro", stats_col_lang:"Lingua", stats_col_sent:"Frasi",
         stats_col_avg_ts:"Punteggio medio di traduzione", stats_col_avg_j:"Punteggio medio del giudice",
+        stats_models_title:"Modelli e ruoli", stats_models_sub:"Ogni modello nel sistema, il suo tipo, ruolo e numero di traduzioni prodotte.",
+        stats_engine_title:"Vittorie per motore e fase", stats_engine_sub:"Vincitori assoluti per motore, divisi per fase (base vs raffinamento).",
+        stats_config_title:"Vittorie per configurazione", stats_config_sub:"Ogni concorrente come modello × temperatura × fase, con tasso di vittoria rispetto al proprio pool di candidati.",
+        stats_col_type:"Tipo", stats_col_role:"Ruolo", stats_col_translations:"Traduzioni", stats_col_engine:"Motore", stats_col_phase1:"Fase 1", stats_col_phase2:"Fase 2", stats_col_total:"Totale", stats_col_winrate:"Tasso di vittoria", stats_col_config:"Configurazione", stats_col_phase:"Fase",
         stats_warning:"⚠ Le statistiche sono calcolate lato client dagli stessi file JSON usati dal Reader. Le informazioni sul modello vincitore richiedono i dati del giudice (judge_avg). Le frasi senza dati del giudice sono escluse dalle medie.",
         books_title:"Biblioteca",
         books_subtitle:"Tutti i libri provengono da Project Gutenberg (pubblico dominio). Ogni traduzione è un ibrido a livello di frase prodotto dalla pipeline Buchenberg.",
@@ -926,6 +938,10 @@ const NAV_I18N = {
         stats_col_model:"Model", stats_col_wins:"Pobjede", stats_col_dist:"Distribucija",
         stats_col_book:"Knjiga", stats_col_lang:"Jezik", stats_col_sent:"Rečenice",
         stats_col_avg_ts:"Prosječni score prijevoda", stats_col_avg_j:"Prosječni score sudije",
+        stats_models_title:"Modeli i uloge", stats_models_sub:"Svaki model u sistemu, njegova vrsta, uloga i broj proizvedenih prijevoda.",
+        stats_engine_title:"Pobjede po engine-u i fazi", stats_engine_sub:"Apsolutni pobjednici po engine-u, razloženo po fazi (bazna vs poboljšanje).",
+        stats_config_title:"Pobjede po konfiguraciji", stats_config_sub:"Svaki takmičar kao model × temperatura × faza, s postotkom pobjeda u odnosu na vlastiti bazen kandidata.",
+        stats_col_type:"Vrsta", stats_col_role:"Uloga", stats_col_translations:"Prijevodi", stats_col_engine:"Engine", stats_col_phase1:"Faza 1", stats_col_phase2:"Faza 2", stats_col_total:"Ukupno", stats_col_winrate:"Postotak pobjeda", stats_col_config:"Konfiguracija", stats_col_phase:"Faza",
         stats_warning:"⚠ Statistike se računaju na strani klijenta iz istih JSON datoteka koje koristi Reader. Informacije o pobjedničkom modelu zahtijevaju podatke sudije (judge_avg). Rečenice bez podataka sudije isključene su iz prosjeka.",
         books_title:"Knjižnica",
         books_subtitle:"Sve knjige dolaze s Project Gutenberga (javna domena). Svaki prijevod je hibrid na razini rečenica, proizveden Buchenberg pipelineom.",
@@ -1226,6 +1242,10 @@ const NAV_I18N = {
         stats_col_model:"Модел", stats_col_wins:"Победе", stats_col_dist:"Дистрибуција",
         stats_col_book:"Књига", stats_col_lang:"Језик", stats_col_sent:"Реченице",
         stats_col_avg_ts:"Просечни скор превода", stats_col_avg_j:"Просечни скор судије",
+        stats_models_title:"Модели и улоге", stats_models_sub:"Сваки модел у систему, његова врста, улога и број произведених превода.",
+        stats_engine_title:"Победе по engine-у и фази", stats_engine_sub:"Апсолутни победници по engine-у, разложено по фази (базна vs побољшање).",
+        stats_config_title:"Победе по конфигурацији", stats_config_sub:"Сваки такмичар као модел × температура × фаза, са процентом победа у односу на властити базен кандидата.",
+        stats_col_type:"Врста", stats_col_role:"Улога", stats_col_translations:"Преводи", stats_col_engine:"Engine", stats_col_phase1:"Фаза 1", stats_col_phase2:"Фаза 2", stats_col_total:"Укупно", stats_col_winrate:"Проценат победа", stats_col_config:"Конфигурација", stats_col_phase:"Фаза",
         stats_warning:"⚠ Статистике се рачунају на страни клијента из истих JSON датотека које користи Reader. Информације о победничком моделу захтевају податке судије (judge_avg). Реченице без података судије искључене су из просека.",
         books_title:"Библиотека",
         books_subtitle:"Све књиге потичу са Project Gutenberga (јавна домена). Сваки превод је хибрид на нивоу реченица, произведен Buchenberg пипелајном.",
