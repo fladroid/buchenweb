@@ -1240,7 +1240,7 @@ function populateLangDropdown() {
   });
 
   const sel = document.getElementById('sel-lang');
-  sel.innerHTML = '<option value="">— select a language —</option>';
+  sel.innerHTML = '<option value="">' + t('learn_run_sel_lang') + '</option>';
 
   // Foreign languages (sorted by name)
   const langs = Object.keys(langCount).sort((a,b) =>
@@ -1250,14 +1250,14 @@ function populateLangDropdown() {
     const opt = document.createElement('option');
     opt.value = code;
     const n = langCount[code];
-    opt.textContent = (LANG_NAMES[code] || code) + ' — ' + n + ' book' + (n !== 1 ? 's' : '');
+    opt.textContent = n === 1 ? tf('learn_run_book_count_one', {lang: (LANG_NAMES[code] || code)}) : tf('learn_run_book_count_many', {lang: (LANG_NAMES[code] || code), n});
     sel.appendChild(opt);
   });
 
   // English — always available (all books have EN original)
   const optEn = document.createElement('option');
   optEn.value = 'en';
-  optEn.textContent = 'English — ' + books.length + ' books';
+  optEn.textContent = books.length === 1 ? t('learn_run_fillin_english_one') : tf('learn_run_fillin_english_many', {n: books.length});
   sel.appendChild(optEn);
 }
 
@@ -1269,7 +1269,7 @@ document.getElementById('sel-lang').addEventListener('change', function() {
   currentBook = null;
 
   const bookSel = document.getElementById('sel-book');
-  bookSel.innerHTML = '<option value="">— select a book —</option>';
+  bookSel.innerHTML = '<option value="">' + t('learn_run_sel_book') + '</option>';
 
   if (!currentLang) {
     document.getElementById('direction-info-row').style.display = 'none';
@@ -1301,7 +1301,7 @@ document.getElementById('sel-lang').addEventListener('change', function() {
     if (currentLang !== 'en') {
       const langInfo = b.languages.find(l => l.code === currentLang);
       const n = langInfo ? langInfo.sentences : 0;
-      opt.textContent = b.title + ' — ' + b.author + ' (' + n + ' sentences)';
+      opt.textContent = tf('learn_run_book_sentences', {title: b.title, author: b.author, n});
     } else {
       opt.textContent = b.title + ' — ' + b.author;
     }
@@ -1311,12 +1311,12 @@ document.getElementById('sel-lang').addEventListener('change', function() {
   // Show direction badge
   const badge = document.getElementById('direction-badge');
   if (currentLang === 'en') {
-    badge.innerHTML = 'You will see a <strong>translation</strong> as context and fill in <strong>English</strong>';
+    badge.innerHTML = t('learn_run_fillin_badge_to_en');
   } else {
-    badge.innerHTML = 'You will see <strong>English</strong> as context and fill in <strong>' + (LANG_NAMES[currentLang] || currentLang) + '</strong>';
+    badge.innerHTML = tf('learn_run_fillin_badge_to_foreign', {lang: (LANG_NAMES[currentLang] || currentLang)});
   }
   document.getElementById('hint-lang-row').style.display = 'none';
-  document.getElementById('sel-hint-lang').innerHTML = '<option value="">— select a book first —</option>';
+  document.getElementById('sel-hint-lang').innerHTML = '<option value="">' + t('learn_run_fillin_sel_book_first') + '</option>';
   document.getElementById('direction-info-row').style.display = 'block';
 });
 
@@ -1326,19 +1326,19 @@ document.getElementById('sel-book').addEventListener('change', function() {
   const hintRow = document.getElementById('hint-lang-row');
   const hintSel = document.getElementById('sel-hint-lang');
   if (currentLang === 'en' && currentBook) {
-    hintSel.innerHTML = '<option value="">— select hint language —</option>';
+    hintSel.innerHTML = '<option value="">' + t('learn_run_fillin_sel_hint_lang') + '</option>';
     [...(currentBook.languages || [])]
       .sort((a,b) => (LANG_NAMES[a.code]||a.code).localeCompare(LANG_NAMES[b.code]||b.code))
       .forEach(l => {
         const opt = document.createElement('option');
         opt.value = l.code;
-        opt.textContent = (LANG_NAMES[l.code]||l.code) + ' (' + l.sentences + ' sentences)';
+        opt.textContent = tf('learn_run_hint_option', {lang: (LANG_NAMES[l.code]||l.code), n: l.sentences});
         hintSel.appendChild(opt);
       });
     hintRow.style.display = 'block';
   } else {
     hintRow.style.display = 'none';
-    hintSel.innerHTML = '<option value="">— select a book first —</option>';
+    hintSel.innerHTML = '<option value="">' + t('learn_run_fillin_sel_book_first') + '</option>';
   }
 });
 
@@ -1355,18 +1355,18 @@ document.querySelectorAll('.diff-btn').forEach(btn => {
 // Start game
 // ══════════════════════════════════════════════════════
 document.getElementById('start-btn').addEventListener('click', async function() {
-  if (!currentLang) { showToast('Please select a language.', 'info'); return; }
-  if (!currentBook) { showToast('Please select a book.', 'info'); return; }
+  if (!currentLang) { showToast(t('learn_toast_select_lang'), 'info'); return; }
+  if (!currentBook) { showToast(t('learn_toast_select_book'), 'info'); return; }
 
-  this.textContent = 'Loading...';
+  this.textContent = t('learn_run_loading');
   this.disabled = true;
   try {
     await startGame();
   } catch(e) {
-    showToast('Error loading data. Please try again.', 'bad');
+    showToast(t('learn_run_error_loading'), 'bad');
     console.error(e);
   }
-  this.textContent = 'Start Game \u2192';
+  this.textContent = t('learn_start_btn');
   this.disabled = false;
 });
 
@@ -1381,12 +1381,12 @@ async function startGame() {
     if (langs.length === 0) {
       // No translations — use EN original with EN context (not ideal but workable)
       // Actually, for books with no translations we can't do learn-english meaningfully
-      showToast('This book has no translations yet — cannot learn English from it.', 'info');
+      showToast(t('learn_run_fillin_no_translations'), 'info');
       return;
     }
     // Use hint language selected by user
     const selHint = document.getElementById('sel-hint-lang').value;
-    if (!selHint) { showToast('Please select a hint language.', 'info'); return; }
+    if (!selHint) { showToast(t('learn_run_fillin_sel_hint_toast'), 'info'); return; }
     const contextLang = selHint;
     const res = await fetch('data/tr_' + currentBook.id + '_' + contextLang + '.json?v=' + v);
     data = await res.json();
@@ -1398,7 +1398,7 @@ async function startGame() {
   }
 
   if (sentences.length < 10) {
-    showToast('Not enough translated sentences (' + sentences.length + '). Need at least 10.', 'info');
+    showToast(tf('learn_run_fillin_not_enough', {n: sentences.length}), 'info');
     return;
   }
 
@@ -1411,8 +1411,8 @@ async function startGame() {
 
   const hintCode = direction === 'learn-english' ? document.getElementById('sel-hint-lang').value : null;
   const dirLabel = direction === 'learn-english'
-    ? 'Learning English (hint: ' + (LANG_NAMES[hintCode] || hintCode || '') + ')'
-    : 'Learning ' + (LANG_NAMES[currentLang] || currentLang) + ' (hint: English)';
+    ? tf('learn_run_fillin_learning_en', {lang: (LANG_NAMES[hintCode] || hintCode || '')})
+    : tf('learn_run_fillin_learning_lang', {lang: (LANG_NAMES[currentLang] || currentLang)});
   document.getElementById('gm-lang').textContent = dirLabel;
   document.getElementById('gm-sent-total').textContent = gameSentences.length;
 
@@ -1482,9 +1482,9 @@ function renderSentence() {
 
   const container = document.getElementById('sentences-container');
   container.innerHTML = '<div class="sentence-block">'
-    + '<div class="context-label">Context</div>'
+    + '<div class="context-label">' + t('learn_context') + '</div>'
     + '<div class="context-text">' + escHtml(contextText) + '</div>'
-    + '<div class="target-label">Fill in the blanks</div>'
+    + '<div class="target-label">' + t('learn_fill_blanks') + '</div>'
     + '<div class="target-text">' + html + '</div>'
     + '</div>';
 
@@ -1529,15 +1529,15 @@ function attachBlankEvents(blanksData) {
         inp.readOnly = true;
         this.classList.add('correct-opt');
         blanksData[bIdx].typeDone = true;
-        showToast('+' + PTS_CORRECT_MC + ' Correct!', 'good');
+        showToast(tf('learn_run_correct_mc', {n: PTS_CORRECT_MC}), 'good');
       } else {
         this.classList.add('wrong-opt');
         inp.value = '';
-        inp.placeholder = 'Type it...';
+        inp.placeholder = t('learn_run_type_placeholder');
         inp.classList.remove('correct', 'incorrect');
         inp.readOnly = false;
         inp.focus();
-        showToast('Wrong — now type the correct word', 'bad');
+        showToast(t('learn_toast_wrong_type'), 'bad');
       }
     });
   });
@@ -1585,9 +1585,9 @@ document.getElementById('check-btn').addEventListener('click', function() {
   document.getElementById('check-btn').style.display = 'none';
   document.getElementById('hint-btn').style.display = 'none';
   document.getElementById('next-btn').style.display = '';
-  if (sentCorrect > 0 && sentWrong === 0) showToast('Perfect!', 'good');
-  else if (sentCorrect > 0) showToast(sentCorrect + ' correct, ' + sentWrong + ' wrong', 'info');
-  else showToast('Keep trying!', 'bad');
+  if (sentCorrect > 0 && sentWrong === 0) showToast(t('learn_toast_perfect'), 'good');
+  else if (sentCorrect > 0) showToast(tf('learn_run_partial', {correct: sentCorrect, wrong: sentWrong}), 'info');
+  else showToast(t('learn_run_keep_trying'), 'bad');
 });
 
 document.getElementById('hint-btn').addEventListener('click', function() {
@@ -1602,12 +1602,12 @@ document.getElementById('hint-btn').addEventListener('click', function() {
       if (score < 0) score = 0;
       hintsUsed++;
       document.getElementById('score-val').textContent = score;
-      showToast('Hint used (' + PTS_HINT + ' pts)', 'info');
+      showToast(t('learn_toast_hint_used'), 'info');
       revealed = true;
       break;
     }
   }
-  if (!revealed) showToast('No more blanks to reveal.', 'info');
+  if (!revealed) showToast(t('learn_toast_no_blanks'), 'info');
 });
 
 document.getElementById('next-btn').addEventListener('click', function() {
@@ -1752,7 +1752,7 @@ function populateMatchLangDropdown() {
   });
 
   const sel = document.getElementById('match-sel-lang');
-  sel.innerHTML = '<option value="">— select a language —</option>';
+  sel.innerHTML = '<option value="">' + t('learn_run_sel_lang') + '</option>';
 
   const langs = Object.keys(langCount).sort((a,b) =>
     (LANG_NAMES[a]||a).localeCompare(LANG_NAMES[b]||b)
@@ -1761,7 +1761,7 @@ function populateMatchLangDropdown() {
     const opt = document.createElement('option');
     opt.value = code;
     const n = langCount[code];
-    opt.textContent = (LANG_NAMES[code] || code) + ' — ' + n + ' book' + (n !== 1 ? 's' : '');
+    opt.textContent = n === 1 ? tf('learn_run_book_count_one', {lang: (LANG_NAMES[code] || code)}) : tf('learn_run_book_count_many', {lang: (LANG_NAMES[code] || code), n});
     sel.appendChild(opt);
   });
 }
@@ -1770,7 +1770,7 @@ document.getElementById('match-sel-lang').addEventListener('change', function() 
   matchLang = this.value || null;
   matchBook = null;
   const bookSel = document.getElementById('match-sel-book');
-  bookSel.innerHTML = '<option value="">— select a book —</option>';
+  bookSel.innerHTML = '<option value="">' + t('learn_run_sel_book') + '</option>';
   if (!matchLang) return;
 
   const eligible = books.filter(b =>
@@ -1781,7 +1781,7 @@ document.getElementById('match-sel-lang').addEventListener('change', function() 
     opt.value = b.id;
     const langInfo = b.languages.find(l => l.code === matchLang);
     const n = langInfo ? langInfo.sentences : 0;
-    opt.textContent = b.title + ' — ' + b.author + ' (' + n + ' sentences)';
+    opt.textContent = tf('learn_run_book_sentences', {title: b.title, author: b.author, n});
     bookSel.appendChild(opt);
   });
 });
@@ -1792,13 +1792,13 @@ document.getElementById('match-sel-book').addEventListener('change', function() 
 });
 
 document.getElementById('match-start-btn').addEventListener('click', async function() {
-  if (!matchLang) { showToast('Please select a language.', 'info'); return; }
-  if (!matchBook) { showToast('Please select a book.', 'info'); return; }
-  this.textContent = 'Loading...';
+  if (!matchLang) { showToast(t('learn_toast_select_lang'), 'info'); return; }
+  if (!matchBook) { showToast(t('learn_toast_select_book'), 'info'); return; }
+  this.textContent = t('learn_run_loading');
   this.disabled = true;
   try { await startMatchGame(); }
-  catch(e) { showToast('Error loading data.', 'bad'); console.error(e); }
-  this.textContent = 'Start Match \u2192';
+  catch(e) { showToast(t('learn_run_error_loading'), 'bad'); console.error(e); }
+  this.textContent = t('learn_start_match');
   this.disabled = false;
 });
 
@@ -1807,7 +1807,7 @@ async function startMatchGame() {
   const res = await fetch('data/tr_' + matchBook.id + '_' + matchLang + '.json?v=' + v);
   const data = await res.json();
   const translated = data.sentences.filter(s => s.translated);
-  if (translated.length < 10) { showToast('Not enough translated sentences.', 'info'); return; }
+  if (translated.length < 10) { showToast(t('learn_toast_not_enough'), 'info'); return; }
 
   const picked = shuffle(translated).slice(0, 10);
   matchPairs = picked.map((s, i) => ({ id: i, en: s.original, tr: s.translation }));
@@ -1819,7 +1819,7 @@ async function startMatchGame() {
   document.getElementById('mg-book').textContent = matchBook.title;
   document.getElementById('mg-pairs').textContent = '0';
   document.getElementById('mg-lang').textContent = LANG_NAMES[matchLang] || matchLang;
-  document.getElementById('match-col-left-label').textContent = 'English';
+  document.getElementById('match-col-left-label').textContent = t('learn_col_english');
   document.getElementById('match-col-right-label').textContent = LANG_NAMES[matchLang] || matchLang;
   document.getElementById('match-progress-bar').style.width = '0%';
 
@@ -1871,14 +1871,14 @@ function onMatchClick(e) {
     document.getElementById('match-score-val').textContent = matchScore;
     document.getElementById('mg-pairs').textContent = matchMatched;
     document.getElementById('match-progress-bar').style.width = (matchMatched/10*100) + '%';
-    showToast('+' + MATCH_PTS_CORRECT + ' Match!', 'good');
+    showToast(tf('learn_run_match_correct', {n: MATCH_PTS_CORRECT}), 'good');
     if (matchMatched === 10) setTimeout(showMatchResults, 600);
   } else {
     el.classList.remove('selected'); el.classList.add('wrong');
     prevEl.classList.remove('selected'); prevEl.classList.add('wrong');
     matchScore = Math.max(0, matchScore + MATCH_PTS_WRONG); matchWrong++;
     document.getElementById('match-score-val').textContent = matchScore;
-    showToast(MATCH_PTS_WRONG + ' Wrong pair!', 'bad');
+    showToast(tf('learn_run_match_wrong', {n: MATCH_PTS_WRONG}), 'bad');
     setTimeout(() => { el.classList.remove('wrong'); prevEl.classList.remove('wrong'); }, 600);
   }
 }
@@ -1935,7 +1935,7 @@ function populateMemLangDropdown() {
     });
   });
   const sel = document.getElementById('mem-sel-lang');
-  sel.innerHTML = '<option value="">— select a language —</option>';
+  sel.innerHTML = '<option value="">' + t('learn_run_sel_lang') + '</option>';
   const langs = Object.keys(langCount).sort((a,b) =>
     (LANG_NAMES[a]||a).localeCompare(LANG_NAMES[b]||b)
   );
@@ -1943,7 +1943,7 @@ function populateMemLangDropdown() {
     const opt = document.createElement('option');
     opt.value = code;
     const n = langCount[code];
-    opt.textContent = (LANG_NAMES[code] || code) + ' — ' + n + ' book' + (n !== 1 ? 's' : '');
+    opt.textContent = n === 1 ? tf('learn_run_book_count_one', {lang: (LANG_NAMES[code] || code)}) : tf('learn_run_book_count_many', {lang: (LANG_NAMES[code] || code), n});
     sel.appendChild(opt);
   });
 }
@@ -1952,7 +1952,7 @@ document.getElementById('mem-sel-lang').addEventListener('change', function() {
   memLang = this.value || null;
   memBook = null;
   const bookSel = document.getElementById('mem-sel-book');
-  bookSel.innerHTML = '<option value="">— select a book —</option>';
+  bookSel.innerHTML = '<option value="">' + t('learn_run_sel_book') + '</option>';
   if (!memLang) return;
   const eligible = books.filter(b => (b.languages || []).some(l => l.code === memLang));
   eligible.forEach(b => {
@@ -1960,7 +1960,7 @@ document.getElementById('mem-sel-lang').addEventListener('change', function() {
     opt.value = b.id;
     const langInfo = b.languages.find(l => l.code === memLang);
     const n = langInfo ? langInfo.sentences : 0;
-    opt.textContent = b.title + ' — ' + b.author + ' (' + n + ' sentences)';
+    opt.textContent = tf('learn_run_book_sentences', {title: b.title, author: b.author, n});
     bookSel.appendChild(opt);
   });
 });
@@ -1971,13 +1971,13 @@ document.getElementById('mem-sel-book').addEventListener('change', function() {
 });
 
 document.getElementById('mem-start-btn').addEventListener('click', async function() {
-  if (!memLang) { showToast('Please select a language.', 'info'); return; }
-  if (!memBook) { showToast('Please select a book.', 'info'); return; }
-  this.textContent = 'Loading...';
+  if (!memLang) { showToast(t('learn_toast_select_lang'), 'info'); return; }
+  if (!memBook) { showToast(t('learn_toast_select_book'), 'info'); return; }
+  this.textContent = t('learn_run_loading');
   this.disabled = true;
   try { await startMemoryGame(); }
-  catch(e) { showToast('Error loading data.', 'bad'); console.error(e); }
-  this.textContent = 'Start Memory →';
+  catch(e) { showToast(t('learn_run_error_loading'), 'bad'); console.error(e); }
+  this.textContent = t('learn_start_memory');
   this.disabled = false;
 });
 
@@ -1987,7 +1987,7 @@ async function startMemoryGame() {
   const data = await res.json();
   const translated = data.sentences.filter(s => s.translated);
   if (translated.length < 5) {
-    showToast('Not enough translated sentences (need at least 5).', 'info');
+    showToast(t('learn_run_memory_not_enough'), 'info');
     return;
   }
 
@@ -2069,7 +2069,7 @@ function onMemCardClick(e) {
     memMatched++;
     document.getElementById('mem-matched').textContent = memMatched;
     document.getElementById('mem-progress-bar').style.width = (memMatched / 5 * 100) + '%';
-    showToast('Match! ✓', 'good');
+    showToast(t('learn_toast_match'), 'good');
     if (memMatched === 5) setTimeout(showMemoryResults, 600);
   } else {
     // NO MATCH — flash red, flip back
@@ -2155,7 +2155,7 @@ function populateScrLangDropdown() {
     });
   });
   const sel = document.getElementById('scr-sel-lang');
-  sel.innerHTML = '<option value="">— select a language —</option>';
+  sel.innerHTML = '<option value="">' + t('learn_run_sel_lang') + '</option>';
   const langs = Object.keys(langCount).sort((a,b) =>
     (LANG_NAMES[a]||a).localeCompare(LANG_NAMES[b]||b)
   );
@@ -2163,7 +2163,7 @@ function populateScrLangDropdown() {
     const opt = document.createElement('option');
     opt.value = code;
     const n = langCount[code];
-    opt.textContent = (LANG_NAMES[code] || code) + ' — ' + n + ' book' + (n !== 1 ? 's' : '');
+    opt.textContent = n === 1 ? tf('learn_run_book_count_one', {lang: (LANG_NAMES[code] || code)}) : tf('learn_run_book_count_many', {lang: (LANG_NAMES[code] || code), n});
     sel.appendChild(opt);
   });
 }
@@ -2172,7 +2172,7 @@ document.getElementById('scr-sel-lang').addEventListener('change', function() {
   scrLang = this.value || null;
   scrBook = null;
   const bookSel = document.getElementById('scr-sel-book');
-  bookSel.innerHTML = '<option value="">— select a book —</option>';
+  bookSel.innerHTML = '<option value="">' + t('learn_run_sel_book') + '</option>';
   if (!scrLang) return;
   const eligible = books.filter(b => (b.languages || []).some(l => l.code === scrLang));
   eligible.forEach(b => {
@@ -2180,7 +2180,7 @@ document.getElementById('scr-sel-lang').addEventListener('change', function() {
     opt.value = b.id;
     const langInfo = b.languages.find(l => l.code === scrLang);
     const n = langInfo ? langInfo.sentences : 0;
-    opt.textContent = b.title + ' — ' + b.author + ' (' + n + ' sentences)';
+    opt.textContent = tf('learn_run_book_sentences', {title: b.title, author: b.author, n});
     bookSel.appendChild(opt);
   });
 });
@@ -2191,13 +2191,13 @@ document.getElementById('scr-sel-book').addEventListener('change', function() {
 });
 
 document.getElementById('scr-start-btn').addEventListener('click', async function() {
-  if (!scrLang) { showToast('Please select a language.', 'info'); return; }
-  if (!scrBook) { showToast('Please select a book.', 'info'); return; }
-  this.textContent = 'Loading...';
+  if (!scrLang) { showToast(t('learn_toast_select_lang'), 'info'); return; }
+  if (!scrBook) { showToast(t('learn_toast_select_book'), 'info'); return; }
+  this.textContent = t('learn_run_loading');
   this.disabled = true;
   try { await startScrGame(); }
-  catch(e) { showToast('Error loading data.', 'bad'); console.error(e); }
-  this.textContent = 'Start Scrambled →';
+  catch(e) { showToast(t('learn_run_error_loading'), 'bad'); console.error(e); }
+  this.textContent = t('learn_run_scr_start');
   this.disabled = false;
 });
 
@@ -2207,7 +2207,7 @@ async function startScrGame() {
   const data = await res.json();
   const translated = data.sentences.filter(s => s.translated && s.translation && s.translation.trim().split(/\s+/).length >= 4);
   if (translated.length < 5) {
-    showToast('Not enough sentences (need at least 5 with 4+ words).', 'info');
+    showToast(t('learn_run_scr_not_enough'), 'info');
     return;
   }
   scrSentences = shuffle(translated).slice(0, 5);
@@ -2243,7 +2243,7 @@ function renderScrSentence() {
   // Reset answer area
   const answerArea = document.getElementById('scr-answer-area');
   answerArea.className = 'scrambled-answer-area';
-  answerArea.innerHTML = '<span class="scrambled-answer-placeholder" id="scr-placeholder">Click words below to build the sentence...</span>';
+  answerArea.innerHTML = '<span class="scrambled-answer-placeholder" id="scr-placeholder">' + t('learn_run_scr_placeholder') + '</span>';
 
   // Reset correct answer display
   const correctEl = document.getElementById('scr-correct-answer');
@@ -2293,7 +2293,7 @@ function updateAnswerArea() {
   area.className = 'scrambled-answer-area';
 
   if (scrAnswer.length === 0) {
-    area.innerHTML = '<span class="scrambled-answer-placeholder" id="scr-placeholder">Click words below to build the sentence...</span>';
+    area.innerHTML = '<span class="scrambled-answer-placeholder" id="scr-placeholder">' + t('learn_run_scr_placeholder') + '</span>';
     return;
   }
 
@@ -2319,7 +2319,7 @@ document.getElementById('scr-clear-btn').addEventListener('click', function() {
 
 document.getElementById('scr-check-btn').addEventListener('click', function() {
   if (scrChecked) return;
-  if (scrAnswer.length === 0) { showToast('Build the sentence first.', 'info'); return; }
+  if (scrAnswer.length === 0) { showToast(t('learn_toast_build'), 'info'); return; }
 
   scrChecked = true;
   const sent = scrSentences[scrIdx];
@@ -2334,18 +2334,18 @@ document.getElementById('scr-check-btn').addEventListener('click', function() {
     area.classList.add('correct-area');
     if (scrMovesMade === 0) {
       scrScore += 10; scrCorrectFirst++;
-      showToast('+10 Perfect!', 'good');
+      showToast(t('learn_run_scr_perfect'), 'good');
     } else {
       scrScore += 5; scrCorrectPartial++;
-      showToast('+5 Correct!', 'good');
+      showToast(t('learn_run_scr_correct'), 'good');
     }
   } else {
     // Wrong
     area.classList.add('wrong-area');
     scrWrong++;
-    correctEl.textContent = 'Correct: ' + correct;
+    correctEl.textContent = tf('learn_run_scr_correct_label', {answer: correct});
     correctEl.style.display = 'block';
-    showToast('Wrong answer', 'bad');
+    showToast(t('learn_run_scr_wrong_toast'), 'bad');
   }
 
   document.getElementById('scr-score-val').textContent = scrScore;
@@ -2448,6 +2448,12 @@ loadBooks();
 
 <script>
 // i18n
+function t(key) { return (typeof BB_NAV !== 'undefined' && BB_NAV.t) ? (BB_NAV.t(key) || key) : key; }
+function tf(key, vars) {
+  let str = t(key);
+  for (const [k, v] of Object.entries(vars)) str = str.replace(`{${k}}`, v);
+  return str;
+}
 function applyPageI18n() {
   var t = (typeof BB_NAV !== 'undefined' && BB_NAV.t) ? BB_NAV.t.bind(BB_NAV) : function(k){return k;};
 
