@@ -869,10 +869,10 @@
       <div class="game-meta">
         <strong id="gm-book"></strong> &nbsp;&middot;&nbsp;
         <span id="gm-lang"></span> &nbsp;&middot;&nbsp;
-        Sentence <span id="gm-sent-num">1</span> of <span id="gm-sent-total">10</span>
+        <span id="gm-sentence-word"></span> <span id="gm-sent-num">1</span> <span id="gm-of-word"></span> <span id="gm-sent-total">10</span>
       </div>
       <div class="score-display">
-        <div class="score-box">Score: <span id="score-val">0</span></div>
+        <div class="score-box"><span id="fillin-score-lbl"></span> <span id="score-val">0</span></div>
         <button class="bb-btn" id="quit-btn"></button>
       </div>
     </div>
@@ -926,11 +926,11 @@
       <div class="match-setup">
         <h2 id="learn-match-setup-h"></h2>
         <div class="setup-row">
-          <label>Language (translation)</label>
+          <label id="match-lbl-lang"></label>
           <select id="match-sel-lang"><option value="">Loading...</option></select>
         </div>
         <div class="setup-row">
-          <label>Book</label>
+          <label id="match-lbl-book"></label>
           <select id="match-sel-book"><option value="">— select a language first —</option></select>
         </div>
         <button id="match-start-btn" class="bb-btn bb-btn-primary" style="width:100%;padding:12px;font-size:15px;margin-top:8px;"></button>
@@ -943,10 +943,10 @@
         <div class="game-meta">
           <strong id="mg-book"></strong> &nbsp;&middot;&nbsp;
           <span id="mg-lang"></span> &nbsp;&middot;&nbsp;
-          <span id="mg-pairs">0</span>/10 matched
+          <span id="mg-pairs">0</span>/10 <span id="mg-matched-word"></span>
         </div>
         <div class="score-display">
-          <div class="score-box">Score: <span id="match-score-val">0</span></div>
+          <div class="score-box"><span id="match-score-lbl"></span> <span id="match-score-val">0</span></div>
           <button class="bb-btn" id="match-quit-btn"></button>
         </div>
       </div>
@@ -974,7 +974,7 @@
         <div class="results-breakdown" style="margin-bottom:28px">
           <div class="rb-item green">
             <div class="rb-num" id="match-res-correct">0</div>
-            <div class="rb-lbl">Correct</div>
+            <div class="rb-lbl" id="match-res-correct-lbl"></div>
           </div>
           <div class="rb-item red">
             <div class="rb-num" id="match-res-wrong">0</div>
@@ -998,11 +998,11 @@
       <div class="memory-setup">
         <h2 id="learn-memory-setup-h"></h2>
         <div class="setup-row">
-          <label>Language (translation)</label>
+          <label id="mem-lbl-lang"></label>
           <select id="mem-sel-lang"><option value="">Loading...</option></select>
         </div>
         <div class="setup-row">
-          <label>Book</label>
+          <label id="mem-lbl-book"></label>
           <select id="mem-sel-book"><option value="">— select a language first —</option></select>
         </div>
         <button id="mem-start-btn" class="bb-btn bb-btn-primary" style="width:100%;padding:12px;font-size:15px;margin-top:8px;"></button>
@@ -1015,10 +1015,10 @@
         <div class="game-meta">
           <strong id="mem-book"></strong> &nbsp;&middot;&nbsp;
           <span id="mem-lang-label"></span> &nbsp;&middot;&nbsp;
-          <span id="mem-matched">0</span>/5 pairs
+          <span id="mem-matched">0</span>/5 <span id="mem-pairs-word"></span>
         </div>
         <div class="score-display">
-          <div class="score-box">Attempts: <span id="mem-attempts">0</span></div>
+          <div class="score-box"><span id="mem-attempts-lbl"></span> <span id="mem-attempts">0</span></div>
           <button class="bb-btn" id="mem-quit-btn"></button>
         </div>
       </div>
@@ -1060,11 +1060,11 @@
       <div class="scrambled-setup">
         <h2 id="learn-scrambled-setup-h"></h2>
         <div class="setup-row">
-          <label>Language (translation)</label>
+          <label id="scr-lbl-lang"></label>
           <select id="scr-sel-lang"><option value="">Loading...</option></select>
         </div>
         <div class="setup-row">
-          <label>Book</label>
+          <label id="scr-lbl-book"></label>
           <select id="scr-sel-book"><option value="">— select a language first —</option></select>
         </div>
         <button id="scr-start-btn" class="bb-btn bb-btn-primary" style="width:100%;padding:12px;font-size:15px;margin-top:8px;"></button>
@@ -1077,10 +1077,10 @@
         <div class="game-meta">
           <strong id="scr-book"></strong> &nbsp;&middot;&nbsp;
           <span id="scr-lang-label"></span> &nbsp;&middot;&nbsp;
-          Sentence <span id="scr-sent-num">1</span> of 5
+          <span id="scr-sentence-word"></span> <span id="scr-sent-num">1</span> <span id="scr-of-word"></span> 5
         </div>
         <div class="score-display">
-          <div class="score-box">Score: <span id="scr-score-val">0</span></div>
+          <div class="score-box"><span id="scr-score-lbl"></span> <span id="scr-score-val">0</span></div>
           <button class="bb-btn" id="scr-quit-btn"></button>
         </div>
       </div>
@@ -1110,7 +1110,7 @@
         <button class="bb-btn bb-btn-primary" id="scr-check-btn"></button>
         <button class="bb-btn" id="scr-clear-btn"></button>
         <button class="bb-btn" id="scr-peek-btn"></button>
-        <button class="bb-btn" id="scr-next-btn" style="display:none">Next &#8594;</button>
+        <button class="bb-btn" id="scr-next-btn" style="display:none"></button>
       </div>
     </div>
 
@@ -1130,7 +1130,7 @@
           </div>
           <div class="rb-item red">
             <div class="rb-num" id="scr-res-wrong">0</div>
-            <div class="rb-lbl">Wrong</div>
+            <div class="rb-lbl" id="scr-res-wrong-lbl"></div>
           </div>
         </div>
         <div style="display:flex;gap:10px;justify-content:center;">
@@ -2513,7 +2513,17 @@ function applyPageI18n() {
     'learn-pts-out-of':'learn_pts_out_of',
     'learn-first-try':'learn_first_try', 'learn-with-moves':'learn_with_moves', 'learn-scr-wrong':'learn_wrong',
     'learn-context-label':'learn_context',
-    'learn-your-answer':'learn_your_answer', 'learn-words':'learn_words'
+    'learn-your-answer':'learn_your_answer', 'learn-words':'learn_words',
+    'match-lbl-lang':'learn_lbl_lang_trans', 'match-lbl-book':'learn_lbl_book',
+    'mem-lbl-lang':'learn_lbl_lang_trans', 'mem-lbl-book':'learn_lbl_book',
+    'scr-lbl-lang':'learn_lbl_lang_trans', 'scr-lbl-book':'learn_lbl_book',
+    'match-res-correct-lbl':'learn_correct', 'scr-res-wrong-lbl':'learn_wrong',
+    'scr-next-btn':'learn_next',
+    'gm-sentence-word':'learn_sentence_word', 'gm-of-word':'learn_of_word',
+    'scr-sentence-word':'learn_sentence_word', 'scr-of-word':'learn_of_word',
+    'fillin-score-lbl':'learn_score', 'match-score-lbl':'learn_score', 'scr-score-lbl':'learn_score',
+    'mem-attempts-lbl':'learn_attempts',
+    'mg-matched-word':'learn_matched_word', 'mem-pairs-word':'learn_pairs_word'
   };
   Object.keys(ids).forEach(function(id) {
     var el = document.getElementById(id);

@@ -1,7 +1,7 @@
 (function() {
 
 // ── Verzija portala — bump na kraju svake sesije ──
-const BB_VERSION = 's125.2';
+const BB_VERSION = 's125.3';
 const BB_VERSION_DATE = '10 Jul 2026';
 
 const NAV_I18N = {
@@ -311,6 +311,11 @@ const NAV_I18N = {
     learn_run_fillin_sel_book_first:"— select a book first —",
     learn_run_fillin_sel_hint_lang:"— select hint language —",
     learn_run_hint_option:"{lang} ({n} sentences)",
+    learn_lbl_lang_trans:"Language (translation)",
+    learn_sentence_word:"Sentence",
+    learn_of_word:"of",
+    learn_matched_word:"matched",
+    learn_pairs_word:"pairs",
     learn_run_fillin_english_one:"English — 1 book",
     learn_run_fillin_english_many:"English — {n} books",
     learn_run_fillin_badge_to_en:"You will see a <strong>translation</strong> as context and fill in <strong>English</strong>",
@@ -647,6 +652,11 @@ const NAV_I18N = {
     learn_run_fillin_sel_book_first:"— zuerst Buch wählen —",
     learn_run_fillin_sel_hint_lang:"— Hinweissprache wählen —",
     learn_run_hint_option:"{lang} ({n} Sätze)",
+    learn_lbl_lang_trans:"Sprache (Übersetzung)",
+    learn_sentence_word:"Satz",
+    learn_of_word:"von",
+    learn_matched_word:"gefunden",
+    learn_pairs_word:"Paare",
     learn_run_fillin_english_one:"Englisch — 1 Buch",
     learn_run_fillin_english_many:"Englisch — {n} Bücher",
     learn_run_fillin_badge_to_en:"Du siehst eine <strong>Übersetzung</strong> als Kontext und ergänzt <strong>Englisch</strong>",
@@ -984,6 +994,11 @@ const NAV_I18N = {
     learn_run_fillin_sel_book_first:"— prima seleziona un libro —",
     learn_run_fillin_sel_hint_lang:"— seleziona lingua suggerimento —",
     learn_run_hint_option:"{lang} ({n} frasi)",
+    learn_lbl_lang_trans:"Lingua (traduzione)",
+    learn_sentence_word:"Frase",
+    learn_of_word:"di",
+    learn_matched_word:"abbinate",
+    learn_pairs_word:"coppie",
     learn_run_fillin_english_one:"Inglese — 1 libro",
     learn_run_fillin_english_many:"Inglese — {n} libri",
     learn_run_fillin_badge_to_en:"Vedrai una <strong>traduzione</strong> come contesto e completerai in <strong>inglese</strong>",
@@ -1321,6 +1336,11 @@ const NAV_I18N = {
     learn_run_fillin_sel_book_first:"— prvo odaberi knjigu —",
     learn_run_fillin_sel_hint_lang:"— odaberi jezik za pomoć —",
     learn_run_hint_option:"{lang} ({n} rečenica)",
+    learn_lbl_lang_trans:"Jezik (prijevod)",
+    learn_sentence_word:"Rečenica",
+    learn_of_word:"od",
+    learn_matched_word:"spojeno",
+    learn_pairs_word:"parova",
     learn_run_fillin_english_one:"Engleski — 1 knjiga",
     learn_run_fillin_english_many:"Engleski — {n} knjiga",
     learn_run_fillin_badge_to_en:"Vidjet ćeš <strong>prijevod</strong> kao kontekst i popunjavaš <strong>engleski</strong>",
@@ -1658,6 +1678,11 @@ const NAV_I18N = {
     learn_run_fillin_sel_book_first:"— прво одабери књигу —",
     learn_run_fillin_sel_hint_lang:"— одабери језик за помоћ —",
     learn_run_hint_option:"{lang} ({n} реченица)",
+    learn_lbl_lang_trans:"Језик (превод)",
+    learn_sentence_word:"Реченица",
+    learn_of_word:"од",
+    learn_matched_word:"спојено",
+    learn_pairs_word:"парова",
     learn_run_fillin_english_one:"Енглески — 1 књига",
     learn_run_fillin_english_many:"Енглески — {n} књига",
     learn_run_fillin_badge_to_en:"Видећеш <strong>превод</strong> као контекст и попуњаваш <strong>енглески</strong>",
