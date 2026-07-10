@@ -1,7 +1,7 @@
 (function() {
 
 // ── Verzija portala — bump na kraju svake sesije ──
-const BB_VERSION = 's125.3';
+const BB_VERSION = 's125.4';
 const BB_VERSION_DATE = '10 Jul 2026';
 
 const NAV_I18N = {

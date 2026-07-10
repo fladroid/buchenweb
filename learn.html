@@ -403,8 +403,13 @@
       line-height: 1.5;
       cursor: pointer;
       transition: border-color .15s, background .15s;
-      margin-bottom: 8px;
       min-height: 52px;
+    }
+    .match-board {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 12px;
+      margin-bottom: 20px;
     }
     .match-item:hover { border-color: var(--accent); }
     .match-item.selected {
@@ -954,15 +959,10 @@
         <div class="progress-bar-fill" id="match-progress-bar" style="width:0%"></div>
       </div>
       <div class="match-columns">
-        <div>
-          <div class="match-col-label" id="match-col-left-label">English</div>
-          <div id="match-col-left"></div>
-        </div>
-        <div>
-          <div class="match-col-label" id="match-col-right-label">Translation</div>
-          <div id="match-col-right"></div>
-        </div>
+        <div class="match-col-label" id="match-col-left-label">English</div>
+        <div class="match-col-label" id="match-col-right-label">Translation</div>
       </div>
+      <div class="match-board" id="match-board"></div>
     </div>
 
     <!-- MATCH RESULTS -->
@@ -1831,24 +1831,21 @@ async function startMatchGame() {
 }
 
 function renderMatchBoard() {
-  const leftCol  = document.getElementById('match-col-left');
-  const rightCol = document.getElementById('match-col-right');
+  const board = document.getElementById('match-board');
   const leftOrder  = shuffle([...matchPairs]);
   const rightOrder = shuffle([...matchPairs]);
-  leftCol.innerHTML = '';
-  rightCol.innerHTML = '';
-  leftOrder.forEach(pair => {
-    const el = document.createElement('div');
-    el.className = 'match-item'; el.dataset.id = pair.id; el.dataset.side = 'left';
-    el.textContent = pair.en; el.addEventListener('click', onMatchClick);
-    leftCol.appendChild(el);
-  });
-  rightOrder.forEach(pair => {
-    const el = document.createElement('div');
-    el.className = 'match-item'; el.dataset.id = pair.id; el.dataset.side = 'right';
-    el.textContent = pair.tr; el.addEventListener('click', onMatchClick);
-    rightCol.appendChild(el);
-  });
+  board.innerHTML = '';
+  for (let i = 0; i < leftOrder.length; i++) {
+    const lEl = document.createElement('div');
+    lEl.className = 'match-item'; lEl.dataset.id = leftOrder[i].id; lEl.dataset.side = 'left';
+    lEl.textContent = leftOrder[i].en; lEl.addEventListener('click', onMatchClick);
+    board.appendChild(lEl);
+
+    const rEl = document.createElement('div');
+    rEl.className = 'match-item'; rEl.dataset.id = rightOrder[i].id; rEl.dataset.side = 'right';
+    rEl.textContent = rightOrder[i].tr; rEl.addEventListener('click', onMatchClick);
+    board.appendChild(rEl);
+  }
 }
 
 function onMatchClick(e) {
