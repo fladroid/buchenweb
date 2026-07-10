@@ -224,10 +224,25 @@ async function loadStats() {
       ? stats.summary.avg_ts.toFixed(3) : '–';
 
   // ── Tabela 0: Models and roles (inventar iz registra) ──
+  // PRIVREMENI IZUZETAK (Flaviova odluka, s125): DB vrijednosti (vrsta/uloge) su
+  // srpske (podatak, ne UI) — baza i export se NE diraju. Ovo je samo prikazni
+  // prevod na stranici dok se ne uradi trajni fix (README backlog: "DB vrijednosti
+  // registra -> engleski"). Ako se u bazi pojavi nova vrsta/uloga bez mape ovdje,
+  // ispisuje se sirova (srpska) vrijednost kao fallback.
+  const VRSTA_EN = {
+    'opšti LLM': 'general-purpose LLM',
+    'namenski MT model': 'dedicated MT model',
+    'embeder': 'embedder'
+  };
+  const ULOGA_EN = {
+    'prevodilac': 'translator',
+    'sudija': 'judge',
+    'vektorizacija': 'vectorization'
+  };
   window._modelsRows = (stats.models || []).map(m => ({
     naziv: m.naziv,
-    vrsta: m.vrsta || '',
-    uloge: (m.uloge || []).join(', '),
+    vrsta: VRSTA_EN[m.vrsta] || m.vrsta || '',
+    uloge: (m.uloge || []).map(u => ULOGA_EN[u] || u).join(', '),
     broj: m.broj_prevoda
   }));
 
