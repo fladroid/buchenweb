@@ -1,7 +1,7 @@
 (function() {
 
 // ── Verzija portala — bump na kraju svake sesije ──
-const BB_VERSION = 's127';
+const BB_VERSION = 's129.4';
 const BB_VERSION_DATE = '11 Jul 2026';
 
 const NAV_I18N = {
@@ -76,7 +76,10 @@ const NAV_I18N = {
       <a href="https://ollama.com" target="_blank">Ollama</a> for local and cloud LLM inference.`,
         nlp_title:"Named Entities & Relations",
         nlp_subtitle:"Named entity analysis of original English texts.",
-        nlp_method_intro:"This page analyzes the named entities in each book — the people, places and organizations — and offers different views of them. The automatic tagging is done by spaCy, a well-established NLP library; it is fast but inconsistent, so the same name may get several types and some tags are not real entities at all. spaCy is the tool we chose, not a fixed part of the method — it could be replaced. An LLM-reviewed version then re-reads the actual sentences to resolve those conflicts. More analytical layers are being added as the method grows.",
+        nlp_method_intro:"Three views of the named entities in each book — the people, places and organizations — each produced a different way. Choose a view below; the cards explain what each one shows and how it is built.",
+        nlp_mcard_classic:"<strong>What:</strong> named entities and how often each pair appears together in the same sentence (co-occurrence). <strong>How:</strong> spaCy (en_core_web_sm) tags entities automatically. Fast and statistical, but the same name can end up under several types.",
+        nlp_mcard_llm:"<strong>What:</strong> the same entities and co-occurrence, but with type conflicts resolved. <strong>How:</strong> an LLM (glm-5.2) reads the evidence sentences and decides each type from the text \u2014 merging tagging errors, keeping genuine dual senses, dropping non-entities.",
+        nlp_mcard_docre:"<strong>What:</strong> directed, named relations that cross sentence boundaries \u2014 who is whose uncle, who is investigating whom. <strong>How:</strong> starting from entity positions, an LLM reads the passages where a pair appears close together and names the relation with a supporting quote; a second pass sorts each description into a group via embeddings. <strong>We built this whole pipeline ourselves \u2014 no off-the-shelf software does it.</strong>",
         nlp_method_desc_classic:"Raw automatic tagging. May contain type conflicts, duplicates, and false entities.",
         nlp_method_desc_llm:"Type conflicts resolved from the text; false entities removed. Each name reduced to its true type or types.",
         nlp_book_label:"Book:",
@@ -419,7 +422,10 @@ const NAV_I18N = {
       <a href="https://ollama.com" target="_blank">Ollama</a> für lokale und Cloud-LLM-Inferenz.`,
         nlp_title:"Benannte Entitäten & Beziehungen",
         nlp_subtitle:"Named-Entity-Analyse der englischen Originaltexte.",
-        nlp_method_intro:"Diese Seite analysiert die benannten Entitäten in jedem Buch — die Personen, Orte und Organisationen — und bietet verschiedene Ansichten davon. Die automatische Erkennung übernimmt spaCy, eine etablierte NLP-Bibliothek; sie ist schnell, aber inkonsistent, sodass derselbe Name mehrere Typen erhalten kann und manche Markierungen gar keine echten Entitäten sind. spaCy ist das von uns gewählte Werkzeug, kein fester Bestandteil der Methode — es ließe sich ersetzen. Eine LLM-geprüfte Version liest dann die tatsächlichen Sätze erneut, um diese Konflikte aufzulösen. Weitere Analyseebenen kommen hinzu, während die Methode wächst.",
+        nlp_method_intro:"Drei Ansichten der benannten Entitäten in jedem Buch — die Personen, Orte und Organisationen — jede auf andere Weise erzeugt. Wählen Sie unten eine Ansicht; die Karten erklären, was jede zeigt und wie sie entsteht.",
+        nlp_mcard_classic:"<strong>Was:</strong> benannte Entitäten und wie oft jedes Paar im selben Satz gemeinsam vorkommt (Kookkurrenz). <strong>Wie:</strong> spaCy (en_core_web_sm) markiert Entitäten automatisch. Schnell und statistisch, aber derselbe Name kann unter mehreren Typen landen.",
+        nlp_mcard_llm:"<strong>Was:</strong> dieselben Entitäten und Kookkurrenz, aber mit aufgelösten Typkonflikten. <strong>Wie:</strong> ein LLM (glm-5.2) liest die Belegsätze und entscheidet jeden Typ aus dem Text \u2014 Markierungsfehler werden zusammengeführt, echte Doppelbedeutungen bleiben, Nicht-Entitäten entfallen.",
+        nlp_mcard_docre:"<strong>Was:</strong> gerichtete, benannte Beziehungen über Satzgrenzen hinweg \u2014 wer wessen Onkel ist, wer wen untersucht. <strong>Wie:</strong> ausgehend von Entitätspositionen liest ein LLM die Passagen, in denen ein Paar nahe beieinander vorkommt, und benennt die Beziehung mit einem Beleg-Zitat; ein zweiter Durchgang ordnet jede Beschreibung per Embeddings einer Gruppe zu. <strong>Diese gesamte Pipeline haben wir selbst gebaut \u2014 fertige Software dafür gibt es nicht.</strong>",
         nlp_method_desc_classic:"Automatische Roh-Erkennung. Kann Typkonflikte, Duplikate und falsche Entitäten enthalten.",
         nlp_method_desc_llm:"Typkonflikte aus dem Text aufgelöst; falsche Entitäten entfernt. Jeder Name auf seinen wahren Typ bzw. seine wahren Typen reduziert.",
         nlp_book_label:"Buch:",
@@ -763,7 +769,10 @@ const NAV_I18N = {
       <a href="https://ollama.com" target="_blank">Ollama</a> per l'inferenza LLM locale e cloud.`,
         nlp_title:"Entità nominate e relazioni",
         nlp_subtitle:"Analisi delle entità nei testi originali inglesi.",
-        nlp_method_intro:"Questa pagina analizza le entità nominate in ogni libro — le persone, i luoghi e le organizzazioni — e ne offre diverse viste. Il riconoscimento automatico è svolto da spaCy, una nota libreria NLP; è veloce ma incoerente, così lo stesso nome può ricevere più tipi e alcune etichette non sono affatto entità reali. spaCy è lo strumento che abbiamo scelto, non una parte fissa del metodo — potrebbe essere sostituito. Una versione rivista da un LLM rilegge poi le frasi reali per risolvere questi conflitti. Altri livelli di analisi vengono aggiunti man mano che il metodo cresce.",
+        nlp_method_intro:"Tre viste delle entità nominate in ogni libro — le persone, i luoghi e le organizzazioni — ciascuna ottenuta in modo diverso. Scegli una vista qui sotto; le schede spiegano cosa mostra ognuna e come è costruita.",
+        nlp_mcard_classic:"<strong>Cosa:</strong> entità nominate e quante volte ogni coppia compare insieme nella stessa frase (co-occorrenza). <strong>Come:</strong> spaCy (en_core_web_sm) etichetta le entità automaticamente. Veloce e statistico, ma lo stesso nome può finire sotto più tipi.",
+        nlp_mcard_llm:"<strong>Cosa:</strong> le stesse entità e co-occorrenza, ma con i conflitti di tipo risolti. <strong>Come:</strong> un LLM (glm-5.2) legge le frasi di riscontro e decide ogni tipo dal testo \u2014 unendo gli errori di etichettatura, mantenendo i doppi sensi legittimi, scartando le non-entità.",
+        nlp_mcard_docre:"<strong>Cosa:</strong> relazioni dirette e nominate che attraversano i confini della frase \u2014 chi è lo zio di chi, chi indaga su chi. <strong>Come:</strong> partendo dalle posizioni delle entità, un LLM legge i passaggi in cui una coppia compare vicina e nomina la relazione con una citazione di riscontro; un secondo passaggio ordina ogni descrizione in un gruppo tramite embedding. <strong>Abbiamo costruito noi stessi tutta questa pipeline \u2014 non esiste software pronto che lo faccia.</strong>",
         nlp_method_desc_classic:"Riconoscimento automatico grezzo. Può contenere conflitti di tipo, duplicati ed entità false.",
         nlp_method_desc_llm:"Conflitti di tipo risolti dal testo; entità false rimosse. Ogni nome ridotto al suo tipo o ai suoi tipi reali.",
         nlp_book_label:"Libro:",
@@ -1107,7 +1116,10 @@ const NAV_I18N = {
       <a href="https://ollama.com" target="_blank">Ollama</a> za lokalnu i cloud LLM inferenciju.`,
         nlp_title:"Imenovani entiteti i odnosi",
         nlp_subtitle:"Analiza imenovanih entiteta originalnih engleskih tekstova.",
-        nlp_method_intro:"Ova stranica analizira imenovane entitete u svakoj knjizi — osobe, mjesta i organizacije — i nudi različite poglede na njih. Automatsko označavanje radi spaCy, dobro utemeljena NLP biblioteka; brzo je ali nedosljedno, pa isto ime može dobiti više tipova, a neke oznake uopće nisu pravi entiteti. spaCy je alat koji smo odabrali, ne fiksni dio metode — mogao bi se zamijeniti. Verzija provjerena LLM-om zatim ponovno čita stvarne rečenice kako bi razriješila te sukobe. Novi analitički slojevi dodaju se kako metoda raste.",
+        nlp_method_intro:"Tri pogleda na imenovane entitete u svakoj knjizi — osobe, mjesta i organizacije — svaki dobiven na drugi način. Odaberite pogled ispod; kartice objašnjavaju što svaki prikazuje i kako je izgrađen.",
+        nlp_mcard_classic:"<strong>Što:</strong> imenovani entiteti i koliko se često svaki par pojavljuje zajedno u istoj rečenici (supojavljivanje). <strong>Kako:</strong> spaCy (en_core_web_sm) automatski označava entitete. Brzo i statistički, ali isto ime može završiti pod više tipova.",
+        nlp_mcard_llm:"<strong>Što:</strong> isti entiteti i supojavljivanje, ali s razriješenim sukobima tipova. <strong>Kako:</strong> LLM (glm-5.2) čita dokazne rečenice i odlučuje svaki tip iz teksta \u2014 spajajući pogreške označavanja, čuvajući prave dvojnosti, odbacujući ne-entitete.",
+        nlp_mcard_docre:"<strong>Što:</strong> usmjerene, imenovane relacije koje prelaze granice rečenice \u2014 tko je čiji ujak, tko koga istražuje. <strong>Kako:</strong> polazeći od pozicija entiteta, LLM čita odlomke gdje se par pojavljuje blizu i imenuje odnos uz potkrepljujući citat; drugi prolaz svrstava svaki opis u grupu preko embeddinga. <strong>Cijeli ovaj pipeline izgradili smo sami \u2014 gotov softver za to ne postoji.</strong>",
         nlp_method_desc_classic:"Sirovo automatsko označavanje. Može sadržavati sukobe tipova, duplikate i lažne entitete.",
         nlp_method_desc_llm:"Sukobi tipova razriješeni iz teksta; lažni entiteti uklonjeni. Svako ime svedeno na svoj pravi tip ili tipove.",
         nlp_book_label:"Knjiga:",
@@ -1451,7 +1463,10 @@ const NAV_I18N = {
       <a href="https://ollama.com" target="_blank">Ollama</a> за локалну и cloud LLM inferenciju.`,
         nlp_title:"Именовани ентитети и односи",
         nlp_subtitle:"Анализа именованих ентитета оригиналних енглеских текстова.",
-        nlp_method_intro:"Ова страница анализира именоване ентитете у свакој књизи — особе, места и организације — и нуди различите погледе на њих. Аутоматско означавање ради spaCy, добро утемељена NLP библиотека; брзо је али недоследно, па исто име може добити више типова, а неке ознаке уопште нису прави ентитети. spaCy је алат који смо одабрали, не фиксни део методе — могао би се заменити. Верзија проверена LLM-ом затим поново чита стварне реченице да би разрешила те сукобе. Нови аналитички слојеви додају се како метода расте.",
+        nlp_method_intro:"Три погледа на именоване ентитете у свакој књизи — особе, места и организације — сваки добијен на други начин. Изаберите поглед испод; картице објашњавају шта сваки приказује и како је изграђен.",
+        nlp_mcard_classic:"<strong>Шта:</strong> именовани ентитети и колико се често сваки пар појављује заједно у истој реченици (супојављивање). <strong>Како:</strong> spaCy (en_core_web_sm) аутоматски означава ентитете. Брзо и статистички, али исто име може завршити под више типова.",
+        nlp_mcard_llm:"<strong>Шта:</strong> исти ентитети и супојављивање, али са разрешеним сукобима типова. <strong>Како:</strong> LLM (glm-5.2) чита доказне реченице и одлучује сваки тип из текста \u2014 спајајући грешке означавања, чувајући праве двојности, одбацујући не-ентитете.",
+        nlp_mcard_docre:"<strong>Шта:</strong> усмерене, именоване релације које прелазе границе реченице \u2014 ко је чији ујак, ко кога истражује. <strong>Како:</strong> полазећи од позиција ентитета, LLM чита одломке где се пар појављује близу и именује однос уз поткрепљујући цитат; други пролаз сврстава сваки опис у групу преко embeddinga. <strong>Цео овај pipeline изградили смо сами \u2014 готов софтвер за то не постоји.</strong>",
         nlp_method_desc_classic:"Сирово аутоматско означавање. Може садржати сукобе типова, дупликате и лажне ентитете.",
         nlp_method_desc_llm:"Сукоби типова разрешени из текста; лажни ентитети уклоњени. Свако име сведено на свој прави тип или типове.",
         nlp_book_label:"Књига:",

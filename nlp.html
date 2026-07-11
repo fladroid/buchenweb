@@ -74,6 +74,19 @@
   font-size: 0.82rem; line-height: 1.45; color: var(--text-muted);
   margin: 8px 0 16px 0; font-style: italic;
 }
+#nlp-method-cards {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  margin: 8px 0 18px 0;
+}
+@media (max-width: 720px) { #nlp-method-cards { grid-template-columns: 1fr; } }
+.nlp-mcard {
+  border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
+  background: var(--card-bg, rgba(0,0,0,0.02)); transition: border-color .15s, box-shadow .15s;
+}
+.nlp-mcard.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.nlp-mcard-h { font-weight: 600; font-size: 0.85rem; margin-bottom: 5px; }
+.nlp-mcard-b { font-size: 0.78rem; line-height: 1.5; color: var(--text-muted); }
+.nlp-mcard-b strong { color: var(--text); }
 
 /* ── Method toggle ── */
 #nlp-method-bar { margin-bottom: 14px; display: flex; gap: 6px; }
@@ -83,6 +96,8 @@
   color: var(--text-muted); cursor: pointer;
 }
 .nlp-method-btn.active { color: #fff; border-color: transparent; background: var(--accent); }
+.nlp-net-link.rel { cursor: pointer; }
+.nlp-net-link.rel:hover { stroke-opacity: 1 !important; }
 
 /* ── NER panel ── */
 #nlp-ner-types {
@@ -370,8 +385,22 @@
   <div id="nlp-method-bar" style="display:none;">
     <button class="nlp-method-btn active" data-method="classic" id="nlp-method-classic">Classic</button>
     <button class="nlp-method-btn" data-method="llm" id="nlp-method-llm">With LLM</button>
+    <button class="nlp-method-btn" data-method="docre" id="nlp-method-docre">DocRE</button>
   </div>
-  <p id="nlp-method-desc" class="nlp-method-desc" style="display:none;"></p>
+  <div id="nlp-method-cards">
+    <div class="nlp-mcard" data-method="classic">
+      <div class="nlp-mcard-h" id="mcard_classic_h">Classic</div>
+      <div class="nlp-mcard-b" id="mcard_classic_b"></div>
+    </div>
+    <div class="nlp-mcard" data-method="llm">
+      <div class="nlp-mcard-h" id="mcard_llm_h">With LLM</div>
+      <div class="nlp-mcard-b" id="mcard_llm_b"></div>
+    </div>
+    <div class="nlp-mcard" data-method="docre">
+      <div class="nlp-mcard-h" id="mcard_docre_h">DocRE</div>
+      <div class="nlp-mcard-b" id="mcard_docre_b"></div>
+    </div>
+  </div>
 
   <div id="nlp-top">
     <!-- NER -->
@@ -434,9 +463,15 @@
       <span id="nlp-net-slider-val">2</span>
       <span id="nlp-net-link-count"></span>
     </div>
+    <div id="nlp-net-legend" style="display:none;font-size:0.75rem;margin-bottom:6px;"></div>
     <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:6px;">Scroll to zoom · Drag to pan · Double-click to reset</div>
     <div id="nlp-network-wrap">
       <div id="nlp-net-tip"></div>
+    </div>
+    <div id="nlp-rel-detail" style="display:none;margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--card-bg,rgba(0,0,0,0.04));font-size:0.85rem;">
+      <div id="nlp-rel-detail-head" style="font-weight:600;margin-bottom:4px;"></div>
+      <div id="nlp-rel-detail-opis" style="margin-bottom:6px;"></div>
+      <div id="nlp-rel-detail-dokaz" style="font-style:italic;color:var(--text-muted);"></div>
     </div>
   </div>
 
@@ -467,6 +502,10 @@
 // ── NER colours ───────────────────────────────────────────────
 const TIP_COLOR = { PERSON: "#b8860b", GPE: "#2e7d32", ORG: "#6a1b9a" };
 const TIP_COLOR_DARK = { PERSON: "#f0c040", GPE: "#66bb6a", ORG: "#ce93d8" };
+// s129: DocRE relacije — mod grafa + boja po klasi (P=osobe, M=mjesta, O=ostalo)
+let netMode = 'cooc';   // 'cooc' | 'rel'
+const KLASA_COLOR      = { P: "#c0392b", M: "#2980b9", O: "#888" };
+const KLASA_COLOR_DARK = { P: "#e57373", M: "#64b5f6", O: "#aaa" };
 
 // ── i18n ─────────────────────────────────────────────────────
 // ── i18n via BB_NAV ──────────────────────────────────────────
@@ -677,6 +716,11 @@ async function loadBook(bookId) {
     minTezina = parseInt(slider.value);
     document.getElementById('nlp-net-slider-val').textContent = minTezina;
   }
+  // load: init vidljivost (co-occ default; docre taster preko updateMethodToggle)
+  netMode = 'cooc';
+  document.getElementById('nlp-net-controls').style.display = '';
+  document.getElementById('nlp-net-legend').style.display = 'none';
+  document.getElementById('nlp-rel-detail').style.display = 'none';
   drawNetwork();
   renderNerList();
   renderText(origData);
@@ -729,52 +773,108 @@ document.querySelectorAll('.nlp-type-btn').forEach(btn => {
 });
 
 // ── Method toggle (classic / with llm) ────────────────────────
+// s129.3: kartice iz i18n (nav.js nlp_mcard_*), naslovi ostaju EN kao tasteri.
 function updateMethodDesc() {
-  const el = document.getElementById('nlp-method-desc');
-  if (!el) return;
-  const hasLlm = !!(nerFull && nerFull.llm);
-  if (!hasLlm) { el.style.display = 'none'; return; }
-  const key = nerMethod === 'llm' ? 'nlp_method_desc_llm' : 'nlp_method_desc_classic';
-  el.textContent = BB_NAV.t(key);
-  el.style.display = '';
+  for (const m of ['classic','llm','docre']) {
+    const b = document.getElementById('mcard_' + m + '_b');
+    if (b) b.innerHTML = BB_NAV.t('nlp_mcard_' + m);
+  }
+  // DocRE kartica vidljiva samo ako knjiga ima relacije
+  const dcard = document.querySelector('.nlp-mcard[data-method="docre"]');
+  if (dcard) dcard.style.display = nerData0HasRel() ? '' : 'none';
+  // istakni aktivni pogled
+  document.querySelectorAll('.nlp-mcard').forEach(c =>
+    c.classList.toggle('active', c.dataset.method === nerMethod));
 }
 function updateMethodToggle() {
   const bar = document.getElementById('nlp-method-bar');
   const hasLlm = !!(nerFull && nerFull.llm);
+  const hasRel = nerData0HasRel();
   bar.style.display = hasLlm ? 'flex' : 'none';
+  // DocRE taster samo ako knjiga ima usmjerene relacije
+  const dbtn = document.getElementById('nlp-method-docre');
+  if (dbtn) dbtn.style.display = hasRel ? '' : 'none';
   document.querySelectorAll('.nlp-method-btn').forEach(b =>
     b.classList.toggle('active', b.dataset.method === nerMethod));
   updateMethodDesc();
 }
+// s129: 3 ravnopravna pogleda — classic | llm | docre.
+// docre koristi llm entitete (grana 'llm') ali crta usmjerene relacije.
+function branchFor(method) { return method === 'docre' ? 'llm' : method; }
+
+function applyMethod(m) {
+  nerMethod = m;
+  const grana = branchFor(m);
+  nerData = (nerFull && nerFull[grana]) || null;
+  netMode = (m === 'docre') ? 'rel' : 'cooc';
+  activeEntitet = null;
+  document.querySelectorAll('.nlp-method-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.method === nerMethod));
+  updateMethodDesc();
+  buildNerRecMap(window._origData, nerData);
+  if (nerData && nerData.veze && nerData.veze.length > 0) {
+    const maxT = Math.max(...nerData.veze.map(v => v.tezina));
+    const slider = document.getElementById('nlp-net-slider');
+    slider.max = maxT;
+    if (minTezina > maxT) {
+      minTezina = maxT; slider.value = maxT;
+      document.getElementById('nlp-net-slider-val').textContent = minTezina;
+    }
+  }
+  // slider/legenda/detail vidljivost prema modu
+  const relOn = (netMode === 'rel');
+  document.getElementById('nlp-net-controls').style.display = relOn ? 'none' : '';
+  document.getElementById('nlp-net-legend').style.display = relOn ? 'block' : 'none';
+  if (!relOn) document.getElementById('nlp-rel-detail').style.display = 'none';
+  if (relOn) renderRelLegend();
+  drawNetwork();
+  renderNerList();
+  renderText(window._origData);
+  renderLinksTable(nerData);
+  renderConflictsTable(nerData);
+}
+
 document.querySelectorAll('.nlp-method-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const m = btn.dataset.method;
-    if (!nerFull || !nerFull[m] || m === nerMethod) return;
-    nerMethod = m;
-    nerData = nerFull[m];
-    activeEntitet = null;
-    document.querySelectorAll('.nlp-method-btn').forEach(b =>
-      b.classList.toggle('active', b.dataset.method === nerMethod));
-    updateMethodDesc();
-    buildNerRecMap(window._origData, nerData);
-    if (nerData && nerData.veze && nerData.veze.length > 0) {
-      const maxT = Math.max(...nerData.veze.map(v => v.tezina));
-      const slider = document.getElementById('nlp-net-slider');
-      slider.max = maxT;
-      if (minTezina > maxT) {
-        minTezina = maxT; slider.value = maxT;
-        document.getElementById('nlp-net-slider-val').textContent = minTezina;
-      }
-    }
-    drawNetwork();
-    renderNerList();
-    renderText(window._origData);
-    renderLinksTable(nerData);
-    renderConflictsTable(nerData);
+    if (m === nerMethod) return;
+    const grana = branchFor(m);
+    if (!nerFull || !nerFull[grana]) return;   // nema tog sloja
+    if (m === 'docre' && !(nerData0HasRel())) return;
+    applyMethod(m);
   });
 });
 
+// ima li aktivna knjiga docre relacije (llm grana)?
+function nerData0HasRel() {
+  return !!(nerFull && nerFull.llm && nerFull.llm.relacije && nerFull.llm.relacije.length > 0);
+}
 
+
+
+// ── DocRE relacije: klik-panel + mode toggle (s129) ────────────
+function showRelDetail(rel) {
+  const box = document.getElementById('nlp-rel-detail');
+  const smjer = rel.smjer === 'mutual' ? '\u2194' : '\u2192';
+  document.getElementById('nlp-rel-detail-head').textContent =
+    rel.izvor + ' ' + smjer + ' ' + rel.cilj + '  \u00b7  ' + rel.tip_veze +
+    (rel.pouzdanost ? ' (' + rel.pouzdanost + ')' : '');
+  document.getElementById('nlp-rel-detail-opis').textContent = rel.opis || '';
+  document.getElementById('nlp-rel-detail-dokaz').textContent =
+    rel.dokaz ? '\u201c' + rel.dokaz + '\u201d' : '';
+  box.style.display = 'block';
+}
+
+function renderRelLegend() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const kc = isDark ? KLASA_COLOR_DARK : KLASA_COLOR;
+  const naz = { P: 'People', M: 'Places', O: 'Other' };
+  document.getElementById('nlp-net-legend').innerHTML =
+    ['P','M','O'].map(k =>
+      '<span style="margin-right:14px;"><span style="display:inline-block;width:10px;height:10px;'
+      + 'background:' + kc[k] + ';border-radius:50%;margin-right:4px;"></span>' + naz[k] + '</span>'
+    ).join('');
+}
 
 // ── Network slider ─────────────────────────────────────────────
 let minTezina = 2;
@@ -813,11 +913,16 @@ function drawNetwork() {
     });
   }
 
-  // Samo čvorovi koji su u vezama + top izolirani čvorovi
+  // s129: skup veza zavisi od moda — co-occurrence (simetrične) ili relacije (usmjerene)
+  const relMode = (netMode === 'rel' && nerData.relacije && nerData.relacije.length > 0);
   const vezaNodes = new Set();
-  nerData.veze.forEach(v => { vezaNodes.add(v.od); vezaNodes.add(v.do); });
+  if (relMode) {
+    nerData.relacije.forEach(r => { vezaNodes.add(r.izvor); vezaNodes.add(r.cilj); });
+  } else {
+    nerData.veze.forEach(v => { vezaNodes.add(v.od); vezaNodes.add(v.do); });
+  }
 
-  // Dodaj top 10 izolirane PERSON čvorove ako nisu već u vezama
+  // Dodaj top izolirane PERSON čvorove ako nisu već u vezama
   const topIzolirani = allEntiteti
     .filter(e => e.tip === 'PERSON' && !vezaNodes.has(e.id))
     .sort((a, b) => b.pojave - a.pojave)
@@ -829,19 +934,40 @@ function drawNetwork() {
   const maxPojave = Math.max(...nodes.map(n => n.pojave));
   const rScale = d3.scaleSqrt().domain([1, maxPojave]).range([6, 28]);
 
-  const filteredVeze = nerData.veze.filter(v => v.tezina >= minTezina);
-  const linkCount = filteredVeze.length;
+  let links, linkCount;
+  const isDarkNet = document.documentElement.getAttribute('data-theme') === 'dark';
+  const klasaColors = isDarkNet ? KLASA_COLOR_DARK : KLASA_COLOR;
+  if (relMode) {
+    // usmjerene relacije: source->target, boja po klasi, nosi opis/dokaz/tip
+    links = nerData.relacije
+      .filter(r => nodeMap[r.izvor] && nodeMap[r.cilj])
+      .map(r => ({ source: r.izvor, target: r.cilj, rel: r }));
+    linkCount = links.length;
+  } else {
+    const filteredVeze = nerData.veze.filter(v => v.tezina >= minTezina);
+    const maxTezina = filteredVeze.length > 0 ? Math.max(...filteredVeze.map(v => v.tezina)) : 1;
+    const wScale = d3.scaleLinear().domain([1, maxTezina]).range([1, 7]);
+    links = filteredVeze.map(v => ({ source: v.od, target: v.do, tezina: v.tezina, _w: wScale(v.tezina) }));
+    linkCount = filteredVeze.length;
+  }
   const lcEl = document.getElementById("nlp-net-link-count");
-  if (lcEl) lcEl.textContent = linkCount + " connections";
-  const maxTezina = filteredVeze.length > 0 ? Math.max(...filteredVeze.map(v => v.tezina)) : 1;
-  const wScale = d3.scaleLinear().domain([1, maxTezina]).range([1, 7]);
-  const links = filteredVeze.map(v => ({ source: v.od, target: v.do, tezina: v.tezina }));
+  if (lcEl) lcEl.textContent = linkCount + (relMode ? " relations" : " connections");
 
   const svg = d3.select('#nlp-network-wrap').append('svg')
     .attr('width', W).attr('height', H);
 
-  // Defs — arrow marker (opcionalno)
+  // Defs — arrow markeri po klasi (rel mod)
   const defs = svg.append('defs');
+  if (relMode) {
+    for (const kl of ['P','M','O']) {
+      defs.append('marker')
+        .attr('id', 'arrow-' + kl)
+        .attr('viewBox', '0 -5 10 10').attr('refX', 22).attr('refY', 0)
+        .attr('markerWidth', 6).attr('markerHeight', 6).attr('orient', 'auto')
+        .append('path').attr('d', 'M0,-5L10,0L0,5')
+        .attr('fill', klasaColors[kl] || '#888');
+    }
+  }
 
   // Zoom & Pan
   const zoomG = svg.append('g');  // wrapper group za zoom
@@ -851,12 +977,17 @@ function drawNetwork() {
     .on('dblclick.zoom', () => svg.transition().duration(400)
       .call(d3.zoom().transform, d3.zoomIdentity));
 
-  // Links
+  // Links — co-occ (sive, debljina po tezini) ili rel (boja po klasi, strelica, klik)
   const link = zoomG.append('g').selectAll('line')
     .data(links).enter().append('line')
-    .attr('class', 'nlp-net-link')
-    .attr('stroke', isDark ? '#555' : '#bbb')
-    .attr('stroke-width', d => wScale(d.tezina));
+    .attr('class', relMode ? 'nlp-net-link rel' : 'nlp-net-link')
+    .attr('stroke', d => relMode ? (klasaColors[d.rel.klasa] || '#888') : (isDark ? '#555' : '#bbb'))
+    .attr('stroke-width', d => relMode ? (d.rel.pouzdanost === 'high' ? 3 : d.rel.pouzdanost === 'medium' ? 2 : 1.2) : d._w)
+    .attr('stroke-opacity', d => relMode ? 0.75 : 0.6)
+    .attr('marker-end', d => relMode ? ('url(#arrow-' + (d.rel.klasa || 'O') + ')') : null);
+  if (relMode) {
+    link.on('click', (event, d) => { event.stopPropagation(); showRelDetail(d.rel); });
+  }
 
   // Nodes
   const node = zoomG.append('g').selectAll('g')
