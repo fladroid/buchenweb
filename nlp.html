@@ -3,11 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NLP — Buchenberg</title>
+<title>Named Entities & Relations — Buchenberg</title>
 <link rel="stylesheet" href="buchenberg.css">
 <script src="nav.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js"></script>
 <style>
 /* ── Layout ── */
 #nlp-page {
@@ -46,11 +45,10 @@
 /* ── Top panels ── */
 #nlp-top {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 16px;
   margin-bottom: 16px;
 }
-@media (max-width: 700px) { #nlp-top { grid-template-columns: 1fr; } }
 
 .nlp-panel {
   border: 1px solid var(--border);
@@ -67,14 +65,24 @@
   margin-bottom: 12px;
 }
 
-/* ── Word Cloud ── */
-#nlp-wc-wrap {
-  width: 100%;
-  min-height: 260px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* ── Method intro / desc ── */
+.nlp-method-intro {
+  font-size: 0.9rem; line-height: 1.55; color: var(--text-muted);
+  max-width: 70ch; margin: 0 0 16px 0;
 }
+.nlp-method-desc {
+  font-size: 0.82rem; line-height: 1.45; color: var(--text-muted);
+  margin: 8px 0 16px 0; font-style: italic;
+}
+
+/* ── Method toggle ── */
+#nlp-method-bar { margin-bottom: 14px; display: flex; gap: 6px; }
+.nlp-method-btn {
+  font-size: 0.8rem; padding: 4px 12px; border-radius: 6px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text-muted); cursor: pointer;
+}
+.nlp-method-btn.active { color: #fff; border-color: transparent; background: var(--accent); }
 
 /* ── NER panel ── */
 #nlp-ner-types {
@@ -350,23 +358,22 @@
 
 <!-- PAGE -->
 <div id="nlp-page">
-  <h1 class="bb-section-title" id="nlp-title">Natural Language Processing</h1>
-  <p class="bb-section-subtitle" id="nlp-subtitle">Word cloud and named entity analysis of original English texts.</p>
+  <h1 class="bb-section-title" id="nlp-title">Named Entities & Relations</h1>
+  <p class="bb-section-subtitle" id="nlp-subtitle">Named entity analysis of original English texts.</p>
+  <p id="nlp-method-intro" class="nlp-method-intro"></p>
 
   <div id="nlp-book-bar">
     <label id="nlp-book-label">Book:</label>
     <!-- book buttons injected by JS -->
   </div>
 
-  <div id="nlp-top">
-    <!-- Word Cloud -->
-    <div class="nlp-panel">
-      <div class="nlp-panel-title" id="nlp-wc-title">Word Cloud — EN Original</div>
-      <div id="nlp-wc-wrap">
-        <div id="nlp-loading">Loading…</div>
-      </div>
-    </div>
+  <div id="nlp-method-bar" style="display:none;">
+    <button class="nlp-method-btn active" data-method="classic" id="nlp-method-classic">Classic</button>
+    <button class="nlp-method-btn" data-method="llm" id="nlp-method-llm">With LLM</button>
+  </div>
+  <p id="nlp-method-desc" class="nlp-method-desc" style="display:none;"></p>
 
+  <div id="nlp-top">
     <!-- NER -->
     <div class="nlp-panel">
       <div class="nlp-panel-title" id="nlp-ner-title">Named Entities</div>
@@ -456,7 +463,6 @@
 
 <script>
 // ── Stop words ────────────────────────────────────────────────
-const STOP_EN = new Set("a an the and or but in on at to of for with by from as is was are were be been being have has had do does did will would could should may might shall not no nor so yet both either neither one two three all any few more most other some such than then there these they this those through very what which while who whom whose within i me my myself we our ours ourselves you your yours yourself he him his himself she her hers herself it its itself they them their theirs themselves".split(" "));
 
 // ── NER colours ───────────────────────────────────────────────
 const TIP_COLOR = { PERSON: "#b8860b", GPE: "#2e7d32", ORG: "#6a1b9a" };
@@ -469,8 +475,9 @@ function t(key) { return BB_NAV.t('nlp_' + key) || BB_NAV.t(key) || key; }
 function applyPageI18n() {
   document.getElementById('nlp-title').textContent    = BB_NAV.t('nlp_title');
   document.getElementById('nlp-subtitle').textContent = BB_NAV.t('nlp_subtitle');
+  document.getElementById('nlp-method-intro').textContent = BB_NAV.t('nlp_method_intro');
+  updateMethodDesc();
   document.getElementById('nlp-book-label').textContent = BB_NAV.t('nlp_book_label');
-  document.getElementById('nlp-wc-title').textContent = BB_NAV.t('nlp_wc_title');
   document.getElementById('nlp-ner-title').textContent = BB_NAV.t('nlp_ner_title');
   document.getElementById('nlp-text-title').textContent = BB_NAV.t('nlp_text_title');
   document.querySelector('[data-tip="ALL"]').textContent  = BB_NAV.t('nlp_tip_all');
@@ -486,102 +493,18 @@ BB_NAV.onLangChange = applyPageI18n;
 
 // MutationObserver za redraw na promjenu teme (ostaje)
 new MutationObserver(() => {
-  if (window._origData) { drawWC(window._origData); drawNetwork(); }
+  if (window._origData) { drawNetwork(); }
 }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
 // ── State ─────────────────────────────────────────────────────
 let activeBookId = null;
 let activeNerTip = 'ALL';
 let activeEntitet = null;
-let nerData = null;       // {knjiga_id, entiteti: {PERSON:[...], GPE:[...], ORG:[...]}}
+let nerData = null;       // aktivna grana: {entiteti:{...}, veze:[...]}
+let nerFull = null;       // cijeli fajl: {knjiga_id, classic:{...}, llm?:{...}}
+let nerMethod = 'classic';
 let nerRecMap = {};       // entitet ime_norm → Set of recenica positions
 let __v = null;
-
-// ── Word frequency ────────────────────────────────────────────
-function wordFreq(texts, nerNames) {
-  const freq = {};
-  for (const text of texts) {
-    const words = text.toLowerCase()
-      .replace(/[^\p{L}\s]/gu, ' ')
-      .split(/\s+/);
-    for (const w of words) {
-      if (w.length < 3) continue;
-      if (STOP_EN.has(w)) continue;
-      freq[w] = (freq[w] || 0) + 1;
-    }
-  }
-  return Object.entries(freq)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 150)
-    .map(([text, value]) => {
-      // Provjeri da li je NER entitet
-      const nerMatch = nerNames[text.toLowerCase()];
-      return { text, value, tip: nerMatch || null };
-    });
-}
-
-// Gradi lookup: lowercase ime → tip
-function buildNerLookup(nerData) {
-  const lookup = {};
-  if (!nerData) return lookup;
-  for (const [tip, lista] of Object.entries(nerData.entiteti || {})) {
-    for (const ent of lista) {
-      lookup[ent.ime.toLowerCase()] = tip;
-      // Dodaj i zadnju riječ (npr. "holmes" za "Sherlock Holmes")
-      const parts = ent.ime.toLowerCase().split(' ');
-      if (parts.length > 1) lookup[parts[parts.length - 1]] = tip;
-    }
-  }
-  return lookup;
-}
-
-// ── Draw word cloud ───────────────────────────────────────────
-function drawWC(origData) {
-  const wrap = document.getElementById('nlp-wc-wrap');
-  wrap.innerHTML = '';
-  if (!origData) return;
-
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const nerLookup = buildNerLookup(nerData);
-  const texts = (origData.sentences || []).map(s => s.text || s.original || '').filter(Boolean);
-  const words = wordFreq(texts, nerLookup);
-
-  const W = wrap.offsetWidth || 480;
-  const H = 280;
-
-  const maxVal = words[0]?.value || 1;
-  const minVal = words[words.length - 1]?.value || 1;
-  const sizeScale = d3.scaleLinear().domain([minVal, maxVal]).range([11, 52]);
-
-  const defaultColors = isDark
-    ? ["#7eb8f7","#b0b3b8","#8a8d91"]
-    : ["#3366cc","#54595d","#72777d"];
-
-  d3.layout.cloud()
-    .size([W, H])
-    .words(words.map(d => ({ text: d.text, size: sizeScale(d.value), tip: d.tip })))
-    .padding(3)
-    .rotate(() => (Math.random() > 0.85 ? 90 : 0))
-    .font("sans-serif")
-    .fontSize(d => d.size)
-    .on("end", drawn => {
-      const svg = d3.select(wrap).append("svg").attr("width", W).attr("height", H);
-      const colors = isDark ? TIP_COLOR_DARK : TIP_COLOR;
-      svg.append("g")
-        .attr("transform", `translate(${W/2},${H/2})`)
-        .selectAll("text")
-        .data(drawn)
-        .enter().append("text")
-        .style("font-size", d => `${d.size}px`)
-        .style("font-family", "sans-serif")
-        .style("font-weight", d => d.tip ? "700" : "400")
-        .style("fill", d => d.tip ? colors[d.tip] : defaultColors[Math.floor(Math.random() * 3)])
-        .attr("text-anchor", "middle")
-        .attr("transform", d => `translate(${d.x},${d.y})rotate(${d.rotate})`)
-        .text(d => d.text);
-    })
-    .start();
-}
 
 // ── NER lista ─────────────────────────────────────────────────
 let nerSortCol = 'pojave', nerSortAsc = false;
@@ -723,8 +646,6 @@ async function loadBook(bookId) {
   activeBookId = bookId;
   activeEntitet = null;
   document.getElementById('nlp-active-entity').textContent = BB_NAV.t('nlp_click_hint');
-  document.getElementById('nlp-wc-wrap').innerHTML =
-    `<div id="nlp-loading" style="color:var(--text-muted);font-size:0.85rem;">Loading…</div>`;
   document.getElementById('nlp-ner-list').innerHTML = '';
   document.getElementById('nlp-text-body').innerHTML = '';
 
@@ -735,15 +656,16 @@ async function loadBook(bookId) {
   ]);
 
   window._origData = origData;
-  nerData = nerJson;
+  // ner_*.json struktura: {knjiga_id, classic:{entiteti,veze}, llm?:{...}}
+  nerFull = nerJson;
+  nerMethod = 'classic';
+  nerData = (nerFull && nerFull[nerMethod]) || null;
+  updateMethodToggle();
 
   // Gradi mapu: ime_norm → Set pozicija rečenica
   nerRecMap = {};
-  if (nerJson) {
-    // Trebamo recenica pozicije iz orig_*.json
-    // ner_*.json ima samo pojave (count), ne pozicije
-    // Koristimo text search za highlight
-    buildNerRecMap(origData, nerJson);
+  if (nerData) {
+    buildNerRecMap(origData, nerData);
   }
 
   // Ažuriraj slider max prema podacima knjige
@@ -755,7 +677,6 @@ async function loadBook(bookId) {
     minTezina = parseInt(slider.value);
     document.getElementById('nlp-net-slider-val').textContent = minTezina;
   }
-  drawWC(origData);
   drawNetwork();
   renderNerList();
   renderText(origData);
@@ -804,6 +725,52 @@ document.querySelectorAll('.nlp-type-btn').forEach(btn => {
       b.classList.toggle('active', b.dataset.tip === activeNerTip));
     renderNerList();
     highlightText();
+  });
+});
+
+// ── Method toggle (classic / with llm) ────────────────────────
+function updateMethodDesc() {
+  const el = document.getElementById('nlp-method-desc');
+  if (!el) return;
+  const hasLlm = !!(nerFull && nerFull.llm);
+  if (!hasLlm) { el.style.display = 'none'; return; }
+  const key = nerMethod === 'llm' ? 'nlp_method_desc_llm' : 'nlp_method_desc_classic';
+  el.textContent = BB_NAV.t(key);
+  el.style.display = '';
+}
+function updateMethodToggle() {
+  const bar = document.getElementById('nlp-method-bar');
+  const hasLlm = !!(nerFull && nerFull.llm);
+  bar.style.display = hasLlm ? 'flex' : 'none';
+  document.querySelectorAll('.nlp-method-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.method === nerMethod));
+  updateMethodDesc();
+}
+document.querySelectorAll('.nlp-method-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const m = btn.dataset.method;
+    if (!nerFull || !nerFull[m] || m === nerMethod) return;
+    nerMethod = m;
+    nerData = nerFull[m];
+    activeEntitet = null;
+    document.querySelectorAll('.nlp-method-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.method === nerMethod));
+    updateMethodDesc();
+    buildNerRecMap(window._origData, nerData);
+    if (nerData && nerData.veze && nerData.veze.length > 0) {
+      const maxT = Math.max(...nerData.veze.map(v => v.tezina));
+      const slider = document.getElementById('nlp-net-slider');
+      slider.max = maxT;
+      if (minTezina > maxT) {
+        minTezina = maxT; slider.value = maxT;
+        document.getElementById('nlp-net-slider-val').textContent = minTezina;
+      }
+    }
+    drawNetwork();
+    renderNerList();
+    renderText(window._origData);
+    renderLinksTable(nerData);
+    renderConflictsTable(nerData);
   });
 });
 

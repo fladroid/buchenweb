@@ -1,12 +1,12 @@
 (function() {
 
 // ── Verzija portala — bump na kraju svake sesije ──
-const BB_VERSION = 's125.5';
-const BB_VERSION_DATE = '10 Jul 2026';
+const BB_VERSION = 's127';
+const BB_VERSION_DATE = '11 Jul 2026';
 
 const NAV_I18N = {
   en: { home:"Home", about:"About", stats:"Stats", books:"Library",
-        nlp:"NLP", reader:"Reader", learn:"Learn", geometry:"Geometry", art:"Art",
+        nlp:"Entities", reader:"Reader", learn:"Learn", geometry:"Geometry", art:"Art",
         stats_title:"Statistics",
         stats_subtitle:"Aggregate data from the Buchenberg pipeline — winner distribution, scores, and coverage.",
         stats_total_sent:"Total translated sentences",
@@ -74,10 +74,12 @@ const NAV_I18N = {
       Source books are from <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a> — public domain, freely distributable.
       The pipeline runs on commodity hardware with a PostgreSQL backend and
       <a href="https://ollama.com" target="_blank">Ollama</a> for local and cloud LLM inference.`,
-        nlp_title:"Natural Language Processing",
-        nlp_subtitle:"Word cloud and named entity analysis of original English texts.",
+        nlp_title:"Named Entities & Relations",
+        nlp_subtitle:"Named entity analysis of original English texts.",
+        nlp_method_intro:"This page analyzes the named entities in each book — the people, places and organizations — and offers different views of them. The automatic tagging is done by spaCy, a well-established NLP library; it is fast but inconsistent, so the same name may get several types and some tags are not real entities at all. spaCy is the tool we chose, not a fixed part of the method — it could be replaced. An LLM-reviewed version then re-reads the actual sentences to resolve those conflicts. More analytical layers are being added as the method grows.",
+        nlp_method_desc_classic:"Raw automatic tagging. May contain type conflicts, duplicates, and false entities.",
+        nlp_method_desc_llm:"Type conflicts resolved from the text; false entities removed. Each name reduced to its true type or types.",
         nlp_book_label:"Book:",
-        nlp_wc_title:"Word Cloud — EN Original",
         nlp_ner_title:"Named Entities", nlp_text_title:"Original Text",
         nlp_net_title:"Entity Network", nlp_click_hint:"Click an entity to highlight sentences",
         nlp_links_title:"Entity Links", nlp_conflicts_title:"Type Conflicts",
@@ -351,7 +353,7 @@ const NAV_I18N = {
     learn_toast_match:"Match! ✓",
     learn_toast_build:"Build the sentence first." },
   de: { home:"Startseite", about:"Über", stats:"Statistik", books:"Bibliothek",
-        nlp:"NLP", reader:"Leser", learn:"Lernen", geometry:"Geometrie", art:"Kunst",
+        nlp:"Entitäten", reader:"Leser", learn:"Lernen", geometry:"Geometrie", art:"Kunst",
         stats_title:"Statistik",
         stats_subtitle:"Aggregierte Daten aus der Buchenberg-Pipeline — Gewinnverteilung, Scores und Abdeckung.",
         stats_total_sent:"Übersetzte Sätze gesamt",
@@ -415,10 +417,12 @@ const NAV_I18N = {
       Quellbücher stammen von <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a> — gemeinfrei und frei verteilbar.
       Die Pipeline läuft auf handelsüblicher Hardware mit einem PostgreSQL-Backend und
       <a href="https://ollama.com" target="_blank">Ollama</a> für lokale und Cloud-LLM-Inferenz.`,
-        nlp_title:"Natürliche Sprachverarbeitung",
-        nlp_subtitle:"Wortwolke und Named-Entity-Analyse der englischen Originaltexte.",
+        nlp_title:"Benannte Entitäten & Beziehungen",
+        nlp_subtitle:"Named-Entity-Analyse der englischen Originaltexte.",
+        nlp_method_intro:"Diese Seite analysiert die benannten Entitäten in jedem Buch — die Personen, Orte und Organisationen — und bietet verschiedene Ansichten davon. Die automatische Erkennung übernimmt spaCy, eine etablierte NLP-Bibliothek; sie ist schnell, aber inkonsistent, sodass derselbe Name mehrere Typen erhalten kann und manche Markierungen gar keine echten Entitäten sind. spaCy ist das von uns gewählte Werkzeug, kein fester Bestandteil der Methode — es ließe sich ersetzen. Eine LLM-geprüfte Version liest dann die tatsächlichen Sätze erneut, um diese Konflikte aufzulösen. Weitere Analyseebenen kommen hinzu, während die Methode wächst.",
+        nlp_method_desc_classic:"Automatische Roh-Erkennung. Kann Typkonflikte, Duplikate und falsche Entitäten enthalten.",
+        nlp_method_desc_llm:"Typkonflikte aus dem Text aufgelöst; falsche Entitäten entfernt. Jeder Name auf seinen wahren Typ bzw. seine wahren Typen reduziert.",
         nlp_book_label:"Buch:",
-        nlp_wc_title:"Wortwolke — EN Original",
         nlp_ner_title:"Benannte Entitäten", nlp_text_title:"Originaltext",
         nlp_net_title:"Entitätsnetzwerk", nlp_click_hint:"Entität anklicken zum Hervorheben",
         nlp_links_title:"Entitätsverknüpfungen", nlp_conflicts_title:"Typkonflikte",
@@ -692,7 +696,7 @@ const NAV_I18N = {
     learn_toast_match:"Paar gefunden! ✓",
     learn_toast_build:"Erst den Satz zusammensetzen." },
   it: { home:"Home", about:"Informazioni", stats:"Statistiche", books:"Biblioteca",
-        nlp:"NLP", reader:"Lettore", learn:"Impara", geometry:"Geometria", art:"Arte",
+        nlp:"Entità", reader:"Lettore", learn:"Impara", geometry:"Geometria", art:"Arte",
         stats_title:"Statistiche",
         stats_subtitle:"Dati aggregati dalla pipeline Buchenberg — distribuzione dei vincitori, punteggi e copertura.",
         stats_total_sent:"Frasi tradotte totali",
@@ -757,10 +761,12 @@ const NAV_I18N = {
       I libri sorgente provengono da <a href="https://www.gutenberg.org" target="_blank">Project Gutenberg</a> — pubblico dominio, liberamente distribuibili.
       La pipeline gira su hardware comune con un backend PostgreSQL e
       <a href="https://ollama.com" target="_blank">Ollama</a> per l'inferenza LLM locale e cloud.`,
-        nlp_title:"Elaborazione del linguaggio naturale",
-        nlp_subtitle:"Nuvola di parole e analisi delle entità nei testi originali inglesi.",
+        nlp_title:"Entità nominate e relazioni",
+        nlp_subtitle:"Analisi delle entità nei testi originali inglesi.",
+        nlp_method_intro:"Questa pagina analizza le entità nominate in ogni libro — le persone, i luoghi e le organizzazioni — e ne offre diverse viste. Il riconoscimento automatico è svolto da spaCy, una nota libreria NLP; è veloce ma incoerente, così lo stesso nome può ricevere più tipi e alcune etichette non sono affatto entità reali. spaCy è lo strumento che abbiamo scelto, non una parte fissa del metodo — potrebbe essere sostituito. Una versione rivista da un LLM rilegge poi le frasi reali per risolvere questi conflitti. Altri livelli di analisi vengono aggiunti man mano che il metodo cresce.",
+        nlp_method_desc_classic:"Riconoscimento automatico grezzo. Può contenere conflitti di tipo, duplicati ed entità false.",
+        nlp_method_desc_llm:"Conflitti di tipo risolti dal testo; entità false rimosse. Ogni nome ridotto al suo tipo o ai suoi tipi reali.",
         nlp_book_label:"Libro:",
-        nlp_wc_title:"Nuvola di parole — EN Originale",
         nlp_ner_title:"Entità nominate", nlp_text_title:"Testo originale",
         nlp_net_title:"Rete di entità", nlp_click_hint:"Clicca un'entità per evidenziare le frasi",
         nlp_links_title:"Collegamenti tra entità", nlp_conflicts_title:"Conflitti di tipo",
@@ -1034,7 +1040,7 @@ const NAV_I18N = {
     learn_toast_match:"Coppia trovata! ✓",
     learn_toast_build:"Prima costruisci la frase." },
   hr: { home:"Početna", about:"O projektu", stats:"Statistike", books:"Knjižnica",
-        nlp:"NLP", reader:"Čitač", learn:"Učenje", geometry:"Geometrija", art:"Umjetnost",
+        nlp:"Entiteti", reader:"Čitač", learn:"Učenje", geometry:"Geometrija", art:"Umjetnost",
         stats_title:"Statistike",
         stats_subtitle:"Agregatni podaci iz Buchenberg pipeline-a — distribucija pobjednika, scoreovi i pokrivenost.",
         stats_total_sent:"Ukupno prevedenih rečenica",
@@ -1099,10 +1105,12 @@ const NAV_I18N = {
       Izvorne knjige dolaze s <a href="https://www.gutenberg.org" target="_blank">Project Gutenberga</a> — javna domena, slobodno distribuirane.
       Pipeline radi na standardnom hardveru s PostgreSQL backendom i
       <a href="https://ollama.com" target="_blank">Ollama</a> za lokalnu i cloud LLM inferenciju.`,
-        nlp_title:"Obrada prirodnog jezika",
-        nlp_subtitle:"Oblak riječi i analiza imenovanih entiteta originalnih engleskih tekstova.",
+        nlp_title:"Imenovani entiteti i odnosi",
+        nlp_subtitle:"Analiza imenovanih entiteta originalnih engleskih tekstova.",
+        nlp_method_intro:"Ova stranica analizira imenovane entitete u svakoj knjizi — osobe, mjesta i organizacije — i nudi različite poglede na njih. Automatsko označavanje radi spaCy, dobro utemeljena NLP biblioteka; brzo je ali nedosljedno, pa isto ime može dobiti više tipova, a neke oznake uopće nisu pravi entiteti. spaCy je alat koji smo odabrali, ne fiksni dio metode — mogao bi se zamijeniti. Verzija provjerena LLM-om zatim ponovno čita stvarne rečenice kako bi razriješila te sukobe. Novi analitički slojevi dodaju se kako metoda raste.",
+        nlp_method_desc_classic:"Sirovo automatsko označavanje. Može sadržavati sukobe tipova, duplikate i lažne entitete.",
+        nlp_method_desc_llm:"Sukobi tipova razriješeni iz teksta; lažni entiteti uklonjeni. Svako ime svedeno na svoj pravi tip ili tipove.",
         nlp_book_label:"Knjiga:",
-        nlp_wc_title:"Oblak riječi — EN Original",
         nlp_ner_title:"Imenovani entiteti", nlp_text_title:"Originalni tekst",
         nlp_net_title:"Mreža entiteta", nlp_click_hint:"Klikni entitet za isticanje rečenica",
         nlp_links_title:"Veze između entiteta", nlp_conflicts_title:"Konflikti tipova",
@@ -1376,7 +1384,7 @@ const NAV_I18N = {
     learn_toast_match:"Par pronađen! ✓",
     learn_toast_build:"Najprije složi rečenicu." },
   sr: { home:"Почетна", about:"О пројекту", stats:"Статистике", books:"Библиотека",
-        nlp:"NLP", reader:"Читач", learn:"Учење", geometry:"Геометрија", art:"Уметност",
+        nlp:"Ентитети", reader:"Читач", learn:"Учење", geometry:"Геометрија", art:"Уметност",
         stats_title:"Статистике",
         stats_subtitle:"Агрегатни подаци из Buchenberg pipeline-а — дистрибуција победника, скорови и покривеност.",
         stats_total_sent:"Укупно преведених реченица",
@@ -1441,10 +1449,12 @@ const NAV_I18N = {
       Изворне књиге долазе са <a href="https://www.gutenberg.org" target="_blank">Project Gutenberga</a> — јавна домена, слободно дистрибуиране.
       Pipeline ради на стандардном хардверу с PostgreSQL backendom и
       <a href="https://ollama.com" target="_blank">Ollama</a> за локалну и cloud LLM inferenciju.`,
-        nlp_title:"Обрада природног језика",
-        nlp_subtitle:"Облак речи и анализа именованих ентитета оригиналних енглеских текстова.",
+        nlp_title:"Именовани ентитети и односи",
+        nlp_subtitle:"Анализа именованих ентитета оригиналних енглеских текстова.",
+        nlp_method_intro:"Ова страница анализира именоване ентитете у свакој књизи — особе, места и организације — и нуди различите погледе на њих. Аутоматско означавање ради spaCy, добро утемељена NLP библиотека; брзо је али недоследно, па исто име може добити више типова, а неке ознаке уопште нису прави ентитети. spaCy је алат који смо одабрали, не фиксни део методе — могао би се заменити. Верзија проверена LLM-ом затим поново чита стварне реченице да би разрешила те сукобе. Нови аналитички слојеви додају се како метода расте.",
+        nlp_method_desc_classic:"Сирово аутоматско означавање. Може садржати сукобе типова, дупликате и лажне ентитете.",
+        nlp_method_desc_llm:"Сукоби типова разрешени из текста; лажни ентитети уклоњени. Свако име сведено на свој прави тип или типове.",
         nlp_book_label:"Књига:",
-        nlp_wc_title:"Облак речи — EN Original",
         nlp_ner_title:"Именовани ентитети", nlp_text_title:"Оригинални текст",
         nlp_net_title:"Мрежа ентитета", nlp_click_hint:"Кликни ентитет за истицање реченица",
         nlp_links_title:"Везе између ентитета", nlp_conflicts_title:"Конфликти типова",
