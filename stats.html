@@ -339,18 +339,17 @@ function renderEngineTable() {
   const rows = window._engineRows;
   const et = BB_NAV.t.bind(BB_NAV);
   const cell = (p) => p ? `${p.count.toLocaleString()}${p.win_rate !== null ? ` <span style="color:var(--text-light);font-size:11px">(${p.win_rate}%)</span>` : ''}` : '<span style="color:var(--text-light)">–</span>';
+  const phaseNums = [...new Set(rows.flatMap(r => Object.keys(r.phases)))]
+    .map(Number).sort((a, b) => a - b);
   let html = `<table class="bb-table"><tr>
     <th>${et('stats_col_engine')}</th>
-    <th>${et('stats_col_phase1')}</th>
-    <th>${et('stats_col_phase2')}</th>
+    ${phaseNums.map(n => `<th>${et('stats_col_phase_n').replace('{n}', n)}</th>`).join('')}
     <th>${et('stats_col_total')}</th></tr>`;
   rows.forEach(({engine, phases, total_count, total_win_rate}) => {
     const col = modelColor(engine);
-    const p1 = phases['1'], p2 = phases['2'];
     html += `<tr>
       <td><span style="color:${col};font-family:var(--font-mono);font-size:12px">${engine}</span></td>
-      <td>${cell(p1)}</td>
-      <td>${cell(p2)}</td>
+      ${phaseNums.map(n => `<td>${cell(phases[String(n)])}</td>`).join('')}
       <td><strong>${total_count.toLocaleString()}</strong>${total_win_rate !== null ? ` <span style="color:var(--text-light);font-size:11px">(${total_win_rate}%)</span>` : ''}</td>
     </tr>`;
   });

@@ -737,13 +737,17 @@ async function togglePhases(pos, container) {
       if (!x) return '';
       const isWin = data.apsolutna_faza === faza;
       return '<div class="phase-row' + (isWin ? ' phase-win' : '') + '">' +
-        '<span class="phase-label">' + t('phase' + faza) + (isWin ? ' <span class="phase-winner">' + t('winner') + '</span>' : '') + '</span>' +
+        '<span class="phase-label">' + t('phase_n').replace('{n}', faza) + (isWin ? ' <span class="phase-winner">' + t('winner') + '</span>' : '') + '</span>' +
         '<span class="phase-text">' + escHtml(x.prevod) + '</span>' +
         '<span class="phase-score">' + (x.finalni_score != null ? x.finalni_score.toFixed(4) : '&mdash;') +
         ' <span class="phase-model">' + escHtml(x.model || '') + '</span></span>' +
         '</div>';
     };
-    panel.innerHTML = row(1, 'faza1') + row(2, 'faza2');
+    const fazaNums = Object.keys(data)
+      .filter(k => /^faza\d+$/.test(k))
+      .map(k => parseInt(k.slice(4), 10))
+      .sort((a, b) => a - b);
+    panel.innerHTML = fazaNums.map(n => row(n, 'faza' + n)).join('');
   }
   container.appendChild(panel);
   state.openPhases[pos] = true;

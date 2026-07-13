@@ -1,7 +1,7 @@
 (function() {
 
 // ── Verzija portala — bump na kraju svake sesije ──
-const BB_VERSION = 's133';
+const BB_VERSION = 's135.1';
 const BB_VERSION_DATE = '13 Jul 2026';
 
 const NAV_I18N = {
@@ -27,7 +27,7 @@ const NAV_I18N = {
         stats_models_title:"Models and roles", stats_models_sub:"Every model in the system, its type, role, and number of translations produced.",
         stats_engine_title:"Wins by engine and phase", stats_engine_sub:"Absolute winners per engine, split by phase (base vs refinement).",
         stats_config_title:"Wins by configuration", stats_config_sub:"Each competitor as model × temperature × phase, with win rate against its own candidate pool.",
-        stats_col_type:"Type", stats_col_role:"Role", stats_col_translations:"Translations", stats_col_engine:"Engine", stats_col_phase1:"Phase 1", stats_col_phase2:"Phase 2", stats_col_total:"Total", stats_col_winrate:"Win rate", stats_col_config:"Configuration", stats_col_phase:"Phase",
+        stats_col_type:"Type", stats_col_role:"Role", stats_col_translations:"Translations", stats_col_engine:"Engine", stats_col_phase_n:"Phase {n}", stats_col_total:"Total", stats_col_winrate:"Win rate", stats_col_config:"Configuration", stats_col_phase:"Phase",
         stats_warning:"⚠ Statistics are computed client-side from the same JSON files used by the Reader. Winner model information requires judge data (judge_avg) to be present. Sentences without judge data are excluded from judge averages.",
         books_title:"Library",
         books_subtitle:"All books are sourced from Project Gutenberg (public domain). Each translation is a sentence-level hybrid produced by the Buchenberg pipeline.",
@@ -168,7 +168,7 @@ const NAV_I18N = {
         art_fp_p1:"Every sentence has a shape. Its <strong>embedding vector</strong> — 1,024 numbers that capture its meaning — becomes a radial fingerprint: 64 sectors, each holding a slice of the vector; its length is the slice’s magnitude, its colour the slice’s mean. A faithful translation should produce a fingerprint that <em>looks like</em> the original. No reference translation needed — the shape speaks for itself.",
         art_fp_p2:"The fourth shadow of the same sphere — beside the scatter of <em>Geometry</em>, the cloth of <em>The Tapestry</em>, and the melody of <em>The Sound of Translation</em>.",
         reader_books:"Books", reader_translations:"Translations", reader_select:"Select a book and translation",
-        reader_refined:"refined", reader_phase1:"Phase 1", reader_phase2:"Phase 2", reader_winner:"winner",
+        reader_refined:"refined", reader_phase_n:"Phase {n}", reader_winner:"winner",
         reader_show_original:"Show original:", reader_sentences:"sentences", reader_author:"Author",
         reader_language:"Language", reader_sentences_lbl:"Sentences", reader_pipeline:"Pipeline",
         reader_source:"Source", reader_infobox_title:"Novel", reader_gutenberg:"Project Gutenberg",
@@ -377,7 +377,7 @@ const NAV_I18N = {
         stats_models_title:"Modelle und Rollen", stats_models_sub:"Jedes Modell im System, sein Typ, seine Rolle und die Anzahl erzeugter Übersetzungen.",
         stats_engine_title:"Siege nach Engine und Phase", stats_engine_sub:"Absolute Gewinner pro Engine, aufgeteilt nach Phase (Basis vs. Verfeinerung).",
         stats_config_title:"Siege nach Konfiguration", stats_config_sub:"Jeder Teilnehmer als Modell × Temperatur × Phase, mit Gewinnrate gegen seinen eigenen Kandidatenpool.",
-        stats_col_type:"Typ", stats_col_role:"Rolle", stats_col_translations:"Übersetzungen", stats_col_engine:"Engine", stats_col_phase1:"Phase 1", stats_col_phase2:"Phase 2", stats_col_total:"Gesamt", stats_col_winrate:"Gewinnrate", stats_col_config:"Konfiguration", stats_col_phase:"Phase",
+        stats_col_type:"Typ", stats_col_role:"Rolle", stats_col_translations:"Übersetzungen", stats_col_engine:"Engine", stats_col_phase_n:"Phase {n}", stats_col_total:"Gesamt", stats_col_winrate:"Gewinnrate", stats_col_config:"Konfiguration", stats_col_phase:"Phase",
         stats_warning:"⚠ Statistiken werden clientseitig aus denselben JSON-Dateien berechnet wie im Reader. Gewinnermodell-Informationen erfordern Richter-Daten (judge_avg). Sätze ohne Richter-Daten werden von den Richter-Durchschnittswerten ausgeschlossen.",
         books_title:"Bibliothek",
         books_subtitle:"Alle Bücher stammen aus dem Project Gutenberg (gemeinfrei). Jede Übersetzung ist ein satzweises Hybrid der Buchenberg-Pipeline.",
@@ -514,7 +514,7 @@ const NAV_I18N = {
         art_fp_p1:"Jeder Satz hat eine Form. Sein <strong>Einbettungsvektor</strong> — 1.024 Zahlen, die seine Bedeutung erfassen — wird zu einem radialen Fingerabdruck: 64 Sektoren, jeder mit einem Ausschnitt des Vektors; seine Länge ist die Magnitude des Ausschnitts, seine Farbe der Mittelwert. Eine treue Übersetzung sollte einen Fingerabdruck erzeugen, der dem Original <em>ähnelt</em>. Keine Referenzübersetzung erforderlich — die Form spricht für sich.",
         art_fp_p2:"Der vierte Schatten derselben Kugel — neben dem Scatter der <em>Geometrie</em>, dem Stoff des <em>Teppichs</em> und der Melodie des <em>Klangs der Übersetzung</em>.",
         reader_books:"Bücher", reader_translations:"Übersetzungen", reader_select:"Buch und Übersetzung auswählen",
-        reader_refined:"verfeinert", reader_phase1:"Phase 1", reader_phase2:"Phase 2", reader_winner:"Gewinner",
+        reader_refined:"verfeinert", reader_phase_n:"Phase {n}", reader_winner:"Gewinner",
         reader_show_original:"Original anzeigen:", reader_sentences:"Sätze", reader_author:"Autor",
         reader_language:"Sprache", reader_sentences_lbl:"Sätze", reader_pipeline:"Pipeline",
         reader_source:"Quelle", reader_infobox_title:"Roman", reader_gutenberg:"Project Gutenberg",
@@ -723,7 +723,7 @@ const NAV_I18N = {
         stats_models_title:"Modelli e ruoli", stats_models_sub:"Ogni modello nel sistema, il suo tipo, ruolo e numero di traduzioni prodotte.",
         stats_engine_title:"Vittorie per motore e fase", stats_engine_sub:"Vincitori assoluti per motore, divisi per fase (base vs raffinamento).",
         stats_config_title:"Vittorie per configurazione", stats_config_sub:"Ogni concorrente come modello × temperatura × fase, con tasso di vittoria rispetto al proprio pool di candidati.",
-        stats_col_type:"Tipo", stats_col_role:"Ruolo", stats_col_translations:"Traduzioni", stats_col_engine:"Motore", stats_col_phase1:"Fase 1", stats_col_phase2:"Fase 2", stats_col_total:"Totale", stats_col_winrate:"Tasso di vittoria", stats_col_config:"Configurazione", stats_col_phase:"Fase",
+        stats_col_type:"Tipo", stats_col_role:"Ruolo", stats_col_translations:"Traduzioni", stats_col_engine:"Motore", stats_col_phase_n:"Fase {n}", stats_col_total:"Totale", stats_col_winrate:"Tasso di vittoria", stats_col_config:"Configurazione", stats_col_phase:"Fase",
         stats_warning:"⚠ Le statistiche sono calcolate lato client dagli stessi file JSON usati dal Reader. Le informazioni sul modello vincitore richiedono i dati del giudice (judge_avg). Le frasi senza dati del giudice sono escluse dalle medie.",
         books_title:"Biblioteca",
         books_subtitle:"Tutti i libri provengono da Project Gutenberg (pubblico dominio). Ogni traduzione è un ibrido a livello di frase prodotto dalla pipeline Buchenberg.",
@@ -861,7 +861,7 @@ const NAV_I18N = {
         art_fp_p1:"Ogni frase ha una forma. Il suo <strong>vettore di embedding</strong> — 1.024 numeri che catturano il suo significato — diventa un’impronta radiale: 64 settori, ognuno contenente una fetta del vettore; la sua lunghezza è la magnitudine della fetta, il suo colore la media. Una traduzione fedele dovrebbe produrre un’impronta che <em>assomigli</em> all’originale. Nessuna traduzione di riferimento necessaria — la forma parla da sola.",
         art_fp_p2:"La quarta ombra della stessa sfera — accanto allo scatter della <em>Geometria</em>, al tessuto de <em>L’Arazzo</em> e alla melodia de <em>Il Suono della Traduzione</em>.",
         reader_books:"Libri", reader_translations:"Traduzioni", reader_select:"Seleziona un libro e una traduzione",
-        reader_refined:"raffinato", reader_phase1:"Fase 1", reader_phase2:"Fase 2", reader_winner:"vincitore",
+        reader_refined:"raffinato", reader_phase_n:"Fase {n}", reader_winner:"vincitore",
         reader_show_original:"Mostra originale:", reader_sentences:"frasi", reader_author:"Autore",
         reader_language:"Lingua", reader_sentences_lbl:"Frasi", reader_pipeline:"Pipeline",
         reader_source:"Fonte", reader_infobox_title:"Romanzo", reader_gutenberg:"Project Gutenberg",
@@ -1070,7 +1070,7 @@ const NAV_I18N = {
         stats_models_title:"Modeli i uloge", stats_models_sub:"Svaki model u sistemu, njegova vrsta, uloga i broj proizvedenih prijevoda.",
         stats_engine_title:"Pobjede po engine-u i fazi", stats_engine_sub:"Apsolutni pobjednici po engine-u, razloženo po fazi (bazna vs poboljšanje).",
         stats_config_title:"Pobjede po konfiguraciji", stats_config_sub:"Svaki takmičar kao model × temperatura × faza, s postotkom pobjeda u odnosu na vlastiti bazen kandidata.",
-        stats_col_type:"Vrsta", stats_col_role:"Uloga", stats_col_translations:"Prijevodi", stats_col_engine:"Engine", stats_col_phase1:"Faza 1", stats_col_phase2:"Faza 2", stats_col_total:"Ukupno", stats_col_winrate:"Postotak pobjeda", stats_col_config:"Konfiguracija", stats_col_phase:"Faza",
+        stats_col_type:"Vrsta", stats_col_role:"Uloga", stats_col_translations:"Prijevodi", stats_col_engine:"Engine", stats_col_phase_n:"Faza {n}", stats_col_total:"Ukupno", stats_col_winrate:"Postotak pobjeda", stats_col_config:"Konfiguracija", stats_col_phase:"Faza",
         stats_warning:"⚠ Statistike se računaju na strani klijenta iz istih JSON datoteka koje koristi Reader. Informacije o pobjedničkom modelu zahtijevaju podatke sudije (judge_avg). Rečenice bez podataka sudije isključene su iz prosjeka.",
         books_title:"Knjižnica",
         books_subtitle:"Sve knjige dolaze s Project Gutenberga (javna domena). Svaki prijevod je hibrid na razini rečenica, proizveden Buchenberg pipelineom.",
@@ -1208,7 +1208,7 @@ const NAV_I18N = {
         art_fp_p1:"Svaka rečenica ima oblik. Njezin <strong>vektor ugradnje</strong> — 1.024 broja koji hvataju njezino značenje — postaje radijalni otisak: 64 sektora, svaki držeći isječak vektora; njegova duljina je magnituda isječka, njegova boja srednja vrijednost. Vjerni prijevod trebao bi proizvesti otisak koji <em>izgleda poput</em> originala. Nije potreban referentni prijevod — oblik govori sam za sebe.",
         art_fp_p2:"Četvrti otisak iste sfere — uz scatter <em>Geometrije</em>, tkaninu <em>Tapiserije</em> i melodiju <em>Zvuka prijevoda</em>.",
         reader_books:"Knjige", reader_translations:"Prijevodi", reader_select:"Odaberi knjigu i prijevod",
-        reader_refined:"poboljšano", reader_phase1:"Faza 1", reader_phase2:"Faza 2", reader_winner:"pobjednik",
+        reader_refined:"poboljšano", reader_phase_n:"Faza {n}", reader_winner:"pobjednik",
         reader_show_original:"Prikaži original:", reader_sentences:"rečenica", reader_author:"Autor",
         reader_language:"Jezik", reader_sentences_lbl:"Rečenica", reader_pipeline:"Pipeline",
         reader_source:"Izvor", reader_infobox_title:"Roman", reader_gutenberg:"Project Gutenberg",
@@ -1417,7 +1417,7 @@ const NAV_I18N = {
         stats_models_title:"Модели и улоге", stats_models_sub:"Сваки модел у систему, његова врста, улога и број произведених превода.",
         stats_engine_title:"Победе по engine-у и фази", stats_engine_sub:"Апсолутни победници по engine-у, разложено по фази (базна vs побољшање).",
         stats_config_title:"Победе по конфигурацији", stats_config_sub:"Сваки такмичар као модел × температура × фаза, са процентом победа у односу на властити базен кандидата.",
-        stats_col_type:"Врста", stats_col_role:"Улога", stats_col_translations:"Преводи", stats_col_engine:"Engine", stats_col_phase1:"Фаза 1", stats_col_phase2:"Фаза 2", stats_col_total:"Укупно", stats_col_winrate:"Проценат победа", stats_col_config:"Конфигурација", stats_col_phase:"Фаза",
+        stats_col_type:"Врста", stats_col_role:"Улога", stats_col_translations:"Преводи", stats_col_engine:"Engine", stats_col_phase_n:"Фаза {n}", stats_col_total:"Укупно", stats_col_winrate:"Проценат победа", stats_col_config:"Конфигурација", stats_col_phase:"Фаза",
         stats_warning:"⚠ Статистике се рачунају на страни клијента из истих JSON датотека које користи Reader. Информације о победничком моделу захтевају податке судије (judge_avg). Реченице без података судије искључене су из просека.",
         books_title:"Библиотека",
         books_subtitle:"Све књиге потичу са Project Gutenberga (јавна домена). Сваки превод је хибрид на нивоу реченица, произведен Buchenberg пипелајном.",
@@ -1555,7 +1555,7 @@ const NAV_I18N = {
         art_fp_p1:"Свака реченица има облик. њен <strong>вектор уградње</strong> — 1.024 броја који хватају значење — постаје радијални отисак: 64 сектора, сваки држи исечак вектора; његова дужина је магнитуда исечка, његова боја средња вредност. Веран превод требао би произвести отисак који <em>личи</em> оригиналу. Не треба референтни превод — облик говори сам за себе.",
         art_fp_p2:"Четврта сена исте сфере — уз расипање <em>Геометрије</em>, ткиво <em>Тапесерије</em> и мелодију <em>Звука превода</em>.",
         reader_books:"Књиге", reader_translations:"Преводи", reader_select:"Одабери књигу и превод",
-        reader_refined:"побољшано", reader_phase1:"Фаза 1", reader_phase2:"Фаза 2", reader_winner:"победник",
+        reader_refined:"побољшано", reader_phase_n:"Фаза {n}", reader_winner:"победник",
         reader_show_original:"Прикажи оригинал:", reader_sentences:"реченица", reader_author:"Аутор",
         reader_language:"Језик", reader_sentences_lbl:"Реченица", reader_pipeline:"Pipeline",
         reader_source:"Извор", reader_infobox_title:"Роман", reader_gutenberg:"Project Gutenberg",
