@@ -502,10 +502,13 @@
 // ── NER colours ───────────────────────────────────────────────
 const TIP_COLOR = { PERSON: "#b8860b", GPE: "#2e7d32", ORG: "#6a1b9a" };
 const TIP_COLOR_DARK = { PERSON: "#f0c040", GPE: "#66bb6a", ORG: "#ce93d8" };
-// s129: DocRE relacije — mod grafa + boja po klasi (P=osobe, M=mjesta, O=ostalo)
+// s133: DocRE (Massey) — boja ivice po coarse klasi, stil linije po afinitetu
 let netMode = 'cooc';   // 'cooc' | 'rel'
-const KLASA_COLOR      = { P: "#c0392b", M: "#2980b9", O: "#888" };
-const KLASA_COLOR_DARK = { P: "#e57373", M: "#64b5f6", O: "#aaa" };
+const COARSE_COLOR      = { social: "#c0392b", familial: "#8e44ad", professional: "#2980b9", other: "#888" };
+const COARSE_COLOR_DARK = { social: "#e57373", familial: "#ce93d8", professional: "#64b5f6", other: "#aaa" };
+const COARSE_KEYS = ['social','familial','professional','other'];
+function coarseKey(r) { return (r && r.coarse) ? r.coarse : 'other'; }
+function afinDash(r) { return (r && r.afinitet === 'negative') ? '6,3' : null; }
 
 // ── i18n ─────────────────────────────────────────────────────
 // ── i18n via BB_NAV ──────────────────────────────────────────
@@ -856,8 +859,11 @@ function nerData0HasRel() {
 function showRelDetail(rel) {
   const box = document.getElementById('nlp-rel-detail');
   const smjer = rel.smjer === 'mutual' ? '\u2194' : '\u2192';
+  const AFIN_SYM = { positive: '+', negative: '\u2013', neutral: '\u2022' };
+  const lbl = rel.fine ? (rel.fine + (rel.coarse ? ' \u00b7 ' + rel.coarse : '')) : 'unclassified';
+  const af  = rel.afinitet ? '  [' + (AFIN_SYM[rel.afinitet] || '') + ' ' + rel.afinitet + ']' : '';
   document.getElementById('nlp-rel-detail-head').textContent =
-    rel.izvor + ' ' + smjer + ' ' + rel.cilj + '  \u00b7  ' + rel.tip_veze +
+    rel.izvor + ' ' + smjer + ' ' + rel.cilj + '  \u00b7  ' + lbl + af +
     (rel.pouzdanost ? ' (' + rel.pouzdanost + ')' : '');
   document.getElementById('nlp-rel-detail-opis').textContent = rel.opis || '';
   document.getElementById('nlp-rel-detail-dokaz').textContent =
@@ -867,13 +873,15 @@ function showRelDetail(rel) {
 
 function renderRelLegend() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const kc = isDark ? KLASA_COLOR_DARK : KLASA_COLOR;
-  const naz = { P: 'People', M: 'Places', O: 'Other' };
+  const kc = isDark ? COARSE_COLOR_DARK : COARSE_COLOR;
+  const naz = { social: 'Social', familial: 'Familial', professional: 'Professional', other: 'Unclassified' };
   document.getElementById('nlp-net-legend').innerHTML =
-    ['P','M','O'].map(k =>
+    COARSE_KEYS.map(k =>
       '<span style="margin-right:14px;"><span style="display:inline-block;width:10px;height:10px;'
       + 'background:' + kc[k] + ';border-radius:50%;margin-right:4px;"></span>' + naz[k] + '</span>'
-    ).join('');
+    ).join('')
+    + '<span style="margin-left:6px;color:var(--text-muted);font-size:0.8rem;">'
+    + '\u2014 \u2014 dashed = negative affinity</span>';
 }
 
 // ── Network slider ─────────────────────────────────────────────
@@ -936,7 +944,7 @@ function drawNetwork() {
 
   let links, linkCount;
   const isDarkNet = document.documentElement.getAttribute('data-theme') === 'dark';
-  const klasaColors = isDarkNet ? KLASA_COLOR_DARK : KLASA_COLOR;
+  const coarseColors = isDarkNet ? COARSE_COLOR_DARK : COARSE_COLOR;
   if (relMode) {
     // usmjerene relacije: source->target, boja po klasi, nosi opis/dokaz/tip
     links = nerData.relacije
@@ -959,13 +967,13 @@ function drawNetwork() {
   // Defs — arrow markeri po klasi (rel mod)
   const defs = svg.append('defs');
   if (relMode) {
-    for (const kl of ['P','M','O']) {
+    for (const kl of COARSE_KEYS) {
       defs.append('marker')
         .attr('id', 'arrow-' + kl)
         .attr('viewBox', '0 -5 10 10').attr('refX', 22).attr('refY', 0)
         .attr('markerWidth', 6).attr('markerHeight', 6).attr('orient', 'auto')
         .append('path').attr('d', 'M0,-5L10,0L0,5')
-        .attr('fill', klasaColors[kl] || '#888');
+        .attr('fill', coarseColors[kl] || '#888');
     }
   }
 
@@ -981,10 +989,11 @@ function drawNetwork() {
   const link = zoomG.append('g').selectAll('line')
     .data(links).enter().append('line')
     .attr('class', relMode ? 'nlp-net-link rel' : 'nlp-net-link')
-    .attr('stroke', d => relMode ? (klasaColors[d.rel.klasa] || '#888') : (isDark ? '#555' : '#bbb'))
+    .attr('stroke', d => relMode ? (coarseColors[coarseKey(d.rel)] || '#888') : (isDark ? '#555' : '#bbb'))
     .attr('stroke-width', d => relMode ? (d.rel.pouzdanost === 'high' ? 3 : d.rel.pouzdanost === 'medium' ? 2 : 1.2) : d._w)
     .attr('stroke-opacity', d => relMode ? 0.75 : 0.6)
-    .attr('marker-end', d => relMode ? ('url(#arrow-' + (d.rel.klasa || 'O') + ')') : null);
+    .attr('stroke-dasharray', d => relMode ? afinDash(d.rel) : null)
+    .attr('marker-end', d => relMode ? ('url(#arrow-' + coarseKey(d.rel) + ')') : null);
   if (relMode) {
     link.on('click', (event, d) => { event.stopPropagation(); showRelDetail(d.rel); });
   }
