@@ -262,7 +262,8 @@ async function loadStats() {
     book: c.book,
     lang: c.lang,
     langName: LANG_NAMES_NATIVE[c.lang] || c.lang,
-    translated: c.translated
+    translated: c.translated,
+    total: c.total
   }));
 
   // ── Score by language ──
@@ -388,12 +389,14 @@ function renderCoverageTable() {
   let html = `<table class="bb-table"><tr>
     <th style="cursor:pointer" onclick="thClick('coverage','book',true,renderCoverageTable)">${ct('stats_col_book')}${sortIcon('coverage','book')}</th>
     <th style="cursor:pointer" onclick="thClick('coverage','langName',true,renderCoverageTable)">${ct('stats_col_lang')}${sortIcon('coverage','langName')}</th>
-    <th style="cursor:pointer" onclick="thClick('coverage','translated',false,renderCoverageTable)">${ct('stats_col_sent')}${sortIcon('coverage','translated')}</th></tr>`;
-  rows.forEach(({book, lang, langName, translated}) => {
+    <th style="cursor:pointer" onclick="thClick('coverage','translated',false,renderCoverageTable)">${ct('stats_col_sent')}${sortIcon('coverage','translated')}</th>
+    <th style="cursor:pointer" onclick="thClick('coverage','total',false,renderCoverageTable)">${ct('stats_col_total_sent')}${sortIcon('coverage','total')}</th></tr>`;
+  rows.forEach(({book, lang, langName, translated, total}) => {
     html += `<tr>
       <td>${book}</td>
       <td>${langName} <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-light)">${lang.toUpperCase()}</span></td>
       <td>${translated}</td>
+      <td>${total ?? '–'}</td>
     </tr>`;
   });
   html += '</table>';

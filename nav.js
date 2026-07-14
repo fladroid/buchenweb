@@ -1,8 +1,8 @@
 (function() {
 
 // ── Verzija portala — bump na kraju svake sesije ──
-const BB_VERSION = 's135';
-const BB_VERSION_DATE = '13 Jul 2026';
+const BB_VERSION = 's136';
+const BB_VERSION_DATE = '14 Jul 2026';
 
 const NAV_I18N = {
   en: { home:"Home", about:"About", stats:"Stats", books:"Library",
@@ -22,7 +22,7 @@ const NAV_I18N = {
         stats_score_title:"Average scores by language",
         stats_score_sub:"Avg translation score and judge score per language (all books combined). Higher is better; max 1.0.",
         stats_col_model:"Model", stats_col_wins:"Wins", stats_col_dist:"Distribution",
-        stats_col_book:"Book", stats_col_lang:"Language", stats_col_sent:"Sentences",
+        stats_col_book:"Book", stats_col_lang:"Language", stats_col_sent:"Sentences", stats_col_total_sent:"Total",
         stats_col_avg_ts:"Avg translation score", stats_col_avg_j:"Avg judge score",
         stats_models_title:"Models and roles", stats_models_sub:"Every model in the system, its type, role, and number of translations produced.",
         stats_engine_title:"Wins by engine and phase", stats_engine_sub:"Absolute winners per engine, split by phase (base vs refinement).",
@@ -372,7 +372,7 @@ const NAV_I18N = {
         stats_score_title:"Durchschnittliche Scores nach Sprache",
         stats_score_sub:"Ø Übersetzungs- und Richter-Score je Sprache (alle Bücher). Höher ist besser; max 1,0.",
         stats_col_model:"Modell", stats_col_wins:"Siege", stats_col_dist:"Verteilung",
-        stats_col_book:"Buch", stats_col_lang:"Sprache", stats_col_sent:"Sätze",
+        stats_col_book:"Buch", stats_col_lang:"Sprache", stats_col_sent:"Sätze", stats_col_total_sent:"Gesamt",
         stats_col_avg_ts:"Ø Übersetzungsscore", stats_col_avg_j:"Ø Richter-Score",
         stats_models_title:"Modelle und Rollen", stats_models_sub:"Jedes Modell im System, sein Typ, seine Rolle und die Anzahl erzeugter Übersetzungen.",
         stats_engine_title:"Siege nach Engine und Phase", stats_engine_sub:"Absolute Gewinner pro Engine, aufgeteilt nach Phase (Basis vs. Verfeinerung).",
@@ -718,7 +718,7 @@ const NAV_I18N = {
         stats_score_title:"Punteggi medi per lingua",
         stats_score_sub:"Punteggio medio di traduzione e del giudice per lingua (tutti i libri). Più alto è meglio; max 1,0.",
         stats_col_model:"Modello", stats_col_wins:"Vittorie", stats_col_dist:"Distribuzione",
-        stats_col_book:"Libro", stats_col_lang:"Lingua", stats_col_sent:"Frasi",
+        stats_col_book:"Libro", stats_col_lang:"Lingua", stats_col_sent:"Frasi", stats_col_total_sent:"Totale",
         stats_col_avg_ts:"Punteggio medio di traduzione", stats_col_avg_j:"Punteggio medio del giudice",
         stats_models_title:"Modelli e ruoli", stats_models_sub:"Ogni modello nel sistema, il suo tipo, ruolo e numero di traduzioni prodotte.",
         stats_engine_title:"Vittorie per motore e fase", stats_engine_sub:"Vincitori assoluti per motore, divisi per fase (base vs raffinamento).",
@@ -1065,7 +1065,7 @@ const NAV_I18N = {
         stats_score_title:"Prosječni scoreovi po jeziku",
         stats_score_sub:"Prosječni score prijevoda i sudije po jeziku (sve knjige zajedno). Više je bolje; maks. 1,0.",
         stats_col_model:"Model", stats_col_wins:"Pobjede", stats_col_dist:"Distribucija",
-        stats_col_book:"Knjiga", stats_col_lang:"Jezik", stats_col_sent:"Rečenice",
+        stats_col_book:"Knjiga", stats_col_lang:"Jezik", stats_col_sent:"Rečenice", stats_col_total_sent:"Ukupno",
         stats_col_avg_ts:"Prosječni score prijevoda", stats_col_avg_j:"Prosječni score sudije",
         stats_models_title:"Modeli i uloge", stats_models_sub:"Svaki model u sistemu, njegova vrsta, uloga i broj proizvedenih prijevoda.",
         stats_engine_title:"Pobjede po engine-u i fazi", stats_engine_sub:"Apsolutni pobjednici po engine-u, razloženo po fazi (bazna vs poboljšanje).",
@@ -1412,7 +1412,7 @@ const NAV_I18N = {
         stats_score_title:"Просечни скорови по језику",
         stats_score_sub:"Просечни скор превода и судије по језику (све књиге заједно). Више је боље; макс. 1,0.",
         stats_col_model:"Модел", stats_col_wins:"Победе", stats_col_dist:"Дистрибуција",
-        stats_col_book:"Књига", stats_col_lang:"Језик", stats_col_sent:"Реченице",
+        stats_col_book:"Књига", stats_col_lang:"Језик", stats_col_sent:"Реченице", stats_col_total_sent:"Укупно",
         stats_col_avg_ts:"Просечни скор превода", stats_col_avg_j:"Просечни скор судије",
         stats_models_title:"Модели и улоге", stats_models_sub:"Сваки модел у систему, његова врста, улога и број произведених превода.",
         stats_engine_title:"Победе по engine-у и фази", stats_engine_sub:"Апсолутни победници по engine-у, разложено по фази (базна vs побољшање).",
