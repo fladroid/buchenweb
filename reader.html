@@ -885,6 +885,7 @@ function renderXrayPage() {
         '<div class="xf-label">' +
           '<span class="xf-label-model">' + escHtml(modelShort) + '</span>' +
           '<span style="color:var(--text-light);font-size:10px">' + tempStr + '</span>' +
+          (c.faza != null ? '<span style="color:var(--text-light);font-size:10px">' + t('phase_n').replace('{n}', c.faza) + '</span>' : '') +
           (c.is_winner ? '<span class="xf-label-winner">★ winner</span>' : '') +
         '</div>' +
         '<div class="xf-text">' +
