@@ -80,16 +80,19 @@
 }
 @media (max-width: 720px) { #nlp-method-cards { grid-template-columns: 1fr; } }
 .nlp-mcard {
-  border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
+  border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px;
   background: var(--card-bg, rgba(0,0,0,0.02)); transition: border-color .15s, box-shadow .15s;
+  cursor: pointer;
 }
-.nlp-mcard.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-.nlp-mcard-h { font-weight: 600; font-size: 0.85rem; margin-bottom: 5px; }
-.nlp-mcard-b { font-size: 0.78rem; line-height: 1.5; color: var(--text-muted); }
+.nlp-mcard:hover { border-color: var(--accent); }
+.nlp-mcard.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.nlp-mcard.active .nlp-mcard-h { color: var(--accent); }
+.nlp-mcard-h { font-weight: 700; font-size: 1rem; margin-bottom: 6px; }
+.nlp-mcard-b { font-size: 0.82rem; line-height: 1.5; color: var(--text-muted); }
 .nlp-mcard-b strong { color: var(--text); }
 
 /* ── Method toggle ── */
-#nlp-method-bar { margin-bottom: 14px; display: flex; gap: 6px; }
+#nlp-method-bar { margin-bottom: 14px; display: none !important; gap: 6px; }
 .nlp-method-btn {
   font-size: 0.8rem; padding: 4px 12px; border-radius: 6px;
   border: 1px solid var(--border); background: transparent;
@@ -845,6 +848,21 @@ document.querySelectorAll('.nlp-method-btn').forEach(btn => {
     if (!nerFull || !nerFull[grana]) return;   // nema tog sloja
     if (m === 'docre' && !(nerData0HasRel())) return;
     applyMethod(m);
+  });
+});
+
+// s138: kartice (nlp-mcard) postaju klikabilni birac metoda — proksira klik na
+// skriveni .nlp-method-btn (isti guard-ovi, ista logika, bez duplikacije koda).
+document.querySelectorAll('.nlp-mcard').forEach(card => {
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('role', 'button');
+  const trigger = () => {
+    const btn = document.getElementById('nlp-method-' + card.dataset.method);
+    if (btn) btn.click();
+  };
+  card.addEventListener('click', trigger);
+  card.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); trigger(); }
   });
 });
 
