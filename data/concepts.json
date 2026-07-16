@@ -157,6 +157,12 @@
       "name": "Claude",
       "description": "Anthropic's AI assistant — the working partner across Buchenberg's documented sessions.",
       "wiki": "Claude_(language_model)"
+    },
+    {
+      "icon": "🌽",
+      "name": "Barbara McClintock",
+      "description": "Geneticist who discovered transposons (\"jumping genes\") by reading the mottled colour of maize kernels as data about a hidden mechanism. Her way of deriving a rule from observed variation, rather than from a hypothesis tested first, is the inspiration behind reading a varied translation corpus for its patterns.",
+      "wiki": "Barbara_McClintock"
     }
   ],
   "geometry": [
