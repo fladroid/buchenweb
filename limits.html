@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Limits — Buchenberg</title>
+<link rel="stylesheet" href="buchenberg.css">
+<style>
+  /* Infoboxovi u desnoj koloni — isti tretman kao sidebar na about.html.
+     Scoped na ovu stranicu da ne dira dijeljeni CSS (nlp.html i dr.). */
+  #limits-layout .bb-infobox { float:none; width:100%; margin:0 0 16px 0; }
+  #limits-layout .bb-infobox-title { padding: 6px 10px; }
+  #limits-layout .bb-infobox p { padding: 0 12px; margin: 10px 0; line-height: 1.65; }
+  #limits-layout .bb-infobox p:first-of-type { margin-top: 12px; }
+  #limits-layout .bb-infobox p:last-of-type { margin-bottom: 12px; }
+</style>
+<script src="nav.js"></script>
+</head>
+<body>
+
+<!-- HEADER ubačen via nav.js -->
+
+<div id="bb-page">
+  <div id="limits-layout" style="display:grid; grid-template-columns: 1fr 280px; gap:32px; align-items:start;">
+
+    <div>
+  <h1 class="bb-section-title" id="limits-title">What We Don't Measure</h1>
+
+  <div class="bb-prose">
+
+    <h2>I. What the measuring apparatus cannot see</h2>
+
+    <h3>1. The cosine metric is blind to text that was never translated</h3>
+    <p>Our embedder is deliberately multilingual: it is built so that "cat", "Katze", "gatto"
+    and "mačka" land close together in vector space. That is exactly what makes it useful for
+    comparing meaning across languages — and exactly why it cannot notice when no translation
+    happened at all. A French exclamation left untouched inside a German translation scores
+    <strong>0.99</strong>. Measured across the corpus: 2,784 such cases (0.17%).
+    The only defence is the LLM judge, which catches them reliably and scores them zero.</p>
+
+    <h3>2. The cosine metric is blind to broken script</h3>
+    <p>Serbian translations containing Latin letters stranded inside Cyrillic text — the result
+    of transliteration rules that do not cover letters absent from the Serbian Latin alphabet —
+    receive a cosine score of <strong>0.95</strong>. The proper name is still recognisable to the
+    embedder, so the damage is invisible to it. 1,466 translations, 0.92% of the Serbian corpus.</p>
+
+    <h3>3. The cosine metric is blind to broken grammar with intact keywords</h3>
+    <p>A Croatian sentence in which the verb had been replaced by an unrelated one, producing
+    nonsense, scored <strong>0.97</strong>. If the content words survive, the metric is satisfied.</p>
+
+    <h3>4. The weights in our formula do not describe their real influence</h3>
+    <p>The winner is chosen by <code>0.4 × cosine + 0.6 × judge</code>. But a weight only matters
+    in proportion to how much the component varies. Across the corpus the judge's scores spread
+    with a standard deviation of <strong>0.207</strong>; the cosine component spreads by
+    <strong>0.028</strong> — seven and a half times narrower. The practical consequence is that
+    the ranking of candidates is determined roughly <strong>8% by cosine and 92% by the judge</strong>,
+    not 40/60.</p>
+    <p>We have chosen not to "correct" this. Rescaling the components so that cosine truly carried
+    40% of the vote would systematically promote the failures described in points 1 to 3 — the
+    cases where cosine is confidently wrong. The mismatch between stated and actual weight is
+    currently protecting us.</p>
+
+    <h2>II. What we systematically penalise, and probably should not</h2>
+
+    <h3>5. Deliberate departure from linguistic norm</h3>
+    <p>The judge measures fluency. Literature breaks fluency on purpose.</p>
+    <p>From our own corpus — Edwin Abbott's <em>Flatland</em>, translated into German. The original reads:</p>
+    <pre><code>a SOMETHING-WHICH-YOU-DO-NOT-AS-YET-KNOW-A-NAME-FOR-BUT-WHICH-WE-CALL-A-CUBE</code></pre>
+    <p>This is not clumsy writing. It is a deliberate typographic device: a word-monster built to
+    imitate the bewilderment of a two-dimensional being confronted with a third dimension. The first
+    translation preserved it faithfully. The self-refinement step erased it and produced a smooth,
+    idiomatic German sentence instead.</p>
+    <p>Our score rewarded that erasure with <strong>+0.157 — the largest single improvement in the
+    entire sample</strong>. The system identified the removal of the author's device as the best
+    correction it made that day.</p>
+    <p>The same tendency is visible in aggregate: of the judge's three axes, <em>naturalness</em>
+    rises fastest through refinement (+0.061 to +0.078), ahead of both <em>grammar</em> and
+    <em>fidelity</em>. On the overwhelming majority of sentences this is genuine improvement.
+    On the small fraction where an author was being deliberately difficult, it is silent damage.</p>
+
+    <h2>III. What does not exist in our world at all</h2>
+
+    <h3>6. Everything above the sentence</h3>
+    <p>Our unit of processing is the sentence. Whatever was arrangement — line breaks, stanzas,
+    visual shape, tables, captions, typographic play — disappears when the text is parsed and
+    never reaches any measurement. This is not a bad score; it is an absence.</p>
+    <p>The clearest illustration is not from our corpus but from a familiar critique of machine
+    translation: a classical Chinese poem of twenty characters, arranged as five lines of four.
+    The arrangement is part of the poem. No machine translation reproduces that layer — ours
+    included — and not because it evaluates it poorly. It never sees it.</p>
+    <p>This is not hypothetical for us. Our library contains a verse drama, processed as a sequence
+    of prose sentences. It contains a book built around geometric diagrams that do not survive into
+    the translation at all. A book carrying substantial illustration would fare no better: our
+    pipeline has no concept of a page.</p>
+
+    <h3>7. Context</h3>
+    <p>Every sentence is translated in isolation. Who is speaking to whom, what register the
+    relationship demands, what happened in the previous paragraph — none of it enters. We tested
+    two ways of supplying that context and abandoned both: the effect on the translation was
+    smaller than the variation between two identical calls to the same model. The signal was
+    beneath the noise.</p>
+
+    <h2>IV. What we know is incomplete</h2>
+
+    <ul>
+      <li><strong>236 coverage gaps</strong> — combinations of book, language and configuration
+      where translation was started but not finished. Known, catalogued, and deliberately left
+      alone while a winner exists for those sentences.</li>
+      <li><strong>Two generations of models are mixed</strong> in the corpus history. Models
+      retired in 2026 produced a large share of the existing translations, alongside their
+      replacements, with a measurably different stylistic signature. Aggregate statistics
+      that ignore this distinction can mislead.</li>
+      <li><strong>The judge is both a player and the measuring instrument.</strong> Any preference
+      we read out of win statistics is a preference of our evaluator, not a truth about language.
+      We have no independent measure against which to check it.</li>
+    </ul>
+
+  </div>
+    </div>
+
+    <aside>
+      <div class="bb-infobox">
+      <div class="bb-infobox-title">Why this page exists</div>
+      <p>Every measurement system has a shape, and that shape decides what it can see.
+      This page documents what ours cannot — the blind spots we have found, the things
+      we penalise that we probably should not, and the entire layers of a text that never
+      reach our measurements at all.</p>
+      <p>None of this is hidden in a footnote. A pipeline that publishes only its successes
+      is a black box with good manners. The findings below come from our own audit of
+      1.6 million translations, and several of them overturned what we believed when we started.</p>
+      <p><em>This page is in English only — a deliberate exception to the site's five-language
+      interface, made because the content is technical and still growing.</em></p>
+    </div>
+      <div class="bb-infobox">
+      <div class="bb-infobox-title">The honest formulation</div>
+      <p>We do not measure faithfulness to the author. We measure faithfulness to the norms of
+      the target language. Most of the time these coincide. When they do not, we cannot tell.</p>
+    </div>
+      <div class="bb-infobox">
+      <div class="bb-infobox-title">A note on what this page is not</div>
+      <p>This is not a list of bugs awaiting repair. Most of these are properties of the
+      architecture we chose, and some of them cannot be fixed without building a different
+      project. Naming a limit is not the same as apologising for it — knowing what you cannot
+      see, and treating that as information rather than defeat, is the whole point.</p>
+    </div>
+    </aside>
+
+  </div>
+</div>
+
+<div id="bb-footer"></div>
+
+<script>
+function applyPageI18n() {
+  const t = (k) => BB_NAV.t(k);
+  const ti = (id, key) => {
+    const el = document.getElementById(id);
+    const v = t(key);
+    if (el && v && v !== key) el.textContent = v;
+  };
+  ti('limits-title', 'limits_title');
+}
+BB_NAV.onLangChange = applyPageI18n;
+document.addEventListener("DOMContentLoaded", applyPageI18n);
+</script>
+</body>
+</html>

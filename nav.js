@@ -1,11 +1,12 @@
 (function() {
 
 // ── Verzija portala — bump na kraju svake sesije ──
-const BB_VERSION = 's140';
-const BB_VERSION_DATE = '17 Jul 2026';
+const BB_VERSION = 's146';
+const BB_VERSION_DATE = '20 Jul 2026';
 
 const NAV_I18N = {
   en: { home:"Home", about:"About", stats:"Stats", books:"Library",
+        limits:"Limits", limits_title:"What We Don't Measure",
         nlp:"Entities", reader:"Reader", learn:"Learn", geometry:"Geometry", art:"Art",
         stats_title:"Statistics",
         stats_subtitle:"Aggregate data from the Buchenberg pipeline — winner distribution, scores, and coverage.",
@@ -357,6 +358,7 @@ const NAV_I18N = {
     learn_toast_match:"Match! ✓",
     learn_toast_build:"Build the sentence first." },
   de: { home:"Startseite", about:"Über", stats:"Statistik", books:"Bibliothek",
+        limits:"Grenzen", limits_title:"Was wir nicht messen",
         nlp:"Entitäten", reader:"Leser", learn:"Lernen", geometry:"Geometrie", art:"Kunst",
         stats_title:"Statistik",
         stats_subtitle:"Aggregierte Daten aus der Buchenberg-Pipeline — Gewinnverteilung, Scores und Abdeckung.",
@@ -704,6 +706,7 @@ const NAV_I18N = {
     learn_toast_match:"Paar gefunden! ✓",
     learn_toast_build:"Erst den Satz zusammensetzen." },
   it: { home:"Home", about:"Informazioni", stats:"Statistiche", books:"Biblioteca",
+        limits:"Limiti", limits_title:"Ciò che non misuriamo",
         nlp:"Entità", reader:"Lettore", learn:"Impara", geometry:"Geometria", art:"Arte",
         stats_title:"Statistiche",
         stats_subtitle:"Dati aggregati dalla pipeline Buchenberg — distribuzione dei vincitori, punteggi e copertura.",
@@ -1052,6 +1055,7 @@ const NAV_I18N = {
     learn_toast_match:"Coppia trovata! ✓",
     learn_toast_build:"Prima costruisci la frase." },
   hr: { home:"Početna", about:"O projektu", stats:"Statistike", books:"Knjižnica",
+        limits:"Ograničenja", limits_title:"Što ne mjerimo",
         nlp:"Entiteti", reader:"Čitač", learn:"Učenje", geometry:"Geometrija", art:"Umjetnost",
         stats_title:"Statistike",
         stats_subtitle:"Agregatni podaci iz Buchenberg pipeline-a — distribucija pobjednika, scoreovi i pokrivenost.",
@@ -1400,6 +1404,7 @@ const NAV_I18N = {
     learn_toast_match:"Par pronađen! ✓",
     learn_toast_build:"Najprije složi rečenicu." },
   sr: { home:"Почетна", about:"О пројекту", stats:"Статистике", books:"Библиотека",
+        limits:"Ограничења", limits_title:"Шта не меримо",
         nlp:"Ентитети", reader:"Читач", learn:"Учење", geometry:"Геометрија", art:"Уметност",
         stats_title:"Статистике",
         stats_subtitle:"Агрегатни подаци из Buchenberg pipeline-а — дистрибуција победника, скорови и покривеност.",
@@ -1753,6 +1758,7 @@ const NAV_LINKS = [
   { key:"home",     href:"index.html" },
   { key:"about",    href:"about.html" },
   { key:"stats",    href:"stats.html" },
+  { key:"limits",   href:"limits.html" },
   { key:"books",    href:"books.html" },
   { key:"nlp",      href:"nlp.html" },
   { key:"reader",   href:"reader.html" },
