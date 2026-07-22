@@ -556,5 +556,25 @@
       "description": "Edwin A. Abbott · 1884 — a romance of many dimensions.",
       "wiki": "Flatland"
     }
+  ],
+  "limits": [
+    {
+      "icon": "🎯",
+      "name": "Goodhart's law",
+      "description": "The adage that when a measure becomes a target, it ceases to be a good measure.",
+      "wiki": "Goodhart%27s_law"
+    },
+    {
+      "icon": "🧩",
+      "name": "Untranslatability",
+      "description": "The property of a text or expression for which no true equivalent can be found when translated into another language.",
+      "wiki": "Untranslatability"
+    },
+    {
+      "icon": "📏",
+      "name": "Construct validity",
+      "description": "The degree to which a test or metric actually measures the concept it claims to measure.",
+      "wiki": "Construct_validity"
+    }
   ]
 }

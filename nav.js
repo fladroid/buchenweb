@@ -1849,7 +1849,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Key Concepts — index, about, geometry, art, nlp, stats, learn, reader, books
   (function() {
-    const CONCEPT_PAGES = ['index', 'about', 'geometry', 'art', 'nlp', 'stats', 'learn', 'reader', 'books'];
+    const CONCEPT_PAGES = ['index', 'about', 'geometry', 'art', 'nlp', 'stats', 'learn', 'reader', 'books', 'limits'];
     const CONCEPT_TITLES = { books: 'The Books on Wikipedia' };
     const page = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
     if (!CONCEPT_PAGES.includes(page)) return;
