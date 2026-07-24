@@ -46,10 +46,11 @@
         Combining both scores selects a winner for this first phase.
       </p>
       <p id="how-desc2">
-        That winner then becomes the anchor for a second phase: <strong>self-refinement</strong>.
+        That winner then becomes the anchor for the next phase: <strong>self-refinement</strong>.
         The pipeline re-translates the current best translation, taking it as a hint and mutating
         it — an <strong>anchored mutation</strong> that keeps the sentence grammatical while
-        searching for something better. The final winner is chosen across both phases, so the
+        searching for something better. This can repeat over several phases, each one anchored
+        to the best result so far. The final winner is chosen across all phases played, so the
         finished document is a hybrid not of models but of phases: the best translation for each
         sentence, whichever model or phase produced it.
       </p>
@@ -89,7 +90,7 @@
         <div class="bb-box-title">🏆 Sentence-level winner</div>
         <div class="bb-box-body" style="font-size:13px; color:var(--text-muted); line-height:1.7" id="pillar-winner">
           No single model — or phase — wins every sentence. The final document combines
-          the best-scoring translation per sentence across both phases — a hybrid that
+          the best-scoring translation per sentence across every phase played — a hybrid that
           outperforms any individual model.
         </div>
       </div>

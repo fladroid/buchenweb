@@ -50,13 +50,13 @@
         <p id="about-p-refine4"></p>
         <p id="about-p-refine5"></p>
 
-        <pre><code>PHASE 1  ·  base translation          PHASE 2  ·  refinement
+        <pre><code>PHASE 1  ·  base translation          PHASE 2+  ·  refinement
 ────────────────────────           ────────────────────────
 EN original                          EN original + absolute winner
      │                                        │   (seed)
      ▼                                        ▼
 competing candidates                 re-translation / mutation
-(≥ 2 LLMs + 1 MT model)              (LLMs only, highest temp)
+(≥ 2 LLMs + 1 MT model)              (LLMs only, hint = best-so-far)
      │                                        │
      └────────────────┬────────────────────────┘
                       ▼
